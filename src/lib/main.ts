@@ -1,8 +1,19 @@
 import tgpu from 'typegpu/experimental';
-import { builtin, vec2f, vec4f } from 'typegpu/data';
+import { builtin, mat4x4f, vec2f, vec4f } from 'typegpu/data';
+import { mat4 } from 'wgpu-matrix';
 
 const root = await tgpu.init();
 const device = root.device;
+
+const uniformsLayout = tgpu
+  .bindGroupLayout({
+    projMat: { uniform: mat4x4f },
+    viewMat: { uniform: mat4x4f },
+    worldMat: { uniform: mat4x4f },
+  })
+  .$name('uniforms');
+
+const { projMat, viewMat, worldMat } = uniformsLayout.bound;
 
 const vertexFn = tgpu
   .vertexFn({ idx: builtin.vertexIndex }, { pos: builtin.position, uv: vec2f })
@@ -20,10 +31,11 @@ const vertexFn = tgpu
       vec2(0., 0.) // bottom-left
     );
     var out: Output;
-    out.pos = vec4f(pos[idx], 0.0, 1.0);
+    out.pos = projMat * viewMat * modelMat * vec4f(pos[idx], 0.0, 1.0);
     out.uv = uv[idx];
     return out;
-  }`);
+  }`)
+  .$uses({ projMat, viewMat, modelMat: worldMat });
 
 const fragmentFn = tgpu
   .fragmentFn({}, { color: vec4f })
@@ -53,21 +65,72 @@ export function main(canvas: HTMLCanvasElement) {
   handleResize();
   window.addEventListener('resize', handleResize);
 
+  const projMatBuffer = root
+    .createBuffer(mat4x4f, mat4.identity(mat4x4f()))
+    .$usage('uniform');
+
+  function updateProjection() {
+    const proj = mat4.perspective(
+      (45 / 180) * Math.PI, // fov
+      canvas.width / canvas.height, // aspect
+      0.1, // near
+      1000.0, // far
+      mat4x4f(),
+    );
+
+    projMatBuffer.write(proj);
+  }
+
+  updateProjection();
+
+  const viewMatBuffer = root
+    .createBuffer(mat4x4f, mat4.identity(mat4x4f()))
+    .$usage('uniform');
+
+  const worldMatBuffer = root
+    .createBuffer(mat4x4f, mat4.identity(mat4x4f()))
+    .$usage('uniform');
+
+  function updateWorld() {
+    const world = mat4.identity(mat4x4f());
+    mat4.scale(world, [10, 10, 10], world);
+    mat4.translate(world, [0, 0, -10], world);
+    mat4.rotate(world, [0, 1, 0], Date.now() / 1000, world);
+
+    worldMatBuffer.write(world);
+  }
+
+  const uniformsBindGroup = root.createBindGroup(uniformsLayout, {
+    projMat: projMatBuffer,
+    viewMat: viewMatBuffer,
+    worldMat: worldMatBuffer,
+  });
+
   const renderPipeline = root
     .withVertex(vertexFn, {})
     .withFragment(fragmentFn, { color: { format: presentationFormat } })
     .withPrimitive({ topology: 'triangle-strip' })
     .createPipeline();
 
-  renderPipeline
-    .withColorAttachment({
-      color: {
-        view: context.getCurrentTexture().createView(),
-        loadOp: 'clear',
-        storeOp: 'store',
-      },
-    })
-    .draw(4);
+  function render() {
+    updateWorld();
 
-  root.flush();
+    renderPipeline
+      .with(uniformsLayout, uniformsBindGroup)
+      .withColorAttachment({
+        color: {
+          view: context.getCurrentTexture().createView(),
+          loadOp: 'clear',
+          storeOp: 'store',
+          clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+        },
+      })
+      .draw(4);
+
+    root.flush();
+
+    requestAnimationFrame(render);
+  }
+
+  render();
 }

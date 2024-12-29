@@ -14,6 +14,9 @@ dependencies:
   typegpu:
     specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/e87b5a34/typegpu
     version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/e87b5a34/typegpu'
+  wgpu-matrix:
+    specifier: ^3.3.0
+    version: 3.3.0
 
 devDependencies:
   '@biomejs/biome':
@@ -3161,6 +3164,10 @@ packages:
 
   /web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
+    dev: false
+
+  /wgpu-matrix@3.3.0:
+    resolution: {integrity: sha512-MRdywXdzTwX9pVbO5Z/oRX9l7464Wkfv28glG1c7t7s5v/0Dvts6yV8b4AOTOTl1UDGq9KUEAoSN6KW5P12ruQ==}
     dev: false
 
   /which-pm-runs@1.1.0:
