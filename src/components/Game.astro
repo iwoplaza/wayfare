@@ -1,0 +1,22 @@
+---
+import background from '../assets/background.svg';
+---
+
+<main>
+	<canvas id="canvas"></canvas>
+</main>
+
+<script>
+	import { main } from '../lib/main.ts';
+
+	const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+
+	main(canvas);
+</script>
+
+<style>
+	body {
+		font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+		height: 100%;
+	}
+</style>

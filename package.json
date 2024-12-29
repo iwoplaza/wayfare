@@ -1,14 +1,23 @@
 {
-  "name": "endless-space-racer",
+  "name": "bionic-jolt",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check": "biome check",
+    "fix": "biome check --write"
   },
   "dependencies": {
-    "astro": "^5.1.1"
+    "astro": "^5.1.1",
+    "rollup-plugin-typegpu": "^0.0.1",
+    "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/e87b5a34/typegpu"
+  },
+  "packageManager": "pnpm@8.15.8+sha256.691fe176eea9a8a80df20e4976f3dfb44a04841ceb885638fe2a26174f81e65e",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@webgpu/types": "^0.1.52"
   }
 }
