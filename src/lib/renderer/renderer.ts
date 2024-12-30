@@ -15,6 +15,8 @@ import {
   vec3f,
   vec4f,
   type m4x4f,
+  type v3f,
+  type v4f,
   type Vec4f,
 } from 'typegpu/data';
 import { Viewport } from './viewport.ts';
@@ -72,7 +74,7 @@ const fragmentFn = tgpu
     return vec4f((ambient + diffuse * att) * albedo, 1.0);
   }`);
 
-export interface Model {
+export interface Mesh {
   vertexCount: number;
   vertexBuffer: TgpuBuffer<
     ReturnType<(typeof vertexLayout)['schemaForCount']>
@@ -80,8 +82,13 @@ export interface Model {
     Vertex;
 }
 
+export interface Transform {
+  position: v3f;
+  rotation: v4f;
+}
+
 export class Renderer {
-  private readonly _models: Model[] = [];
+  private _objects: { mesh: Mesh; transform: Transform }[] = [];
   private readonly _matrices: {
     proj: m4x4f;
     view: m4x4f;
@@ -173,31 +180,38 @@ export class Renderer {
     );
   }
 
+  private _updatePOV() {
+    this._povBuffer.write({ viewProjMat: this._matrices.proj });
+  }
+
   private _updateUniforms() {
     this._uniformsBuffer.write({
       modelMat: this._matrices.model,
       normalModelMat: this._matrices.normalModel,
     });
-
-    this._povBuffer.write({ viewProjMat: this._matrices.proj });
   }
 
-  private _updateModel() {
+  private _updateModel(transform: Transform) {
     const model = this._matrices.model;
     mat4.identity(model);
-    mat4.scale(model, [10, 10, 10], model);
-    mat4.translate(model, [0, 0, -10], model);
-    mat4.rotate(model, [0, 1, 0], Date.now() / 1000, model);
+
+    // mat4.scale(model, [10, 10, 10], model);
+    mat4.translate(model, transform.position, model);
+    mat4.multiply(model, mat4.fromQuat(transform.rotation), model);
+    // mat4.translate(model, [0, 0, -10], model);
+    // mat4.rotate(model, [0, 1, 0], Date.now() / 1000, model);
 
     mat4.invert(model, this._matrices.normalModel);
     mat4.transpose(this._matrices.normalModel, this._matrices.normalModel);
   }
 
-  private _render() {
-    this._updateModel();
-    this._updateUniforms();
+  render() {
+    this._updatePOV();
 
-    for (const model of this._models) {
+    for (const { mesh, transform } of this._objects) {
+      this._updateModel(transform);
+      this._updateUniforms();
+
       this._renderPipeline
         .withColorAttachment({
           view: this._context.getCurrentTexture().createView(),
@@ -211,23 +225,16 @@ export class Renderer {
           depthStoreOp: 'store',
           depthClearValue: 1.0,
         })
-        .with(vertexLayout, model.vertexBuffer)
-        .draw(model.vertexCount);
+        .with(vertexLayout, mesh.vertexBuffer)
+        .draw(mesh.vertexCount);
     }
+
+    this._objects = [];
 
     this.root.flush();
   }
 
-  loop() {
-    const handleFrame = () => {
-      this._render();
-      requestAnimationFrame(handleFrame);
-    };
-
-    handleFrame();
-  }
-
-  addModel(model: Model) {
-    this._models.push(model);
+  addObject(mesh: Mesh, transform: Transform) {
+    this._objects.push({ mesh, transform });
   }
 }

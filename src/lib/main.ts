@@ -1,47 +1,55 @@
-import tgpu, { type ExperimentalTgpuRoot } from 'typegpu/experimental';
-import { vec2f, vec3f } from 'typegpu/data';
-import { load, type DataType, type Loader } from '@loaders.gl/core';
+import tgpu from 'typegpu/experimental';
 import { OBJLoader } from '@loaders.gl/obj';
+import { createWorld, trait } from 'koota';
 
 import susannePath from '../assets/susanne.obj?url';
-import { Renderer, vertexLayout } from './renderer/renderer.ts';
+import { Renderer, type Mesh } from './renderer/renderer.ts';
+import { loadModel } from './assets.ts';
+import { vec3f, vec4f } from 'typegpu/data';
+import { quat } from 'wgpu-matrix';
 
-export async function loadModel(
-  root: ExperimentalTgpuRoot,
-  src: string | DataType,
-  loader: Loader = OBJLoader,
-) {
-  const susanneModel = await load(src, loader);
+const Player = trait();
+const Position = trait(() => vec3f());
+const Velocity = trait(() => vec3f());
+const MeshTrait = trait(() => ({}) as Mesh);
+const TransformTrait = trait({
+  position: vec3f(),
+  rotation: quat.identity(vec4f()),
+  scale: vec3f(1),
+});
 
-  const POSITION = susanneModel.attributes.POSITION.value;
-  const NORMAL = susanneModel.attributes.NORMAL.value;
-  const TEXCOORD_0 = susanneModel.attributes.TEXCOORD_0.value;
-  const vertexCount = POSITION.length / 3;
-
-  const susanneVertexBuffer = root
-    .createBuffer(
-      vertexLayout.schemaForCount(vertexCount),
-      Array.from({ length: vertexCount }, (_, i) => ({
-        position: vec3f(
-          POSITION[i * 3],
-          POSITION[i * 3 + 1],
-          POSITION[i * 3 + 2],
-        ),
-        normal: vec3f(NORMAL[i * 3], NORMAL[i * 3 + 1], NORMAL[i * 3 + 2]),
-        uv: vec2f(TEXCOORD_0[i * 2], TEXCOORD_0[i * 2 + 1]),
-      })),
-    )
-    .$usage('vertex');
-
-  return { vertexCount, vertexBuffer: susanneVertexBuffer };
-}
+const world = createWorld();
 
 export async function main(canvas: HTMLCanvasElement) {
   const root = await tgpu.init();
 
   const renderer = new Renderer(root, canvas);
 
-  renderer.addModel(await loadModel(root, susannePath, OBJLoader));
+  const susanne = await loadModel(root, susannePath, OBJLoader);
+  const player = world.spawn(
+    Player,
+    MeshTrait(susanne),
+    TransformTrait({ position: vec3f(0, 0, -3) }),
+  );
 
-  renderer.loop();
+  let lastTime = Date.now();
+  const handleFrame = () => {
+    const now = Date.now();
+    const delta = (now - lastTime) / 1000;
+    lastTime = now;
+
+    // world.query(Position, Velocity).updateEach(([position, velocity]) => {
+    //   position.x += velocity.x * delta;
+    //   position.y += velocity.y * delta;
+    // });
+
+    world.query(MeshTrait, TransformTrait).updateEach(([mesh, transform]) => {
+      renderer.addObject(mesh, transform);
+    });
+
+    renderer.render();
+    requestAnimationFrame(handleFrame);
+  };
+
+  handleFrame();
 }
