@@ -17,12 +17,15 @@ dependencies:
   astro:
     specifier: ^5.1.1
     version: 5.1.1(typescript@5.7.2)
+  koota:
+    specifier: ^0.1.7
+    version: 0.1.7(react@18.3.1)
   rollup-plugin-typegpu:
     specifier: ^0.0.1
     version: 0.0.1
   typegpu:
-    specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/40a9c9d7/typegpu
-    version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/40a9c9d7/typegpu'
+    specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/dbab19c5/typegpu
+    version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/dbab19c5/typegpu'
   wgpu-matrix:
     specifier: ^3.3.0
     version: 3.3.0
@@ -2024,6 +2027,10 @@ packages:
       is-inside-container: 1.0.0
     dev: false
 
+  /js-tokens@4.0.0:
+    resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
+    dev: false
+
   /js-yaml@3.14.1:
     resolution: {integrity: sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==}
     hasBin: true
@@ -2049,6 +2056,24 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
+  /koota@0.1.7(react@18.3.1):
+    resolution: {integrity: sha512-BT+y/3xeGm8JijVBw34CK9Ls7QcsfFnJHtr7Gbg1agHI+VD3O8Hwn8hPchBx739n1GgpQKGEqSR0u8OQ6SYhrw==}
+    peerDependencies:
+      '@react-three/fiber': ^8.17.10
+      react: ^18.3.1
+      react-dom: ^18.3.1
+      three: '>=0.159'
+    peerDependenciesMeta:
+      '@react-three/fiber':
+        optional: true
+      react-dom:
+        optional: true
+      three:
+        optional: true
+    dependencies:
+      react: 18.3.1
+    dev: false
+
   /ktx-parse@0.7.1:
     resolution: {integrity: sha512-FeA3g56ksdFNwjXJJsc1CCc7co+AJYDp6ipIp878zZ2bU8kWROatLYf39TQEd4/XRSUvBXovQ8gaVKWPXsCLEQ==}
     dev: false
@@ -2072,6 +2097,13 @@ packages:
 
   /longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
+    dev: false
+
+  /loose-envify@1.4.0:
+    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
+    hasBin: true
+    dependencies:
+      js-tokens: 4.0.0
     dev: false
 
   /lru-cache@10.4.3:
@@ -2695,6 +2727,13 @@ packages:
 
   /radix3@1.1.2:
     resolution: {integrity: sha512-b484I/7b8rDEdSDKckSSBA8knMpcdsXudlE/LNL639wFoHKwLbEkQFZHWEYwDC0wa0FKUcCY+GAF73Z7wxNVFA==}
+    dev: false
+
+  /react@18.3.1:
+    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      loose-envify: 1.4.0
     dev: false
 
   /readdirp@3.6.0:
@@ -3407,8 +3446,8 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
 
-  '@pkg.csb.dev/software-mansion/TypeGPU/commit/40a9c9d7/typegpu':
-    resolution: {tarball: https://pkg.csb.dev/software-mansion/TypeGPU/commit/40a9c9d7/typegpu}
+  '@pkg.csb.dev/software-mansion/TypeGPU/commit/dbab19c5/typegpu':
+    resolution: {tarball: https://pkg.csb.dev/software-mansion/TypeGPU/commit/dbab19c5/typegpu}
     name: typegpu
     version: 0.2.0
     engines: {node: '>=12.20.0'}
