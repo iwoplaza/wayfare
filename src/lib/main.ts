@@ -13,6 +13,7 @@ import { load } from '@loaders.gl/core';
 import { OBJLoader } from '@loaders.gl/obj';
 
 import susannePath from '../assets/susanne.obj?url';
+import { Viewport } from './viewport';
 
 const vertexLayout = tgpu.vertexLayout((n) =>
   looseArrayOf(looseStruct({ position: vec3f, normal: vec3f, uv: vec2f }), n),
@@ -91,24 +92,11 @@ export async function main(canvas: HTMLCanvasElement) {
     alphaMode: 'premultiplied',
   });
 
+  const viewport = new Viewport(root, canvas.width, canvas.height);
+
   // --- Load the model ---
   const susanne = await loadSusanne(root);
   // -----------------------
-
-  // Listen to changes in window size and resize the canvas
-  function handleResize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  handleResize();
-  window.addEventListener('resize', handleResize);
-
-  const depthTexture = root
-    .createTexture({
-      format: 'depth24plus',
-      size: [canvas.width, canvas.height],
-    })
-    .$usage('render');
 
   const projMatBuffer = root
     .createBuffer(mat4x4f, mat4.identity(mat4x4f()))
@@ -126,7 +114,15 @@ export async function main(canvas: HTMLCanvasElement) {
     projMatBuffer.write(proj);
   }
 
-  updateProjection();
+  // Listen to changes in window size and resize the canvas
+  function handleResize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    viewport.resize(canvas.width, canvas.height);
+    updateProjection();
+  }
+  handleResize();
+  window.addEventListener('resize', handleResize);
 
   const viewMatBuffer = root
     .createBuffer(mat4x4f, mat4.identity(mat4x4f()))
@@ -179,7 +175,7 @@ export async function main(canvas: HTMLCanvasElement) {
         clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
       })
       .withDepthStencilAttachment({
-        view: depthTexture,
+        view: viewport.depthTextureView,
         depthLoadOp: 'clear',
         depthStoreOp: 'store',
         depthClearValue: 1.0,
