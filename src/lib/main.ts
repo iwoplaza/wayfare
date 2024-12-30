@@ -4,6 +4,7 @@ import {
   looseArrayOf,
   looseStruct,
   mat4x4f,
+  struct,
   vec2f,
   vec3f,
   vec4f,
@@ -19,37 +20,47 @@ const vertexLayout = tgpu.vertexLayout((n) =>
   looseArrayOf(looseStruct({ position: vec3f, normal: vec3f, uv: vec2f }), n),
 );
 
+const Uniforms = struct({
+  viewProjMat: mat4x4f,
+  modelMat: mat4x4f,
+  normalModelMat: mat4x4f,
+}).$name('Uniforms');
+
 const uniformsLayout = tgpu
   .bindGroupLayout({
-    projMat: { uniform: mat4x4f },
-    viewMat: { uniform: mat4x4f },
-    worldMat: { uniform: mat4x4f },
+    uniforms: { uniform: Uniforms },
   })
   .$name('uniforms');
 
-const { projMat, viewMat, worldMat } = uniformsLayout.bound;
+const { uniforms } = uniformsLayout.bound;
 
 const vertexFn = tgpu
   .vertexFn(
     { idx: builtin.vertexIndex, pos: vec3f, normal: vec3f, uv: vec2f },
-    { pos: builtin.position, uv: vec2f },
+    { pos: builtin.position, normal: vec3f, uv: vec2f },
   )
-  .does(`(@builtin(vertex_index) idx: u32, @location(0) pos: vec3f, @location(1) normal: vec3f, @location(2) uv: vec2f) -> Output {
+  .does(`(
+    @builtin(vertex_index) idx: u32,
+    @location(0) pos: vec3f,
+    @location(1) normal: vec3f,
+    @location(2) uv: vec2f
+  ) -> Output {
     var out: Output;
-    out.pos = projMat * viewMat * modelMat * vec4f(pos, 1.0);
+    out.pos = uniforms.viewProjMat * uniforms.modelMat * vec4f(pos, 1.0);
+    out.normal = (uniforms.normalModelMat * vec4f(normal, 0.0)).xyz;
     out.uv = uv;
     return out;
   }`)
-  .$uses({ projMat, viewMat, modelMat: worldMat });
+  .$uses({ uniforms });
 
 const fragmentFn = tgpu
   .fragmentFn({}, vec4f)
-  .does(`(@location(0) uv: vec2f) -> @location(0) vec4f {
-    if (uv.x < 0.5 && uv.y < 0.5) {
-      return vec4f(0.0, uv.x, uv.y, 1.0);
-    } else {
-      return vec4f(1.0, 0., 0., 1.0);
-    }
+  .does(`(@location(0) normal: vec3f, @location(1) uv: vec2f) -> @location(0) vec4f {
+    let ambient = vec3f(0.1, 0.15, 0.2);
+    let diffuse = vec3f(1.0, 0.9, 0.7);
+    let att = max(0., dot(normalize(normal), vec3f(0., 1., 0.)));
+    let albedo = vec3f(1., 1., 1.);
+    return vec4f((ambient + diffuse * att) * albedo, 1.0);
   }`);
 
 export async function loadSusanne(root: ExperimentalTgpuRoot) {
@@ -98,20 +109,37 @@ export async function main(canvas: HTMLCanvasElement) {
   const susanne = await loadSusanne(root);
   // -----------------------
 
-  const projMatBuffer = root
-    .createBuffer(mat4x4f, mat4.identity(mat4x4f()))
+  const matrices = {
+    proj: mat4.identity(mat4x4f()),
+    view: mat4.identity(mat4x4f()),
+    model: mat4.identity(mat4x4f()),
+    normalModel: mat4.identity(mat4x4f()),
+  };
+
+  const uniformsBuffer = root
+    .createBuffer(Uniforms, {
+      viewProjMat: mat4.identity(mat4x4f()),
+      modelMat: mat4.identity(mat4x4f()),
+      normalModelMat: mat4.identity(mat4x4f()),
+    })
     .$usage('uniform');
 
   function updateProjection() {
-    const proj = mat4.perspective(
+    mat4.perspective(
       (45 / 180) * Math.PI, // fov
       canvas.width / canvas.height, // aspect
       0.1, // near
       1000.0, // far
-      mat4x4f(),
+      matrices.proj,
     );
+  }
 
-    projMatBuffer.write(proj);
+  function updateUniforms() {
+    uniformsBuffer.write({
+      viewProjMat: matrices.proj,
+      modelMat: matrices.model,
+      normalModelMat: matrices.normalModel,
+    });
   }
 
   // Listen to changes in window size and resize the canvas
@@ -124,27 +152,19 @@ export async function main(canvas: HTMLCanvasElement) {
   handleResize();
   window.addEventListener('resize', handleResize);
 
-  const viewMatBuffer = root
-    .createBuffer(mat4x4f, mat4.identity(mat4x4f()))
-    .$usage('uniform');
+  function updateModel() {
+    const model = matrices.model;
+    mat4.identity(model);
+    mat4.scale(model, [10, 10, 10], model);
+    mat4.translate(model, [0, 0, -10], model);
+    mat4.rotate(model, [0, 1, 0], Date.now() / 1000, model);
 
-  const worldMatBuffer = root
-    .createBuffer(mat4x4f, mat4.identity(mat4x4f()))
-    .$usage('uniform');
-
-  function updateWorld() {
-    const world = mat4.identity(mat4x4f());
-    mat4.scale(world, [10, 10, 10], world);
-    mat4.translate(world, [0, 0, -10], world);
-    mat4.rotate(world, [0, 1, 0], Date.now() / 1000, world);
-
-    worldMatBuffer.write(world);
+    mat4.invert(model, matrices.normalModel);
+    mat4.transpose(matrices.normalModel, matrices.normalModel);
   }
 
   const uniformsBindGroup = root.createBindGroup(uniformsLayout, {
-    projMat: projMatBuffer,
-    viewMat: viewMatBuffer,
-    worldMat: worldMatBuffer,
+    uniforms: uniformsBuffer,
   });
 
   const renderPipeline = root
@@ -163,7 +183,8 @@ export async function main(canvas: HTMLCanvasElement) {
     .createPipeline();
 
   function render() {
-    updateWorld();
+    updateModel();
+    updateUniforms();
 
     renderPipeline
       .with(uniformsLayout, uniformsBindGroup)
