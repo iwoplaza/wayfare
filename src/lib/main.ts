@@ -1,62 +1,43 @@
-import { createWorld, trait } from 'koota';
-import { vec3f, vec4f } from 'typegpu/data';
+import { trait } from 'koota';
+import { vec3f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
 import { quat } from 'wgpu-matrix';
 
 import susannePath from '../assets/susanne.obj?url';
 import { loadModel } from './assets.ts';
-import { type Mesh, Renderer } from './renderer/renderer.ts';
+import { Renderer } from './renderer/renderer.ts';
+import { Engine, MeshTrait, TransformTrait } from './engine.ts';
 
-const Player = trait();
 const Velocity = trait(() => vec3f());
-const MeshTrait = trait(() => ({}) as Mesh);
-const TransformTrait = trait({
-  position: vec3f(),
-  rotation: quat.identity(vec4f()),
-  scale: vec3f(1),
-});
-
-const world = createWorld();
+const Player = trait();
 
 export async function main(canvas: HTMLCanvasElement) {
   const root = await tgpu.init();
-
   const renderer = new Renderer(root, canvas);
 
   const susanne = await loadModel(root, susannePath);
-  const player = world.spawn(
+
+  const engine = new Engine(root, renderer, (deltaSeconds) => {
+    // "Advancing by velocity" system
+    engine.world
+      .query(TransformTrait, Velocity)
+      .updateEach(([transform, velocity]) => {
+        transform.position.x += velocity.x * deltaSeconds;
+        transform.position.y += velocity.y * deltaSeconds;
+        transform.position.z += velocity.z * deltaSeconds;
+      });
+
+    // "Rotating the player" system
+    engine.world.query(TransformTrait, Player).updateEach(([transform]) => {
+      quat.rotateY(transform.rotation, deltaSeconds, transform.rotation);
+    });
+  });
+
+  engine.world.spawn(
     Player,
     MeshTrait(susanne),
     TransformTrait({ position: vec3f(0, 0, -5) }),
   );
 
-  let lastTime = Date.now();
-  const handleFrame = () => {
-    const now = Date.now();
-    const delta = (now - lastTime) / 1000;
-    lastTime = now;
-
-    world
-      .query(TransformTrait, Velocity)
-      .updateEach(([transform, velocity]) => {
-        transform.position.x += velocity.x * delta;
-        transform.position.y += velocity.y * delta;
-        transform.position.z += velocity.z * delta;
-      });
-
-    // Render system
-    world.query(MeshTrait, TransformTrait).updateEach(([mesh, transform]) => {
-      renderer.addObject(mesh, transform);
-    });
-
-    world.query(TransformTrait, Player).updateEach(([transform]) => {
-      // Rotating the player
-      quat.rotateY(transform.rotation, delta, transform.rotation);
-    });
-
-    renderer.render();
-    requestAnimationFrame(handleFrame);
-  };
-
-  handleFrame();
+  engine.run();
 }
