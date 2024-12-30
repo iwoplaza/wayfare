@@ -5,6 +5,15 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@loaders.gl/core':
+    specifier: ^4.3.3
+    version: 4.3.3
+  '@loaders.gl/gltf':
+    specifier: ^4.3.3
+    version: 4.3.3(@loaders.gl/core@4.3.3)
+  '@loaders.gl/obj':
+    specifier: ^4.3.3
+    version: 4.3.3(@loaders.gl/core@4.3.3)
   astro:
     specifier: ^5.1.1
     version: 5.1.1(typescript@5.7.2)
@@ -12,8 +21,8 @@ dependencies:
     specifier: ^0.0.1
     version: 0.0.1
   typegpu:
-    specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/e87b5a34/typegpu
-    version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/e87b5a34/typegpu'
+    specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/40a9c9d7/typegpu
+    version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/40a9c9d7/typegpu'
   wgpu-matrix:
     specifier: ^3.3.0
     version: 3.3.0
@@ -822,6 +831,114 @@ packages:
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
     dev: false
 
+  /@loaders.gl/core@4.3.3:
+    resolution: {integrity: sha512-RaQ3uNg4ZaVqDRgvJ2CjaOjeeHdKvbKuzFFgbGnflVB9is5bu+h3EKc3Jke7NGVvLBsZ6oIXzkwHijVsMfxv8g==}
+    dependencies:
+      '@loaders.gl/loader-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/schema': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/worker-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      '@probe.gl/log': 4.0.9
+    dev: false
+
+  /@loaders.gl/draco@4.3.3(@loaders.gl/core@4.3.3):
+    resolution: {integrity: sha512-f2isxvOoH4Pm5p4mGvNN9gVigUwX84j9gdKNMV1aSo56GS1KE3GS2rXaIoy1qaIHMzkPySUTEcOTwayf0hWU7A==}
+    peerDependencies:
+      '@loaders.gl/core': ^4.3.0
+    dependencies:
+      '@loaders.gl/core': 4.3.3
+      '@loaders.gl/loader-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/schema': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/worker-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      draco3d: 1.5.7
+    dev: false
+
+  /@loaders.gl/gltf@4.3.3(@loaders.gl/core@4.3.3):
+    resolution: {integrity: sha512-M7jQ7KIB5itctDmGYuT9gndmjNwk1lwQ+BV4l5CoFp38e4xJESPglj2Kj8csWdm3WJhrxIYEP4GpjXK02n8DSQ==}
+    peerDependencies:
+      '@loaders.gl/core': ^4.3.0
+    dependencies:
+      '@loaders.gl/core': 4.3.3
+      '@loaders.gl/draco': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/images': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/loader-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/schema': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/textures': 4.3.3(@loaders.gl/core@4.3.3)
+      '@math.gl/core': 4.1.0
+    dev: false
+
+  /@loaders.gl/images@4.3.3(@loaders.gl/core@4.3.3):
+    resolution: {integrity: sha512-s4InjIXqEu0T7anZLj4OBUuDBt2BNnAD0GLzSexSkBfQZfpXY0XJNl4mMf5nUKb5NDfXhIKIqv8y324US+I28A==}
+    peerDependencies:
+      '@loaders.gl/core': ^4.3.0
+    dependencies:
+      '@loaders.gl/core': 4.3.3
+      '@loaders.gl/loader-utils': 4.3.3(@loaders.gl/core@4.3.3)
+    dev: false
+
+  /@loaders.gl/loader-utils@4.3.3(@loaders.gl/core@4.3.3):
+    resolution: {integrity: sha512-8erUIwWLiIsZX36fFa/seZsfTsWlLk72Sibh/YZJrPAefuVucV4mGGzMBZ96LE2BUfJhadn250eio/59TUFbNw==}
+    peerDependencies:
+      '@loaders.gl/core': ^4.3.0
+    dependencies:
+      '@loaders.gl/core': 4.3.3
+      '@loaders.gl/schema': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/worker-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      '@probe.gl/log': 4.0.9
+      '@probe.gl/stats': 4.0.9
+    dev: false
+
+  /@loaders.gl/obj@4.3.3(@loaders.gl/core@4.3.3):
+    resolution: {integrity: sha512-MR8gh/uCujesF62n1R8AX0LeJSuZdXQ+y9sa6owM9WueELZvoCKvnBMI62yk8AgVpT6DsaNZ3u6l4K/RayDFLw==}
+    peerDependencies:
+      '@loaders.gl/core': ^4.3.0
+    dependencies:
+      '@loaders.gl/core': 4.3.3
+      '@loaders.gl/loader-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/schema': 4.3.3(@loaders.gl/core@4.3.3)
+    dev: false
+
+  /@loaders.gl/schema@4.3.3(@loaders.gl/core@4.3.3):
+    resolution: {integrity: sha512-zacc9/8je+VbuC6N/QRfiTjRd+BuxsYlddLX1u5/X/cg9s36WZZBlU1oNKUgTYe8eO6+qLyYx77yi+9JbbEehw==}
+    peerDependencies:
+      '@loaders.gl/core': ^4.3.0
+    dependencies:
+      '@loaders.gl/core': 4.3.3
+      '@types/geojson': 7946.0.15
+    dev: false
+
+  /@loaders.gl/textures@4.3.3(@loaders.gl/core@4.3.3):
+    resolution: {integrity: sha512-qIo4ehzZnXFpPKl1BGQG4G3cAhBSczO9mr+H/bT7qFwtSirWVlqsvMlx1Q4VpmouDu+tudwwOlq7B3yqU5P5yQ==}
+    peerDependencies:
+      '@loaders.gl/core': ^4.3.0
+    dependencies:
+      '@loaders.gl/core': 4.3.3
+      '@loaders.gl/images': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/loader-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/schema': 4.3.3(@loaders.gl/core@4.3.3)
+      '@loaders.gl/worker-utils': 4.3.3(@loaders.gl/core@4.3.3)
+      '@math.gl/types': 4.1.0
+      ktx-parse: 0.7.1
+      texture-compressor: 1.0.2
+    dev: false
+
+  /@loaders.gl/worker-utils@4.3.3(@loaders.gl/core@4.3.3):
+    resolution: {integrity: sha512-eg45Ux6xqsAfqPUqJkhmbFZh9qfmYuPfA+34VcLtfeXIwAngeP6o4SrTmm9LWLGUKiSh47anCEV1p7borDgvGQ==}
+    peerDependencies:
+      '@loaders.gl/core': ^4.3.0
+    dependencies:
+      '@loaders.gl/core': 4.3.3
+    dev: false
+
+  /@math.gl/core@4.1.0:
+    resolution: {integrity: sha512-FrdHBCVG3QdrworwrUSzXIaK+/9OCRLscxI2OUy6sLOHyHgBMyfnEGs99/m3KNvs+95BsnQLWklVfpKfQzfwKA==}
+    dependencies:
+      '@math.gl/types': 4.1.0
+    dev: false
+
+  /@math.gl/types@4.1.0:
+    resolution: {integrity: sha512-clYZdHcmRvMzVK5fjeDkQlHUzXQSNdZ7s4xOqC3nJPgz4C/TZkUecTo9YS4PruZqtDda/ag4erndP0MIn40dGA==}
+    dev: false
+
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -845,6 +962,20 @@ packages:
 
   /@oslojs/encoding@1.1.0:
     resolution: {integrity: sha512-70wQhgYmndg4GCPxPPxPGevRKqTIJ2Nh4OkiMWmDAVYsTQ+Ta7Sq+rPevXyXGdzr30/qZBnyOalCszoMxlyldQ==}
+    dev: false
+
+  /@probe.gl/env@4.0.9:
+    resolution: {integrity: sha512-AOmVMD0/j78mX+k4+qX7ZhE0sY9H+EaJgIO6trik0BwV6VcrwxTGCGFAeuRsIGhETDnye06tkLXccYatYxAYwQ==}
+    dev: false
+
+  /@probe.gl/log@4.0.9:
+    resolution: {integrity: sha512-ebuZaodSRE9aC+3bVC7cKRHT8garXeT1jTbj1R5tQRqQYc9iGeT3iemVOHx5bN9Q6gAs/0j54iPI+1DvWMAW4A==}
+    dependencies:
+      '@probe.gl/env': 4.0.9
+    dev: false
+
+  /@probe.gl/stats@4.0.9:
+    resolution: {integrity: sha512-Q9Xt/sJUQaMsbjRKjOscv2t7wXIymTrOEJ4a3da4FTCn7bkKvcdxdyFAQySCrtPxE+YZ5I5lXpWPgv9BwmpE1g==}
     dev: false
 
   /@rollup/pluginutils@5.1.4:
@@ -1062,6 +1193,10 @@ packages:
 
   /@types/estree@1.0.6:
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
+    dev: false
+
+  /@types/geojson@7946.0.15:
+    resolution: {integrity: sha512-9oSxFzDCT2Rj6DfcHF8G++jxBKS7mBqXl5xrRW+Kbvjry6Uduya2iiwqHPhVXpasAVMBYKkEPGgKhd3+/HZ6xA==}
     dev: false
 
   /@types/hast@3.0.4:
@@ -1480,6 +1615,10 @@ packages:
     resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
     dev: false
 
+  /draco3d@1.5.7:
+    resolution: {integrity: sha512-m6WCKt/erDXcw+70IJXnG7M3awwQPAsZvJGX5zY7beBqpELw6RDGkYVU0W43AFxye4pDZ5i2Lbyc/NNGqwjUVQ==}
+    dev: false
+
   /dset@3.1.4:
     resolution: {integrity: sha512-2QF/g9/zTaPDc3BjNcVTGoBbXBgYfMTTceLaYcFJ/W9kggFUkhxD/hMEeuLKbugyef9SqAx8cpgwlIP/jinUTA==}
     engines: {node: '>=4'}
@@ -1810,6 +1949,12 @@ packages:
     resolution: {integrity: sha512-er295DKPVsV82j5kw1Gjt+ADA/XYHsajl82cGNQG2eyoPkvgUhX+nDIyelzhIWbbsXP39EHcI6l5tYs2FYqYXQ==}
     dev: false
 
+  /image-size@0.7.5:
+    resolution: {integrity: sha512-Hiyv+mXHfFEP7LzUL/llg9RwFxxY+o9N3JVLIeG5E7iFIFAalxvRU9UZthBdYDEVnzHMgjnKJPPpay5BWf1g9g==}
+    engines: {node: '>=6.9.0'}
+    hasBin: true
+    dev: false
+
   /import-meta-resolve@4.1.0:
     resolution: {integrity: sha512-I6fiaX09Xivtk+THaMfAwnA3MVA5Big1WHF1Dfx9hFuvNIWpXnorlkzhcQf6ehrqQiiZECRt1poOAkPmer3ruw==}
     dev: false
@@ -1902,6 +2047,10 @@ packages:
   /kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
+    dev: false
+
+  /ktx-parse@0.7.1:
+    resolution: {integrity: sha512-FeA3g56ksdFNwjXJJsc1CCc7co+AJYDp6ipIp878zZ2bU8kWROatLYf39TQEd4/XRSUvBXovQ8gaVKWPXsCLEQ==}
     dev: false
 
   /load-yaml-file@0.2.0:
@@ -2855,6 +3004,14 @@ packages:
     engines: {node: '>=4'}
     dev: false
 
+  /texture-compressor@1.0.2:
+    resolution: {integrity: sha512-dStVgoaQ11mA5htJ+RzZ51ZxIZqNOgWKAIvtjLrW1AliQQLCmrDqNzQZ8Jh91YealQ95DXt4MEduLzJmbs6lig==}
+    hasBin: true
+    dependencies:
+      argparse: 1.0.10
+      image-size: 0.7.5
+    dev: false
+
   /tinyest-for-wgsl@0.1.0-alpha.0:
     resolution: {integrity: sha512-8n/tWdTwmaxL3QGnkec0GuOxNGevm/NnGXPpbRa2DPqkk36uQEwPsXxfGoHihRXsIAMpWjWDRpOpy3OZ6f+0EQ==}
     engines: {node: '>=12.20.0'}
@@ -3250,8 +3407,8 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
 
-  '@pkg.csb.dev/software-mansion/TypeGPU/commit/e87b5a34/typegpu':
-    resolution: {tarball: https://pkg.csb.dev/software-mansion/TypeGPU/commit/e87b5a34/typegpu}
+  '@pkg.csb.dev/software-mansion/TypeGPU/commit/40a9c9d7/typegpu':
+    resolution: {tarball: https://pkg.csb.dev/software-mansion/TypeGPU/commit/40a9c9d7/typegpu}
     name: typegpu
     version: 0.2.0
     engines: {node: '>=12.20.0'}

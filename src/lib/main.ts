@@ -1,9 +1,22 @@
-import tgpu from 'typegpu/experimental';
-import { builtin, mat4x4f, vec2f, vec4f } from 'typegpu/data';
+import tgpu, { type ExperimentalTgpuRoot } from 'typegpu/experimental';
+import {
+  builtin,
+  looseArrayOf,
+  looseStruct,
+  mat4x4f,
+  vec2f,
+  vec3f,
+  vec4f,
+} from 'typegpu/data';
 import { mat4 } from 'wgpu-matrix';
+import { load } from '@loaders.gl/core';
+import { OBJLoader } from '@loaders.gl/obj';
 
-const root = await tgpu.init();
-const device = root.device;
+import susannePath from '../assets/susanne.obj?url';
+
+const vertexLayout = tgpu.vertexLayout((n) =>
+  looseArrayOf(looseStruct({ position: vec3f, normal: vec3f, uv: vec2f }), n),
+);
 
 const uniformsLayout = tgpu
   .bindGroupLayout({
@@ -16,29 +29,20 @@ const uniformsLayout = tgpu
 const { projMat, viewMat, worldMat } = uniformsLayout.bound;
 
 const vertexFn = tgpu
-  .vertexFn({ idx: builtin.vertexIndex }, { pos: builtin.position, uv: vec2f })
-  .does(`(@builtin(vertex_index) idx: u32) -> Output {
-    var pos = array<vec2f, 4>(
-      vec2(1, 1), // top-right
-      vec2(-1, 1), // top-left
-      vec2(1, -1), // bottom-right
-      vec2(-1, -1) // bottom-left
-    );
-    var uv = array<vec2f, 4>(
-      vec2(1., 1.), // top-right
-      vec2(0., 1.), // top-left
-      vec2(1., 0.), // bottom-right
-      vec2(0., 0.) // bottom-left
-    );
+  .vertexFn(
+    { idx: builtin.vertexIndex, pos: vec3f, normal: vec3f, uv: vec2f },
+    { pos: builtin.position, uv: vec2f },
+  )
+  .does(`(@builtin(vertex_index) idx: u32, @location(0) pos: vec3f, @location(1) normal: vec3f, @location(2) uv: vec2f) -> Output {
     var out: Output;
-    out.pos = projMat * viewMat * modelMat * vec4f(pos[idx], 0.0, 1.0);
-    out.uv = uv[idx];
+    out.pos = projMat * viewMat * modelMat * vec4f(pos, 1.0);
+    out.uv = uv;
     return out;
   }`)
   .$uses({ projMat, viewMat, modelMat: worldMat });
 
 const fragmentFn = tgpu
-  .fragmentFn({}, { color: vec4f })
+  .fragmentFn({}, vec4f)
   .does(`(@location(0) uv: vec2f) -> @location(0) vec4f {
     if (uv.x < 0.5 && uv.y < 0.5) {
       return vec4f(0.0, uv.x, uv.y, 1.0);
@@ -47,7 +51,37 @@ const fragmentFn = tgpu
     }
   }`);
 
-export function main(canvas: HTMLCanvasElement) {
+export async function loadSusanne(root: ExperimentalTgpuRoot) {
+  const susanneModel = await load(susannePath, OBJLoader);
+  console.log(susanneModel);
+
+  const POSITION = susanneModel.attributes.POSITION.value;
+  const NORMAL = susanneModel.attributes.NORMAL.value;
+  const TEXCOORD_0 = susanneModel.attributes.TEXCOORD_0.value;
+  const vertexCount = POSITION.length / 3;
+
+  const susanneVertexBuffer = root
+    .createBuffer(
+      vertexLayout.schemaForCount(vertexCount),
+      Array.from({ length: vertexCount }, (_, i) => ({
+        position: vec3f(
+          POSITION[i * 3],
+          POSITION[i * 3 + 1],
+          POSITION[i * 3 + 2],
+        ),
+        normal: vec3f(NORMAL[i * 3], NORMAL[i * 3 + 1], NORMAL[i * 3 + 2]),
+        uv: vec2f(TEXCOORD_0[i * 2], TEXCOORD_0[i * 2 + 1]),
+      })),
+    )
+    .$usage('vertex');
+
+  return { vertexCount, buffer: susanneVertexBuffer };
+}
+
+export async function main(canvas: HTMLCanvasElement) {
+  const root = await tgpu.init();
+  const device = root.device;
+
   const context = canvas.getContext('webgpu') as GPUCanvasContext;
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
@@ -57,6 +91,10 @@ export function main(canvas: HTMLCanvasElement) {
     alphaMode: 'premultiplied',
   });
 
+  // --- Load the model ---
+  const susanne = await loadSusanne(root);
+  // -----------------------
+
   // Listen to changes in window size and resize the canvas
   function handleResize() {
     canvas.width = window.innerWidth;
@@ -64,6 +102,13 @@ export function main(canvas: HTMLCanvasElement) {
   }
   handleResize();
   window.addEventListener('resize', handleResize);
+
+  const depthTexture = root
+    .createTexture({
+      format: 'depth24plus',
+      size: [canvas.width, canvas.height],
+    })
+    .$usage('render');
 
   const projMatBuffer = root
     .createBuffer(mat4x4f, mat4.identity(mat4x4f()))
@@ -107,9 +152,18 @@ export function main(canvas: HTMLCanvasElement) {
   });
 
   const renderPipeline = root
-    .withVertex(vertexFn, {})
-    .withFragment(fragmentFn, { color: { format: presentationFormat } })
-    .withPrimitive({ topology: 'triangle-strip' })
+    .withVertex(vertexFn, {
+      pos: vertexLayout.attrib.position,
+      normal: vertexLayout.attrib.normal,
+      uv: vertexLayout.attrib.uv,
+    })
+    .withFragment(fragmentFn, { format: presentationFormat })
+    .withPrimitive({ topology: 'triangle-list' })
+    .withDepthStencil({
+      depthWriteEnabled: true,
+      depthCompare: 'less',
+      format: 'depth24plus',
+    })
     .createPipeline();
 
   function render() {
@@ -117,15 +171,20 @@ export function main(canvas: HTMLCanvasElement) {
 
     renderPipeline
       .with(uniformsLayout, uniformsBindGroup)
+      .with(vertexLayout, susanne.buffer)
       .withColorAttachment({
-        color: {
-          view: context.getCurrentTexture().createView(),
-          loadOp: 'clear',
-          storeOp: 'store',
-          clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
-        },
+        view: context.getCurrentTexture().createView(),
+        loadOp: 'clear',
+        storeOp: 'store',
+        clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
       })
-      .draw(4);
+      .withDepthStencilAttachment({
+        view: depthTexture,
+        depthLoadOp: 'clear',
+        depthStoreOp: 'store',
+        depthClearValue: 1.0,
+      })
+      .draw(susanne.vertexCount);
 
     root.flush();
 
