@@ -1,7 +1,7 @@
-import type { ExperimentalTgpuRoot } from 'typegpu/experimental';
-import { vec2f, vec3f } from 'typegpu/data';
-import { load, type DataType, type Loader } from '@loaders.gl/core';
+import { type DataType, type Loader, load } from '@loaders.gl/core';
 import { OBJLoader } from '@loaders.gl/obj';
+import { vec2f, vec3f } from 'typegpu/data';
+import type { ExperimentalTgpuRoot } from 'typegpu/experimental';
 import { vertexLayout } from './renderer/renderer';
 
 export async function loadModel(

@@ -1,3 +1,17 @@
+import {
+  type Vec4f,
+  builtin,
+  looseArrayOf,
+  looseStruct,
+  type m4x4f,
+  mat4x4f,
+  struct,
+  type v3f,
+  type v4f,
+  vec2f,
+  vec3f,
+  vec4f,
+} from 'typegpu/data';
 import tgpu, {
   type Vertex,
   type ExperimentalTgpuRoot,
@@ -5,22 +19,8 @@ import tgpu, {
   type TgpuRenderPipeline,
   type Uniform,
 } from 'typegpu/experimental';
-import {
-  builtin,
-  looseArrayOf,
-  looseStruct,
-  mat4x4f,
-  struct,
-  vec2f,
-  vec3f,
-  vec4f,
-  type m4x4f,
-  type v3f,
-  type v4f,
-  type Vec4f,
-} from 'typegpu/data';
-import { Viewport } from './viewport.ts';
 import { mat4 } from 'wgpu-matrix';
+import { Viewport } from './viewport.ts';
 
 export const vertexLayout = tgpu.vertexLayout((n) =>
   looseArrayOf(looseStruct({ position: vec3f, normal: vec3f, uv: vec2f }), n),
@@ -85,6 +85,7 @@ export interface Mesh {
 export interface Transform {
   position: v3f;
   rotation: v4f;
+  scale: v3f;
 }
 
 export class Renderer {
@@ -195,11 +196,9 @@ export class Renderer {
     const model = this._matrices.model;
     mat4.identity(model);
 
-    // mat4.scale(model, [10, 10, 10], model);
+    mat4.scale(model, transform.scale, model);
     mat4.translate(model, transform.position, model);
     mat4.multiply(model, mat4.fromQuat(transform.rotation), model);
-    // mat4.translate(model, [0, 0, -10], model);
-    // mat4.rotate(model, [0, 1, 0], Date.now() / 1000, model);
 
     mat4.invert(model, this._matrices.normalModel);
     mat4.transpose(this._matrices.normalModel, this._matrices.normalModel);

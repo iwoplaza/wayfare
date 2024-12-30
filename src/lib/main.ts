@@ -1,15 +1,13 @@
-import tgpu from 'typegpu/experimental';
-import { OBJLoader } from '@loaders.gl/obj';
 import { createWorld, trait } from 'koota';
-
-import susannePath from '../assets/susanne.obj?url';
-import { Renderer, type Mesh } from './renderer/renderer.ts';
-import { loadModel } from './assets.ts';
 import { vec3f, vec4f } from 'typegpu/data';
+import tgpu from 'typegpu/experimental';
 import { quat } from 'wgpu-matrix';
 
+import susannePath from '../assets/susanne.obj?url';
+import { loadModel } from './assets.ts';
+import { type Mesh, Renderer } from './renderer/renderer.ts';
+
 const Player = trait();
-const Position = trait(() => vec3f());
 const Velocity = trait(() => vec3f());
 const MeshTrait = trait(() => ({}) as Mesh);
 const TransformTrait = trait({
@@ -25,11 +23,11 @@ export async function main(canvas: HTMLCanvasElement) {
 
   const renderer = new Renderer(root, canvas);
 
-  const susanne = await loadModel(root, susannePath, OBJLoader);
+  const susanne = await loadModel(root, susannePath);
   const player = world.spawn(
     Player,
     MeshTrait(susanne),
-    TransformTrait({ position: vec3f(0, 0, -3) }),
+    TransformTrait({ position: vec3f(0, 0, -5) }),
   );
 
   let lastTime = Date.now();
@@ -38,13 +36,22 @@ export async function main(canvas: HTMLCanvasElement) {
     const delta = (now - lastTime) / 1000;
     lastTime = now;
 
-    // world.query(Position, Velocity).updateEach(([position, velocity]) => {
-    //   position.x += velocity.x * delta;
-    //   position.y += velocity.y * delta;
-    // });
+    world
+      .query(TransformTrait, Velocity)
+      .updateEach(([transform, velocity]) => {
+        transform.position.x += velocity.x * delta;
+        transform.position.y += velocity.y * delta;
+        transform.position.z += velocity.z * delta;
+      });
 
+    // Render system
     world.query(MeshTrait, TransformTrait).updateEach(([mesh, transform]) => {
       renderer.addObject(mesh, transform);
+    });
+
+    world.query(TransformTrait, Player).updateEach(([transform]) => {
+      // Rotating the player
+      quat.rotateY(transform.rotation, delta, transform.rotation);
     });
 
     renderer.render();
