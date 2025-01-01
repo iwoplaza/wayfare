@@ -15,11 +15,13 @@ import tgpu, {
   type TgpuRenderPipeline,
   type Uniform,
 } from 'typegpu/experimental';
+import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 
 import { Viewport } from './viewport.ts';
-import { vertexLayout, type Mesh } from '../mesh-bundle.ts';
+import { vertexLayout, type Mesh } from '../mesh.ts';
 import type { Transform } from '../transform.ts';
+import type { PerspectiveConfig } from '../camera-traits.ts';
 
 const UniformsStruct = struct({
   modelMat: mat4x4f,
@@ -102,6 +104,7 @@ export class Renderer {
   private readonly _povBuffer: TgpuBuffer<typeof POVStruct> & Uniform;
   private readonly _renderPipeline: TgpuRenderPipeline<Vec4f>;
   private readonly _cachedResources = new Map<number, ObjectResources>();
+  private _cameraConfig: PerspectiveConfig | null = null;
 
   constructor(
     public readonly root: ExperimentalTgpuRoot,
@@ -175,7 +178,12 @@ export class Renderer {
   }
 
   private _updatePOV() {
-    this._povBuffer.write({ viewProjMat: this._matrices.proj });
+    const viewProjMat = mat4.mul(
+      this._matrices.proj,
+      this._matrices.view,
+      mat4x4f(),
+    );
+    this._povBuffer.write({ viewProjMat });
   }
 
   private _resourcesFor(id: number): ObjectResources {
@@ -257,6 +265,24 @@ export class Renderer {
       });
 
     this.root.flush();
+  }
+
+  setPerspectivePOV(transform: Transform, config: PerspectiveConfig) {
+    const rotation = mat4.fromQuat(transform.rotation);
+    console.log(transform.rotation);
+    const forward = mat4.mul(rotation, vec4f(0, 0, -1, 0), vec4f());
+    const up = mat4.mul(rotation, vec4f(0, 1, 0, 0), vec4f());
+
+    mat4.identity(this._matrices.view);
+    mat4.lookAt(
+      transform.position,
+      add(transform.position, forward.xyz),
+      up.xyz,
+      this._matrices.view,
+    );
+
+    this._cameraConfig = config;
+    this._updateProjection();
   }
 
   addObject(object: GameObject) {
