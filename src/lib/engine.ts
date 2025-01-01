@@ -11,7 +11,7 @@ import { mat4, quat } from 'wgpu-matrix';
 
 import type { Renderer } from './renderer/renderer.ts';
 import type { Mesh } from './mesh.ts';
-import { MainCameraTag, PerspectiveCamera } from './camera-traits.ts';
+import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
 
 const Added = createAdded();
 const Removed = createRemoved();
@@ -60,8 +60,8 @@ export class Engine {
         const matrices = entity.get(MatricesTrait);
 
         mat4.identity(matrices.local);
-        mat4.scale(matrices.local, transform.scale, matrices.local);
         mat4.translate(matrices.local, transform.position, matrices.local);
+        mat4.scale(matrices.local, transform.scale, matrices.local);
         mat4.multiply(
           matrices.local,
           mat4.fromQuat(transform.rotation),
@@ -95,13 +95,13 @@ export class Engine {
       });
 
       // "Updating the point-of-view based on the main camera" system
-      const mainCameraEntity = this.world.queryFirst(MainCameraTag);
-      if (mainCameraEntity) {
-        const transform = mainCameraEntity.get(TransformTrait);
-        if (mainCameraEntity.has(PerspectiveCamera)) {
+      const activeCam = this.world.queryFirst(ActiveCameraTag);
+      if (activeCam) {
+        const transform = activeCam.get(TransformTrait);
+        if (activeCam.has(PerspectiveCamera)) {
           this.renderer.setPerspectivePOV(
             transform,
-            mainCameraEntity.get(PerspectiveCamera),
+            activeCam.get(PerspectiveCamera),
           );
         }
       }

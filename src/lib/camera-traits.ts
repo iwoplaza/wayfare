@@ -6,7 +6,7 @@ export type PerspectiveConfig = {
   far: number;
 };
 
-export const MainCameraTag = trait();
+export const ActiveCameraTag = trait();
 export const PerspectiveCamera = trait({
   fov: (75 / 180) * Math.PI,
   near: 0.1,
