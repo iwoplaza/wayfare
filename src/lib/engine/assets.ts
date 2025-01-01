@@ -3,7 +3,7 @@ import { OBJLoader } from '@loaders.gl/obj';
 import { vec2f, vec3f } from 'typegpu/data';
 import type { ExperimentalTgpuRoot } from 'typegpu/experimental';
 
-import { vertexLayout } from './mesh.ts';
+import { vertexLayout } from '../engine/mesh.ts';
 
 export async function loadModel(
   root: ExperimentalTgpuRoot,

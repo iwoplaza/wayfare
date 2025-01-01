@@ -5,11 +5,16 @@ import { quat } from 'wgpu-matrix';
 
 import susannePath from '../assets/susanne.obj?url';
 import pentagonPath from '../assets/pentagon.obj?url';
-import { loadModel } from './assets.ts';
+import { loadModel } from './engine/assets.ts';
 import { Renderer } from './renderer/renderer.ts';
-import { Engine, MaterialTrait, MeshTrait, TransformTrait } from './engine.ts';
-import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
-import { ChildOf, ParentOf } from './nodeTree.ts';
+import {
+  Engine,
+  MaterialTrait,
+  MeshTrait,
+  TransformTrait,
+} from './engine/engine.ts';
+import { ActiveCameraTag, PerspectiveCamera } from './engine/camera-traits.ts';
+import { ChildOf, ParentOf } from './engine/node-tree.ts';
 
 const Velocity = trait(() => vec3f());
 const PlayerTag = trait();
