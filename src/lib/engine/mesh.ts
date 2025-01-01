@@ -1,5 +1,5 @@
-import { tgpu, type Vertex, type TgpuBuffer } from 'typegpu/experimental';
 import { looseArrayOf, looseStruct, vec2f, vec3f } from 'typegpu/data';
+import { type TgpuBuffer, type Vertex, tgpu } from 'typegpu/experimental';
 
 export interface Mesh {
   vertexCount: number;

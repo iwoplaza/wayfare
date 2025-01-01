@@ -1,20 +1,22 @@
-import { trait, type Entity } from 'koota';
+import {
+  ActiveCameraTag,
+  ChildOf,
+  Engine,
+  MaterialTrait,
+  MeshTrait,
+  ParentOf,
+  PerspectiveCamera,
+  TransformTrait,
+} from 'jolted';
+import { loadModel } from 'jolted/assets';
+import { Renderer } from 'jolted/renderer';
+import { type Entity, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
 import { quat } from 'wgpu-matrix';
 
-import susannePath from '../assets/susanne.obj?url';
 import pentagonPath from '../assets/pentagon.obj?url';
-import { loadModel } from './engine/assets.ts';
-import { Renderer } from './renderer/renderer.ts';
-import {
-  Engine,
-  MaterialTrait,
-  MeshTrait,
-  TransformTrait,
-} from './engine/engine.ts';
-import { ActiveCameraTag, PerspectiveCamera } from './engine/camera-traits.ts';
-import { ChildOf, ParentOf } from './engine/node-tree.ts';
+import susannePath from '../assets/susanne.obj?url';
 
 const Velocity = trait(() => vec3f());
 const PlayerTag = trait();

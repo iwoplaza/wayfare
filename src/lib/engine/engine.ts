@@ -1,20 +1,20 @@
 import {
+  type Entity,
+  Not,
   createAdded,
   createRemoved,
   createWorld,
-  Not,
   trait,
-  type Entity,
 } from 'koota';
 import { mat4x4f, vec3f, vec4f } from 'typegpu/data';
 import type { ExperimentalTgpuRoot } from 'typegpu/experimental';
 import { mat4, quat } from 'wgpu-matrix';
 
-import type { Renderer } from '../renderer/renderer.ts';
-import type { Mesh } from './mesh.ts';
 import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
-import type { Material } from '../renderer/shader.ts';
+import type { Mesh } from './mesh.ts';
 import { ChildOf, ParentOf } from './node-tree.ts';
+import type { Renderer } from './renderer/renderer.ts';
+import type { Material } from './renderer/shader.ts';
 
 const Added = createAdded();
 const Removed = createRemoved();

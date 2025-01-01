@@ -8,20 +8,20 @@ import type {
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 
-import { Viewport } from './viewport.ts';
-import { vertexLayout, type Mesh } from '../engine/mesh.ts';
-import type { Transform } from '../engine/transform.ts';
-import type { PerspectiveConfig } from '../engine/camera-traits.ts';
+import type { PerspectiveConfig } from '../camera-traits.ts';
+import { type Mesh, vertexLayout } from '../mesh.ts';
+import type { Transform } from '../transform.ts';
 import {
-  fragmentFn,
   type Material,
   POVStruct,
+  type UniformsBindGroup,
+  UniformsStruct,
+  fragmentFn,
   sharedBindGroupLayout,
   uniformsBindGroupLayout,
-  UniformsStruct,
   vertexFn,
-  type UniformsBindGroup,
 } from './shader.ts';
+import { Viewport } from './viewport.ts';
 
 export type GameObject = {
   id: number;

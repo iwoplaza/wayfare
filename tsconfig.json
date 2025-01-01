@@ -3,6 +3,10 @@
   "include": [".astro/types.d.ts", "**/*"],
   "exclude": ["dist"],
   "compilerOptions": {
-    "typeRoots": ["./node_modules/@types", "./node_modules/@webgpu/types"]
+    "typeRoots": ["./node_modules/@types", "./node_modules/@webgpu/types"],
+    "paths": {
+      "jolted": ["./src/lib/engine/index.ts"],
+      "jolted/*": ["./src/lib/engine/*"]
+    }
   }
 }
