@@ -1,30 +1,24 @@
 import {
   type Vec4f,
   builtin,
-  looseArrayOf,
-  looseStruct,
   type m4x4f,
   mat4x4f,
   struct,
-  type v3f,
-  type v4f,
   vec2f,
   vec3f,
   vec4f,
 } from 'typegpu/data';
 import tgpu, {
-  type Vertex,
   type ExperimentalTgpuRoot,
+  type TgpuBindGroup,
   type TgpuBuffer,
   type TgpuRenderPipeline,
   type Uniform,
 } from 'typegpu/experimental';
 import { mat4 } from 'wgpu-matrix';
-import { Viewport } from './viewport.ts';
 
-export const vertexLayout = tgpu.vertexLayout((n) =>
-  looseArrayOf(looseStruct({ position: vec3f, normal: vec3f, uv: vec2f }), n),
-);
+import { Viewport } from './viewport.ts';
+import { vertexLayout, type MeshBundle } from '../mesh-bundle.ts';
 
 const UniformsStruct = struct({
   modelMat: mat4x4f,
@@ -35,12 +29,21 @@ const POVStruct = struct({
   viewProjMat: mat4x4f,
 }).$name('POV');
 
-const bindGroupLayout = tgpu
+const sharedBindGroupLayout = tgpu
   .bindGroupLayout({
-    uniforms: { uniform: UniformsStruct },
     pov: { uniform: POVStruct },
   })
+  .$name('shared');
+
+const uniformsBindGroupLayout = tgpu
+  .bindGroupLayout({
+    uniforms: { uniform: UniformsStruct },
+  })
   .$name('uniforms');
+
+type UniformsBindGroup = TgpuBindGroup<
+  (typeof uniformsBindGroupLayout)['entries']
+>;
 
 const vertexFn = tgpu
   .vertexFn(
@@ -60,8 +63,8 @@ const vertexFn = tgpu
     return out;
   }`)
   .$uses({
-    uniforms: bindGroupLayout.bound.uniforms,
-    pov: bindGroupLayout.bound.pov,
+    uniforms: uniformsBindGroupLayout.bound.uniforms,
+    pov: sharedBindGroupLayout.bound.pov,
   });
 
 const fragmentFn = tgpu
@@ -74,22 +77,13 @@ const fragmentFn = tgpu
     return vec4f((ambient + diffuse * att) * albedo, 1.0);
   }`);
 
-export interface Mesh {
-  vertexCount: number;
-  vertexBuffer: TgpuBuffer<
-    ReturnType<(typeof vertexLayout)['schemaForCount']>
-  > &
-    Vertex;
-}
-
-export interface Transform {
-  position: v3f;
-  rotation: v4f;
-  scale: v3f;
-}
+type ObjectResources = {
+  uniformsBindGroup: UniformsBindGroup;
+  uniformsBuffer: TgpuBuffer<typeof UniformsStruct> & Uniform;
+};
 
 export class Renderer {
-  private _objects: { mesh: Mesh; transform: Transform }[] = [];
+  private _objects: { id: number; meshBundle: MeshBundle }[] = [];
   private readonly _matrices: {
     proj: m4x4f;
     view: m4x4f;
@@ -98,9 +92,9 @@ export class Renderer {
   };
   private readonly _viewport: Viewport;
   private readonly _context: GPUCanvasContext;
-  private readonly _uniformsBuffer: TgpuBuffer<typeof UniformsStruct> & Uniform;
   private readonly _povBuffer: TgpuBuffer<typeof POVStruct> & Uniform;
   private readonly _renderPipeline: TgpuRenderPipeline<Vec4f>;
+  private readonly _cachedResources = new Map<number, ObjectResources>();
 
   constructor(
     public readonly root: ExperimentalTgpuRoot,
@@ -126,13 +120,6 @@ export class Renderer {
       normalModel: mat4.identity(mat4x4f()),
     };
 
-    this._uniformsBuffer = root
-      .createBuffer(UniformsStruct, {
-        modelMat: mat4.identity(mat4x4f()),
-        normalModelMat: mat4.identity(mat4x4f()),
-      })
-      .$usage('uniform');
-
     this._povBuffer = root
       .createBuffer(POVStruct, {
         viewProjMat: mat4.identity(mat4x4f()),
@@ -149,8 +136,7 @@ export class Renderer {
     handleResize();
     window.addEventListener('resize', handleResize);
 
-    const uniformsBindGroup = root.createBindGroup(bindGroupLayout, {
-      uniforms: this._uniformsBuffer,
+    const sharedBindGroup = root.createBindGroup(sharedBindGroupLayout, {
       pov: this._povBuffer,
     });
 
@@ -168,7 +154,7 @@ export class Renderer {
         format: 'depth24plus',
       })
       .createPipeline()
-      .with(bindGroupLayout, uniformsBindGroup);
+      .with(sharedBindGroupLayout, sharedBindGroup);
   }
 
   private _updateProjection() {
@@ -185,14 +171,34 @@ export class Renderer {
     this._povBuffer.write({ viewProjMat: this._matrices.proj });
   }
 
-  private _updateUniforms() {
-    this._uniformsBuffer.write({
-      modelMat: this._matrices.model,
-      normalModelMat: this._matrices.normalModel,
-    });
+  private _resourcesFor(id: number): ObjectResources {
+    let resources = this._cachedResources.get(id);
+
+    if (!resources) {
+      const uniformsBuffer = this.root
+        .createBuffer(UniformsStruct, {
+          modelMat: mat4.identity(mat4x4f()),
+          normalModelMat: mat4.identity(mat4x4f()),
+        })
+        .$usage('uniform');
+
+      const uniformsBindGroup = this.root.createBindGroup(
+        uniformsBindGroupLayout,
+        {
+          uniforms: uniformsBuffer,
+        },
+      );
+
+      resources = { uniformsBindGroup, uniformsBuffer };
+      this._cachedResources.set(id, resources);
+    }
+
+    return resources;
   }
 
-  private _updateModel(transform: Transform) {
+  private _recomputeUniformsFor(id: number, { transform }: MeshBundle) {
+    const { uniformsBuffer } = this._resourcesFor(id);
+
     const model = this._matrices.model;
     mat4.identity(model);
 
@@ -202,38 +208,55 @@ export class Renderer {
 
     mat4.invert(model, this._matrices.normalModel);
     mat4.transpose(this._matrices.normalModel, this._matrices.normalModel);
+
+    uniformsBuffer.write({
+      modelMat: this._matrices.model,
+      normalModelMat: this._matrices.normalModel,
+    });
+  }
+
+  private _latestUniformsFor(id: number) {
+    return this._resourcesFor(id).uniformsBindGroup;
   }
 
   render() {
     this._updatePOV();
 
-    for (const { mesh, transform } of this._objects) {
-      this._updateModel(transform);
-      this._updateUniforms();
-
-      this._renderPipeline
-        .withColorAttachment({
-          view: this._context.getCurrentTexture().createView(),
-          loadOp: 'clear',
-          storeOp: 'store',
-          clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
-        })
-        .withDepthStencilAttachment({
-          view: this._viewport.depthTextureView,
-          depthLoadOp: 'clear',
-          depthStoreOp: 'store',
-          depthClearValue: 1.0,
-        })
-        .with(vertexLayout, mesh.vertexBuffer)
-        .draw(mesh.vertexCount);
+    for (const { id, meshBundle } of this._objects) {
+      this._recomputeUniformsFor(id, meshBundle);
     }
 
-    this._objects = [];
+    this._renderPipeline
+      .withColorAttachment({
+        view: this._context.getCurrentTexture().createView(),
+        loadOp: 'clear',
+        storeOp: 'store',
+        clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+      })
+      .withDepthStencilAttachment({
+        view: this._viewport.depthTextureView,
+        depthLoadOp: 'clear',
+        depthStoreOp: 'store',
+        depthClearValue: 1.0,
+      })
+      .beginPass((pass) => {
+        for (const { id, meshBundle } of this._objects) {
+          const bindGroup = this._latestUniformsFor(id);
+
+          pass.setBindGroup(uniformsBindGroupLayout, bindGroup);
+          pass.setVertexBuffer(vertexLayout, meshBundle.mesh.vertexBuffer);
+          pass.draw(meshBundle.mesh.vertexCount);
+        }
+      });
 
     this.root.flush();
   }
 
-  addObject(mesh: Mesh, transform: Transform) {
-    this._objects.push({ mesh, transform });
+  addObject(id: number, meshBundle: MeshBundle) {
+    this._objects.push({ id, meshBundle });
+  }
+
+  removeObject(id: number) {
+    this._objects = this._objects.filter((obj) => obj.id !== id);
   }
 }

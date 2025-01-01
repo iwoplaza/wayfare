@@ -4,6 +4,7 @@ import tgpu from 'typegpu/experimental';
 import { quat } from 'wgpu-matrix';
 
 import susannePath from '../assets/susanne.obj?url';
+import pentagonPath from '../assets/pentagon.obj?url';
 import { loadModel } from './assets.ts';
 import { Renderer } from './renderer/renderer.ts';
 import { Engine, MeshTrait, TransformTrait } from './engine.ts';
@@ -16,6 +17,7 @@ export async function main(canvas: HTMLCanvasElement) {
   const renderer = new Renderer(root, canvas);
 
   const susanne = await loadModel(root, susannePath);
+  const pentagon = await loadModel(root, pentagonPath);
 
   const engine = new Engine(root, renderer, (deltaSeconds) => {
     // "Advancing by velocity" system
@@ -37,6 +39,11 @@ export async function main(canvas: HTMLCanvasElement) {
     Player,
     MeshTrait(susanne),
     TransformTrait({ position: vec3f(0, 0, -5) }),
+  );
+
+  engine.world.spawn(
+    MeshTrait(pentagon),
+    TransformTrait({ position: vec3f(0, -1, -5) }),
   );
 
   engine.run();
