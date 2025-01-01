@@ -4,7 +4,7 @@ import type { ExperimentalTgpuRoot } from 'typegpu/experimental';
 import { quat } from 'wgpu-matrix';
 
 import type { Renderer } from './renderer/renderer.ts';
-import type { Mesh, MeshBundle } from './mesh-bundle.ts';
+import type { Mesh } from './mesh-bundle.ts';
 
 export const MeshTrait = trait(() => ({}) as Mesh);
 export const TransformTrait = trait({
@@ -12,11 +12,6 @@ export const TransformTrait = trait({
   rotation: quat.identity(vec4f()),
   scale: vec3f(1),
 });
-
-export interface IRenderer {
-  render(): void;
-  addObject(id: number, meshBundle: MeshBundle): void;
-}
 
 const Added = createAdded();
 const Removed = createRemoved();
@@ -45,7 +40,8 @@ export class Engine {
           throw new Error('Entities with meshes require a TransformTrait');
         }
 
-        this.renderer.addObject(entity.id(), {
+        this.renderer.addObject({
+          id: entity.id(),
           mesh,
           transform: entity.get(TransformTrait),
         });

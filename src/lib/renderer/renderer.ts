@@ -18,7 +18,8 @@ import tgpu, {
 import { mat4 } from 'wgpu-matrix';
 
 import { Viewport } from './viewport.ts';
-import { vertexLayout, type MeshBundle } from '../mesh-bundle.ts';
+import { vertexLayout, type Mesh } from '../mesh-bundle.ts';
+import type { Transform } from '../transform.ts';
 
 const UniformsStruct = struct({
   modelMat: mat4x4f,
@@ -77,13 +78,19 @@ const fragmentFn = tgpu
     return vec4f((ambient + diffuse * att) * albedo, 1.0);
   }`);
 
+export type GameObject = {
+  id: number;
+  mesh: Mesh;
+  transform: Transform;
+};
+
 type ObjectResources = {
   uniformsBindGroup: UniformsBindGroup;
   uniformsBuffer: TgpuBuffer<typeof UniformsStruct> & Uniform;
 };
 
 export class Renderer {
-  private _objects: { id: number; meshBundle: MeshBundle }[] = [];
+  private _objects: GameObject[] = [];
   private readonly _matrices: {
     proj: m4x4f;
     view: m4x4f;
@@ -196,7 +203,7 @@ export class Renderer {
     return resources;
   }
 
-  private _recomputeUniformsFor(id: number, { transform }: MeshBundle) {
+  private _recomputeUniformsFor(id: number, transform: Transform) {
     const { uniformsBuffer } = this._resourcesFor(id);
 
     const model = this._matrices.model;
@@ -222,8 +229,8 @@ export class Renderer {
   render() {
     this._updatePOV();
 
-    for (const { id, meshBundle } of this._objects) {
-      this._recomputeUniformsFor(id, meshBundle);
+    for (const { id, transform } of this._objects) {
+      this._recomputeUniformsFor(id, transform);
     }
 
     this._renderPipeline
@@ -240,20 +247,20 @@ export class Renderer {
         depthClearValue: 1.0,
       })
       .beginPass((pass) => {
-        for (const { id, meshBundle } of this._objects) {
+        for (const { id, mesh } of this._objects) {
           const bindGroup = this._latestUniformsFor(id);
 
           pass.setBindGroup(uniformsBindGroupLayout, bindGroup);
-          pass.setVertexBuffer(vertexLayout, meshBundle.mesh.vertexBuffer);
-          pass.draw(meshBundle.mesh.vertexCount);
+          pass.setVertexBuffer(vertexLayout, mesh.vertexBuffer);
+          pass.draw(mesh.vertexCount);
         }
       });
 
     this.root.flush();
   }
 
-  addObject(id: number, meshBundle: MeshBundle) {
-    this._objects.push({ id, meshBundle });
+  addObject(object: GameObject) {
+    this._objects.push(object);
   }
 
   removeObject(id: number) {
