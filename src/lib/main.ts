@@ -7,7 +7,7 @@ import susannePath from '../assets/susanne.obj?url';
 import pentagonPath from '../assets/pentagon.obj?url';
 import { loadModel } from './assets.ts';
 import { Renderer } from './renderer/renderer.ts';
-import { Engine, MeshTrait, TransformTrait } from './engine.ts';
+import { Engine, MaterialTrait, MeshTrait, TransformTrait } from './engine.ts';
 import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
 import { ChildOf, ParentOf } from './nodeTree.ts';
 
@@ -49,7 +49,6 @@ export async function main(canvas: HTMLCanvasElement) {
           cameraTransform.position.x = playerPos.x;
           cameraTransform.position.y = playerPos.y + 5;
           cameraTransform.position.z = playerPos.z;
-          console.log('camera', cameraTransform.position);
         }
       });
 
@@ -60,12 +59,12 @@ export async function main(canvas: HTMLCanvasElement) {
 
       // Is above the player?
       if (transform.position.y > player.get(TransformTrait).position.y + 5) {
-        transform.position.y -= 10;
+        transform.position.y -= 40;
       }
     });
   });
 
-  const player = engine.world.spawn(
+  engine.world.spawn(
     PlayerTag,
     MeshTrait(susanne),
     TransformTrait({
@@ -73,30 +72,29 @@ export async function main(canvas: HTMLCanvasElement) {
       scale: vec3f(0.1),
       rotation: quat.fromEuler(-Math.PI / 2, Math.PI, 0, 'xyz', vec4f()),
     }),
+    MaterialTrait({ albedo: vec3f(1, 1, 1) }),
     Velocity(vec3f(0, -5, 0)),
   );
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 20; i++) {
     engine.world.spawn(
       MeshTrait(pentagon),
       TransformTrait({
         position: vec3f(0, -i * 2, 0),
+        rotation: quat.fromEuler(0, (i / 20) * Math.PI * 2, 0, 'xyz', vec4f()),
       }),
       LoopAround,
+      MaterialTrait({ albedo: vec3f(1, 0.5, 0) }),
     );
   }
 
-  connectAsChild(
-    player,
-    engine.world.spawn(
-      GameCameraTag,
-      ActiveCameraTag,
-      PerspectiveCamera,
-      TransformTrait({
-        position: vec3f(0, 5, 0),
-        rotation: quat.fromEuler(-Math.PI / 2, 0, 0, 'xyz', vec4f()),
-      }),
-    ),
+  engine.world.spawn(
+    GameCameraTag,
+    ActiveCameraTag,
+    PerspectiveCamera({ clearColor: [0.1, 0.6, 1, 1] }),
+    TransformTrait({
+      rotation: quat.fromEuler(-Math.PI / 2, 0, 0, 'xyz', vec4f()),
+    }),
   );
 
   engine.run();

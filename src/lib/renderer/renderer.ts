@@ -1,19 +1,9 @@
-import {
-  type Vec4f,
-  builtin,
-  type m4x4f,
-  mat4x4f,
-  struct,
-  vec2f,
-  vec3f,
-  vec4f,
-} from 'typegpu/data';
-import tgpu, {
-  type ExperimentalTgpuRoot,
-  type TgpuBindGroup,
-  type TgpuBuffer,
-  type TgpuRenderPipeline,
-  type Uniform,
+import { type Vec4f, type m4x4f, mat4x4f, vec3f, vec4f } from 'typegpu/data';
+import type {
+  ExperimentalTgpuRoot,
+  TgpuBuffer,
+  TgpuRenderPipeline,
+  Uniform,
 } from 'typegpu/experimental';
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
@@ -22,68 +12,22 @@ import { Viewport } from './viewport.ts';
 import { vertexLayout, type Mesh } from '../mesh.ts';
 import type { Transform } from '../transform.ts';
 import type { PerspectiveConfig } from '../camera-traits.ts';
-
-const UniformsStruct = struct({
-  modelMat: mat4x4f,
-  normalModelMat: mat4x4f,
-}).$name('Uniforms');
-
-const POVStruct = struct({
-  viewProjMat: mat4x4f,
-}).$name('POV');
-
-const sharedBindGroupLayout = tgpu
-  .bindGroupLayout({
-    pov: { uniform: POVStruct },
-  })
-  .$name('shared');
-
-const uniformsBindGroupLayout = tgpu
-  .bindGroupLayout({
-    uniforms: { uniform: UniformsStruct },
-  })
-  .$name('uniforms');
-
-type UniformsBindGroup = TgpuBindGroup<
-  (typeof uniformsBindGroupLayout)['entries']
->;
-
-const vertexFn = tgpu
-  .vertexFn(
-    { idx: builtin.vertexIndex, pos: vec3f, normal: vec3f, uv: vec2f },
-    { pos: builtin.position, normal: vec3f, uv: vec2f },
-  )
-  .does(`(
-    @builtin(vertex_index) idx: u32,
-    @location(0) pos: vec3f,
-    @location(1) normal: vec3f,
-    @location(2) uv: vec2f
-  ) -> Output {
-    var out: Output;
-    out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(pos, 1.0);
-    out.normal = (uniforms.normalModelMat * vec4f(normal, 0.0)).xyz;
-    out.uv = uv;
-    return out;
-  }`)
-  .$uses({
-    uniforms: uniformsBindGroupLayout.bound.uniforms,
-    pov: sharedBindGroupLayout.bound.pov,
-  });
-
-const fragmentFn = tgpu
-  .fragmentFn({}, vec4f)
-  .does(`(@location(0) normal: vec3f, @location(1) uv: vec2f) -> @location(0) vec4f {
-    let ambient = vec3f(0.1, 0.15, 0.2);
-    let diffuse = vec3f(1.0, 0.9, 0.7);
-    let att = max(0., dot(normalize(normal), vec3f(0., 1., 0.)));
-    let albedo = vec3f(1., 1., 1.);
-    return vec4f((ambient + diffuse * att) * albedo, 1.0);
-  }`);
+import {
+  fragmentFn,
+  type Material,
+  POVStruct,
+  sharedBindGroupLayout,
+  uniformsBindGroupLayout,
+  UniformsStruct,
+  vertexFn,
+  type UniformsBindGroup,
+} from './shader.ts';
 
 export type GameObject = {
   id: number;
   mesh: Mesh;
   worldMatrix: m4x4f;
+  material: Material;
 };
 
 type ObjectResources = {
@@ -194,6 +138,7 @@ export class Renderer {
         .createBuffer(UniformsStruct, {
           modelMat: mat4.identity(mat4x4f()),
           normalModelMat: mat4.identity(mat4x4f()),
+          material: { albedo: vec3f(1, 1, 1) },
         })
         .$usage('uniform');
 
@@ -211,7 +156,11 @@ export class Renderer {
     return resources;
   }
 
-  private _recomputeUniformsFor(id: number, worldMatrix: m4x4f) {
+  private _recomputeUniformsFor(
+    id: number,
+    worldMatrix: m4x4f,
+    material: Material,
+  ) {
     const { uniformsBuffer } = this._resourcesFor(id);
 
     mat4.invert(worldMatrix, this._matrices.normalModel);
@@ -220,6 +169,7 @@ export class Renderer {
     uniformsBuffer.write({
       modelMat: worldMatrix,
       normalModelMat: this._matrices.normalModel,
+      material,
     });
   }
 
@@ -230,8 +180,8 @@ export class Renderer {
   render() {
     this._updatePOV();
 
-    for (const { id, worldMatrix } of this._objects) {
-      this._recomputeUniformsFor(id, worldMatrix);
+    for (const { id, worldMatrix, material } of this._objects) {
+      this._recomputeUniformsFor(id, worldMatrix, material);
     }
 
     this._renderPipeline
@@ -239,7 +189,12 @@ export class Renderer {
         view: this._context.getCurrentTexture().createView(),
         loadOp: 'clear',
         storeOp: 'store',
-        clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+        clearValue: this._cameraConfig?.clearColor ?? {
+          r: 0.0,
+          g: 0.0,
+          b: 0.0,
+          a: 1.0,
+        },
       })
       .withDepthStencilAttachment({
         view: this._viewport.depthTextureView,

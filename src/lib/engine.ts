@@ -2,6 +2,7 @@ import {
   createAdded,
   createRemoved,
   createWorld,
+  Not,
   trait,
   type Entity,
 } from 'koota';
@@ -12,6 +13,8 @@ import { mat4, quat } from 'wgpu-matrix';
 import type { Renderer } from './renderer/renderer.ts';
 import type { Mesh } from './mesh.ts';
 import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
+import type { Material } from './renderer/shader.ts';
+import { ChildOf, ParentOf } from './nodeTree.ts';
 
 const Added = createAdded();
 const Removed = createRemoved();
@@ -23,6 +26,8 @@ export const TransformTrait = trait({
   scale: () => vec3f(1),
 });
 
+export const MaterialTrait = trait(() => ({}) as Material);
+
 /**
  * @internal
  */
@@ -30,6 +35,10 @@ export const MatricesTrait = trait(() => ({
   local: mat4x4f(),
   world: mat4x4f(),
 }));
+
+const DefaultMaterial: Material = {
+  albedo: vec3f(1, 0, 1),
+};
 
 export class Engine {
   public readonly world = createWorld();
@@ -50,7 +59,7 @@ export class Engine {
       this._onFrame(deltaSeconds);
 
       // "Updating matrices based on transforms" system
-      function updateMatrices(entity: Entity) {
+      const updateMatrices = (entity: Entity) => {
         const transform = entity.get(TransformTrait);
 
         if (!entity.has(MatricesTrait)) {
@@ -68,13 +77,26 @@ export class Engine {
           matrices.local,
         );
 
-        // TODO: Parent-child relationships
-        mat4.copy(matrices.local, matrices.world);
-      }
+        // Parent-child relationship
+        const parent = this.world.queryFirst(ParentOf(entity));
+        if (parent) {
+          const parentWorld = parent.get(MatricesTrait).world;
+          mat4.multiply(parentWorld, matrices.local, matrices.world);
+        } else {
+          mat4.copy(matrices.local, matrices.world);
+        }
 
-      this.world.query(TransformTrait).updateEach((_, entity) => {
-        updateMatrices(entity);
-      });
+        // Update children
+        this.world.query(ChildOf(entity)).updateEach((_, child) => {
+          updateMatrices(child);
+        });
+      };
+
+      this.world
+        .query(TransformTrait, Not(ChildOf('*')))
+        .updateEach((_, entity) => {
+          updateMatrices(entity);
+        });
 
       // "Adding objects to the renderer" system
       this.world.query(Added(MeshTrait)).updateEach(([mesh], entity) => {
@@ -86,6 +108,9 @@ export class Engine {
           id: entity.id(),
           mesh,
           worldMatrix: entity.get(MatricesTrait).world,
+          material: entity.has(MaterialTrait)
+            ? entity.get(MaterialTrait)
+            : DefaultMaterial,
         });
       });
 
