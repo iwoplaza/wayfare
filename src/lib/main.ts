@@ -1,4 +1,4 @@
-import { trait } from 'koota';
+import { trait, type Entity } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
 import { quat } from 'wgpu-matrix';
@@ -9,9 +9,15 @@ import { loadModel } from './assets.ts';
 import { Renderer } from './renderer/renderer.ts';
 import { Engine, MeshTrait, TransformTrait } from './engine.ts';
 import { MainCameraTag, PerspectiveCamera } from './camera-traits.ts';
+import { ChildOf, ParentOf } from './nodeTree.ts';
 
 const Velocity = trait(() => vec3f());
-const Player = trait();
+const PlayerTag = trait();
+
+function connectAsChild(parent: Entity, child: Entity) {
+  child.add(ChildOf(parent));
+  parent.add(ParentOf(child));
+}
 
 export async function main(canvas: HTMLCanvasElement) {
   const root = await tgpu.init();
@@ -29,41 +35,37 @@ export async function main(canvas: HTMLCanvasElement) {
         transform.position.y += velocity.y * deltaSeconds;
         transform.position.z += velocity.z * deltaSeconds;
       });
-
-    // "Rotating the player" system
-    engine.world
-      .query(TransformTrait, Player)
-      .updateEach(([transform], entity) => {
-        console.log(`Rotating entity ${entity.id()}`);
-        quat.rotateY(transform.rotation, deltaSeconds, transform.rotation);
-      });
   });
 
-  engine.world.spawn(
-    Player,
+  const player = engine.world.spawn(
+    PlayerTag,
     MeshTrait(susanne),
     TransformTrait({
       position: vec3f(0, 0, 0),
       scale: vec3f(0.1),
+      rotation: quat.fromEuler(-Math.PI / 2, Math.PI, 0, 'xyz', vec4f()),
     }),
+    Velocity(vec3f(0, 10, 0)),
   );
 
   engine.world.spawn(
     MeshTrait(pentagon),
     TransformTrait({
-      position: vec3f(0, -1, 0),
+      position: vec3f(0, 0, 0),
     }),
-    Velocity(vec3f(0, 1, 0)),
   );
 
-  engine.world.spawn(
-    MainCameraTag,
-    PerspectiveCamera,
-    TransformTrait({
-      position: vec3f(0, 5, 0),
-      rotation: quat.fromEuler(-Math.PI / 2, 0, 0, 'xyz', vec4f()),
-    }),
-    Velocity(vec3f(0, 0, 0)),
+  connectAsChild(
+    player,
+    engine.world.spawn(
+      MainCameraTag,
+      PerspectiveCamera,
+      TransformTrait({
+        position: vec3f(0, 5, 0),
+        rotation: quat.fromEuler(-Math.PI / 2, 0, 0, 'xyz', vec4f()),
+      }),
+      Velocity(vec3f(0, 0, 0)),
+    ),
   );
 
   engine.run();

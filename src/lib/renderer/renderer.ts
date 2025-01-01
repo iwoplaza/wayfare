@@ -83,7 +83,7 @@ const fragmentFn = tgpu
 export type GameObject = {
   id: number;
   mesh: Mesh;
-  transform: Transform;
+  worldMatrix: m4x4f;
 };
 
 type ObjectResources = {
@@ -211,21 +211,14 @@ export class Renderer {
     return resources;
   }
 
-  private _recomputeUniformsFor(id: number, transform: Transform) {
+  private _recomputeUniformsFor(id: number, worldMatrix: m4x4f) {
     const { uniformsBuffer } = this._resourcesFor(id);
 
-    const model = this._matrices.model;
-    mat4.identity(model);
-
-    mat4.scale(model, transform.scale, model);
-    mat4.translate(model, transform.position, model);
-    mat4.multiply(model, mat4.fromQuat(transform.rotation), model);
-
-    mat4.invert(model, this._matrices.normalModel);
+    mat4.invert(worldMatrix, this._matrices.normalModel);
     mat4.transpose(this._matrices.normalModel, this._matrices.normalModel);
 
     uniformsBuffer.write({
-      modelMat: this._matrices.model,
+      modelMat: worldMatrix,
       normalModelMat: this._matrices.normalModel,
     });
   }
@@ -237,8 +230,8 @@ export class Renderer {
   render() {
     this._updatePOV();
 
-    for (const { id, transform } of this._objects) {
-      this._recomputeUniformsFor(id, transform);
+    for (const { id, worldMatrix } of this._objects) {
+      this._recomputeUniformsFor(id, worldMatrix);
     }
 
     this._renderPipeline
@@ -269,7 +262,6 @@ export class Renderer {
 
   setPerspectivePOV(transform: Transform, config: PerspectiveConfig) {
     const rotation = mat4.fromQuat(transform.rotation);
-    console.log(transform.rotation);
     const forward = mat4.mul(rotation, vec4f(0, 0, -1, 0), vec4f());
     const up = mat4.mul(rotation, vec4f(0, 1, 0, 0), vec4f());
 
