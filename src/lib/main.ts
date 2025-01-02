@@ -8,12 +8,12 @@ import {
   PerspectiveCamera,
   TransformTrait,
 } from 'jolted';
+import { meshAsset } from 'jolted/assets';
 import { Renderer } from 'jolted/renderer';
 import { type Entity, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
 import { quat } from 'wgpu-matrix';
-import { meshAsset } from 'jolted/assets';
 
 import susannePath from '../assets/susanne.obj?url';
 import { MapProgressMarker, updateMapSystem } from './map';

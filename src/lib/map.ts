@@ -1,8 +1,8 @@
-import { quat } from 'wgpu-matrix';
-import { meshAsset } from 'jolted/assets';
-import { vec3f, vec4f } from 'typegpu/data';
-import { trait, type World, type ExtractSchema, Not } from 'koota';
 import { MaterialTrait, MeshTrait, TransformTrait, getOrAdd } from 'jolted';
+import { meshAsset } from 'jolted/assets';
+import { type ExtractSchema, Not, type World, trait } from 'koota';
+import { vec3f, vec4f } from 'typegpu/data';
+import { quat } from 'wgpu-matrix';
 
 import pentagonPath from '../assets/pentagon.obj?url';
 

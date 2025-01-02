@@ -1,3 +1,4 @@
+import type { MeshAsset } from 'jolted/assets';
 import { type Vec4f, type m4x4f, mat4x4f, vec3f, vec4f } from 'typegpu/data';
 import type {
   ExperimentalTgpuRoot,
@@ -7,7 +8,6 @@ import type {
 } from 'typegpu/experimental';
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
-import type { MeshAsset } from 'jolted/assets';
 
 import type { PerspectiveConfig } from '../camera-traits.ts';
 import { vertexLayout } from '../mesh.ts';

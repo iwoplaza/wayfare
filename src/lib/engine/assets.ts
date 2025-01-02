@@ -3,7 +3,7 @@ import { OBJLoader } from '@loaders.gl/obj';
 import { vec2f, vec3f } from 'typegpu/data';
 import type { ExperimentalTgpuRoot as TgpuRoot } from 'typegpu/experimental';
 
-import { vertexLayout, type Mesh } from './mesh.ts';
+import { type Mesh, vertexLayout } from './mesh.ts';
 
 export type MeshAssetOptions = {
   url: string;
