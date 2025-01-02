@@ -65,29 +65,51 @@ function controlPlayerSystem(world: World) {
     }
 
     // Encroaching the movement direction
-    dude.movementDir.x = encroach(dude.movementDir.x, dir.x, 0.1, deltaSeconds);
-    dude.movementDir.y = encroach(dude.movementDir.y, dir.y, 0.1, deltaSeconds);
-    dude.movementDir.z = encroach(dude.movementDir.z, dir.z, 0.1, deltaSeconds);
+    dude.movementDir.x = dir.x;
+    dude.movementDir.y = dir.y;
+    dude.movementDir.z = dir.z;
   });
 }
 
 function updateDudeVelocitySystem(world: World) {
+  const deltaSeconds = world.get(Time).deltaSeconds;
+
   world.query(Dude, Velocity).updateEach(([dude, velocity]) => {
-    velocity.x = dude.movementDir.x * dude.freeFallHorizontalSpeed;
-    velocity.z = dude.movementDir.z * dude.freeFallHorizontalSpeed;
+    const dir = dude.movementDir;
+    const speed = dude.freeFallHorizontalSpeed;
+    // Encroaching the movement direction
+    velocity.x = encroach(velocity.x, dir.x * speed, 0.1, deltaSeconds);
+    velocity.z = encroach(velocity.z, dir.z * speed, 0.1, deltaSeconds);
   });
 }
 
 function animatedDudeSystem(world: World) {
-  world.query(Dude, TransformTrait).updateEach(([dude, transform]) => {
-    // Tilting based on movement direction
-    transform.rotation = quat.fromEuler(
-      dude.movementDir.z * Math.PI * 0.2,
-      0,
-      dude.movementDir.x * -Math.PI * 0.2,
-      'xyz',
-      vec4f(),
-    );
+  world
+    .query(Velocity, TransformTrait, Dude)
+    .updateEach(([velocity, transform]) => {
+      // Tilting based on movement direction
+      transform.rotation = quat.fromEuler(
+        velocity.z * Math.PI * 0.1,
+        0,
+        velocity.x * -Math.PI * 0.1,
+        'xyz',
+        vec4f(),
+      );
+    });
+}
+
+function followCameraSystem(world: World) {
+  const deltaSeconds = world.get(Time).deltaSeconds;
+  const player = world.queryFirst(Player);
+  if (!player) return;
+
+  const playerPos = player.get(TransformTrait).position;
+
+  world.query(TransformTrait, GameCameraTag).updateEach(([cameraTransform]) => {
+    const pos = cameraTransform.position;
+    pos.x = encroach(pos.x, playerPos.x, 0.0001, deltaSeconds);
+    pos.y = playerPos.y + 0.7;
+    pos.z = encroach(pos.z, playerPos.z, 0.0001, deltaSeconds);
   });
 }
 
@@ -130,20 +152,7 @@ export async function main(canvas: HTMLCanvasElement) {
         transform.position.z += velocity.z * deltaSeconds;
       });
 
-    // "Follow camera" system
-    world
-      .query(TransformTrait, GameCameraTag)
-      .updateEach(([cameraTransform]) => {
-        const player = world.queryFirst(Player);
-
-        if (player) {
-          const playerPos = player.get(TransformTrait).position;
-          cameraTransform.position.x = playerPos.x;
-          cameraTransform.position.y = playerPos.y + 0.7;
-          cameraTransform.position.z = playerPos.z;
-        }
-      });
-
+    followCameraSystem(world);
     controlPlayerSystem(world);
     updateDudeVelocitySystem(world);
     animatedDudeSystem(world);
