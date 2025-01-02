@@ -46,17 +46,16 @@ export class Engine {
   constructor(
     public readonly root: ExperimentalTgpuRoot,
     public readonly renderer: Renderer,
-    private readonly _onFrame: (deltaSeconds: number) => unknown,
   ) {}
 
-  run() {
+  run(onFrame: (deltaSeconds: number) => unknown) {
     let lastTime = Date.now();
     const handleFrame = () => {
       const now = Date.now();
       const deltaSeconds = (now - lastTime) / 1000;
       lastTime = now;
 
-      this._onFrame(deltaSeconds);
+      onFrame(deltaSeconds);
 
       // "Updating matrices based on transforms" system
       const updateMatrices = (entity: Entity) => {
