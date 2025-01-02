@@ -11,15 +11,15 @@ import type { ExperimentalTgpuRoot } from 'typegpu/experimental';
 import { mat4, quat } from 'wgpu-matrix';
 
 import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
-import type { Mesh } from './mesh.ts';
 import { ChildOf, ParentOf } from './node-tree.ts';
 import type { Renderer } from './renderer/renderer.ts';
 import type { Material } from './renderer/shader.ts';
+import type { MeshAsset } from './assets.ts';
 
 const Added = createAdded();
 const Removed = createRemoved();
 
-export const MeshTrait = trait(() => ({}) as Mesh);
+export const MeshTrait = trait(() => ({}) as MeshAsset);
 export const TransformTrait = trait({
   position: () => vec3f(),
   rotation: () => quat.identity(vec4f()),
@@ -99,14 +99,14 @@ export class Engine {
         });
 
       // "Adding objects to the renderer" system
-      this.world.query(Added(MeshTrait)).updateEach(([mesh], entity) => {
+      this.world.query(Added(MeshTrait)).updateEach(([meshAsset], entity) => {
         if (!entity.has(TransformTrait)) {
           throw new Error('Entities with meshes require a TransformTrait');
         }
 
         this.renderer.addObject({
           id: entity.id(),
-          mesh,
+          meshAsset,
           worldMatrix: entity.get(MatricesTrait).world,
           material: entity.has(MaterialTrait)
             ? entity.get(MaterialTrait)

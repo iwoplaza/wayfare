@@ -4,7 +4,8 @@ export {
   MatricesTrait,
   MeshTrait,
   TransformTrait,
-} from './engine';
-export { ActiveCameraTag, PerspectiveCamera } from './camera-traits';
-export type { PerspectiveConfig } from './camera-traits';
-export { ChildOf, ParentOf } from './node-tree';
+} from './engine.ts';
+export { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
+export type { PerspectiveConfig } from './camera-traits.ts';
+export { ChildOf, ParentOf } from './node-tree.ts';
+export { getOrAdd } from './get-or-add.ts';

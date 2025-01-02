@@ -7,9 +7,10 @@ import type {
 } from 'typegpu/experimental';
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
+import type { MeshAsset } from 'jolted/assets';
 
 import type { PerspectiveConfig } from '../camera-traits.ts';
-import { type Mesh, vertexLayout } from '../mesh.ts';
+import { vertexLayout } from '../mesh.ts';
 import type { Transform } from '../transform.ts';
 import {
   type Material,
@@ -25,7 +26,7 @@ import { Viewport } from './viewport.ts';
 
 export type GameObject = {
   id: number;
-  mesh: Mesh;
+  meshAsset: MeshAsset;
   worldMatrix: m4x4f;
   material: Material;
 };
@@ -203,8 +204,14 @@ export class Renderer {
         depthClearValue: 1.0,
       })
       .beginPass((pass) => {
-        for (const { id, mesh } of this._objects) {
+        for (const { id, meshAsset } of this._objects) {
           const bindGroup = this._latestUniformsFor(id);
+
+          const mesh = meshAsset.peek(this.root);
+          if (!mesh) {
+            // Mesh is not loaded yet...
+            continue;
+          }
 
           pass.setBindGroup(uniformsBindGroupLayout, bindGroup);
           pass.setVertexBuffer(vertexLayout, mesh.vertexBuffer);

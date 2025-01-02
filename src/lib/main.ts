@@ -8,32 +8,30 @@ import {
   PerspectiveCamera,
   TransformTrait,
 } from 'jolted';
-import { loadModel } from 'jolted/assets';
 import { Renderer } from 'jolted/renderer';
 import { type Entity, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
 import { quat } from 'wgpu-matrix';
+import { meshAsset } from 'jolted/assets';
 
-import pentagonPath from '../assets/pentagon.obj?url';
 import susannePath from '../assets/susanne.obj?url';
+import { MapProgressMarker, updateMapSystem } from './map';
 
 const Velocity = trait(() => vec3f());
 const PlayerTag = trait();
 const GameCameraTag = trait();
-const LoopAround = trait();
 
 function connectAsChild(parent: Entity, child: Entity) {
   child.add(ChildOf(parent));
   parent.add(ParentOf(child));
 }
 
+const susanneMesh = meshAsset({ url: susannePath });
+
 export async function main(canvas: HTMLCanvasElement) {
   const root = await tgpu.init();
   const renderer = new Renderer(root, canvas);
-
-  const susanne = await loadModel(root, susannePath);
-  const pentagon = await loadModel(root, pentagonPath);
 
   const engine = new Engine(root, renderer, (deltaSeconds) => {
     // "Advancing by velocity" system
@@ -59,21 +57,13 @@ export async function main(canvas: HTMLCanvasElement) {
         }
       });
 
-    // "Loop around" system
-    engine.world.query(TransformTrait, LoopAround).updateEach(([transform]) => {
-      const player = engine.world.queryFirst(PlayerTag);
-      if (!player) return;
-
-      // Is above the player?
-      if (transform.position.y > player.get(TransformTrait).position.y + 5) {
-        transform.position.y -= 40;
-      }
-    });
+    updateMapSystem(engine.world);
   });
 
   engine.world.spawn(
     PlayerTag,
-    MeshTrait(susanne),
+    MapProgressMarker,
+    MeshTrait(susanneMesh),
     TransformTrait({
       position: vec3f(0, 0, 0),
       scale: vec3f(0.1),
@@ -82,18 +72,6 @@ export async function main(canvas: HTMLCanvasElement) {
     MaterialTrait({ albedo: vec3f(1, 1, 1) }),
     Velocity(vec3f(0, -5, 0)),
   );
-
-  for (let i = 0; i < 20; i++) {
-    engine.world.spawn(
-      MeshTrait(pentagon),
-      TransformTrait({
-        position: vec3f(0, -i * 2, 0),
-        rotation: quat.fromEuler(0, (i / 20) * Math.PI * 2, 0, 'xyz', vec4f()),
-      }),
-      LoopAround,
-      MaterialTrait({ albedo: vec3f(1, 0.5, 0) }),
-    );
-  }
 
   engine.world.spawn(
     GameCameraTag,

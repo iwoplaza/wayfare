@@ -1,12 +1,55 @@
 import { type DataType, type Loader, load } from '@loaders.gl/core';
 import { OBJLoader } from '@loaders.gl/obj';
 import { vec2f, vec3f } from 'typegpu/data';
-import type { ExperimentalTgpuRoot } from 'typegpu/experimental';
+import type { ExperimentalTgpuRoot as TgpuRoot } from 'typegpu/experimental';
 
-import { vertexLayout } from './mesh.ts';
+import { vertexLayout, type Mesh } from './mesh.ts';
 
-export async function loadModel(
-  root: ExperimentalTgpuRoot,
+export type MeshAssetOptions = {
+  url: string;
+};
+
+export type MeshAsset = {
+  get(root: TgpuRoot): Promise<Mesh> | Mesh;
+  peek(root: TgpuRoot): Mesh | undefined;
+  readonly url: string;
+};
+
+export const meshAsset = ({ url }: MeshAssetOptions): MeshAsset => {
+  const meshStore = new WeakMap<TgpuRoot, Mesh>();
+  const meshPromiseStore = new WeakMap<TgpuRoot, Promise<Mesh>>();
+
+  return {
+    get(root: TgpuRoot): Promise<Mesh> | Mesh {
+      const mesh = meshStore.get(root);
+      if (mesh) {
+        return mesh;
+      }
+
+      let meshPromise = meshPromiseStore.get(root);
+      if (!meshPromise) {
+        meshPromise = loadModel(root, url).then((model) => {
+          meshStore.set(root, model);
+          return model;
+        });
+        meshPromiseStore.set(root, meshPromise);
+      }
+
+      return meshPromise;
+    },
+    peek(root: TgpuRoot): Mesh | undefined {
+      const value = this.get(root);
+      if (value instanceof Promise) {
+        return undefined;
+      }
+      return value;
+    },
+    url,
+  };
+};
+
+async function loadModel(
+  root: TgpuRoot,
   src: string | DataType,
   loader: Loader = OBJLoader,
 ) {
