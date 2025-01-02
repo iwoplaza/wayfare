@@ -9,7 +9,7 @@ export type PerspectiveConfig = {
 
 export const ActiveCameraTag = trait();
 export const PerspectiveCamera = trait({
-  fov: (45 / 180) * Math.PI,
+  fov: 45,
   near: 0.1,
   far: 1000,
   clearColor: [0, 0, 0, 1] as [number, number, number, number],

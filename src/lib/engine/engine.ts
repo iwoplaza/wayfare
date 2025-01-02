@@ -15,6 +15,7 @@ import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
 import { ChildOf, ParentOf } from './node-tree.ts';
 import type { Renderer } from './renderer/renderer.ts';
 import type { Material } from './renderer/shader.ts';
+import { Time } from './time.ts';
 
 const Added = createAdded();
 const Removed = createRemoved();
@@ -46,7 +47,9 @@ export class Engine {
   constructor(
     public readonly root: ExperimentalTgpuRoot,
     public readonly renderer: Renderer,
-  ) {}
+  ) {
+    this.world.add(Time);
+  }
 
   run(onFrame: (deltaSeconds: number) => unknown) {
     let lastTime = Date.now();
@@ -54,6 +57,8 @@ export class Engine {
       const now = Date.now();
       const deltaSeconds = (now - lastTime) / 1000;
       lastTime = now;
+
+      this.world.set(Time, { deltaSeconds });
 
       onFrame(deltaSeconds);
 

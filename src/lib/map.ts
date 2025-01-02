@@ -52,6 +52,18 @@ export function updateMapSystem(world: World) {
       }
     });
 
+  // Handle highlighting when new the marker
+  world
+    .query(TransformTrait, MaterialTrait, MapChunk)
+    .updateEach(([transform, material]) => {
+      const distance = Math.abs(progressMarkerPos.y - transform.position.y);
+      if (distance < 0.2) {
+        material.albedo = vec3f(1, 1, 0);
+      } else {
+        material.albedo = vec3f(1, 0.5, 0);
+      }
+    });
+
   // Add new chunks
   let limit = 10;
   do {
@@ -64,8 +76,8 @@ export function updateMapSystem(world: World) {
       !tailPosition ||
       tailPosition.y > progressMarkerPos.y - settings.farDistance
     ) {
-      const xPos = (Math.random() * 2 - 1) * 0.3;
-      const zPos = (Math.random() * 2 - 1) * 0.3;
+      const xPos = (tailPosition?.x ?? 0) + (Math.random() * 2 - 1) * 0.4;
+      const zPos = (tailPosition?.z ?? 0) + (Math.random() * 2 - 1) * 0.4;
       const yPos = (tailPosition?.y ?? 0) - (tailChunk?.length ?? 0);
       world.spawn(
         MapChunk({ length: 1 + Math.random() * 5 }),

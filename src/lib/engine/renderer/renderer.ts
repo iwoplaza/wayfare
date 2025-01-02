@@ -114,7 +114,7 @@ export class Renderer {
 
   private _updateProjection() {
     mat4.perspective(
-      this._cameraConfig?.fov ?? (45 / 180) * Math.PI, // fov
+      ((this._cameraConfig?.fov ?? 45) / 180) * Math.PI, // fov
       this.canvas.width / this.canvas.height, // aspect
       this._cameraConfig?.near ?? 0.1, // near
       this._cameraConfig?.far ?? 1000.0, // far

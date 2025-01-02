@@ -1,4 +1,4 @@
-import { relation, type Entity } from 'koota';
+import { type Entity, relation } from 'koota';
 
 export const ChildOf = relation({ exclusive: true, autoRemoveTarget: true });
 export const ParentOf = relation({});
