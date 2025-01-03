@@ -1,8 +1,8 @@
 ---
-import background from '../assets/background.svg';
 ---
 
 <main>
+	<div id="loading-screen"><p>loading...</p></div>
 	<canvas id="canvas"></canvas>
 </main>
 
@@ -18,5 +18,16 @@ import background from '../assets/background.svg';
 	body {
 		font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
 		height: 100%;
+	}
+
+	#loading-screen {
+		position: fixed;
+		inset: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background: rgba(17, 18, 43, 0.8);
+		color: white;
+		font-size: min(70vh, 5vw);
 	}
 </style>

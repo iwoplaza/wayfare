@@ -18,7 +18,7 @@ import { quat } from 'wgpu-matrix';
 import { encroach } from 'jolted/easing';
 import { Time } from 'jolted/time';
 import dudePath from '../assets/dude.obj?url';
-import { MapProgressMarker, updateMapSystem } from './map';
+import { MapProgressMarker, createMap } from './map';
 
 const Velocity = trait(() => vec3f());
 
@@ -36,7 +36,15 @@ const Dude = trait({
 
 const GameCameraTag = trait();
 
-const dudeMesh = meshAsset({ url: dudePath });
+// Preloading...
+const loadingScreen = document.getElementById('loading-screen');
+
+const dudeMesh = await meshAsset({ url: dudePath }).preload();
+const { updateMapSystem } = await createMap();
+
+if (loadingScreen) {
+  loadingScreen.style.display = 'none';
+}
 
 function controlPlayerSystem(world: World) {
   const deltaSeconds = world.get(Time).deltaSeconds;

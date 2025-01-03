@@ -31,75 +31,80 @@ export const MapChunk = trait({
  */
 export const MapTail = trait({});
 
-const pentagonMesh = meshAsset({ url: pentagonPath });
+export async function createMap() {
+  const pentagonMesh = await meshAsset({ url: pentagonPath }).preload();
 
-export function updateMapSystem(world: World) {
-  const settings = getOrAdd(world, MapSettings);
-  const progressMarker = world.queryFirst(MapProgressMarker);
-  const progressMarkerPos = progressMarker?.get(TransformTrait).position;
+  function updateMapSystem(world: World) {
+    const settings = getOrAdd(world, MapSettings);
+    const progressMarker = world.queryFirst(MapProgressMarker);
+    const progressMarkerPos = progressMarker?.get(TransformTrait).position;
 
-  if (!progressMarkerPos) return;
+    if (!progressMarkerPos) return;
 
-  world
-    .query(MapChunk, TransformTrait, Not(MapTail))
-    .updateEach(([chunk, transform], entity) => {
-      // Is well above the marker?
+    world
+      .query(MapChunk, TransformTrait, Not(MapTail))
+      .updateEach(([chunk, transform], entity) => {
+        // Is well above the marker?
+        if (
+          transform.position.y - chunk.length >
+          progressMarkerPos.y + settings.deSpawnThreshold
+        ) {
+          entity.destroy();
+        }
+      });
+
+    // Handle highlighting when new the marker
+    world
+      .query(TransformTrait, MaterialTrait, MapChunk)
+      .updateEach(([transform, material]) => {
+        const distance = Math.abs(progressMarkerPos.y - transform.position.y);
+        if (distance < 0.2) {
+          material.albedo = vec3f(1, 1, 0);
+        } else {
+          material.albedo = vec3f(1, 0.5, 0);
+        }
+      });
+
+    // Add new chunks
+    let limit = 10;
+    do {
+      const tail = world.queryFirst(MapTail);
+      const tailPosition = tail?.get(TransformTrait).position;
+      const tailChunk = tail?.get(MapChunk);
+
       if (
-        transform.position.y - chunk.length >
-        progressMarkerPos.y + settings.deSpawnThreshold
+        !tail ||
+        !tailPosition ||
+        tailPosition.y > progressMarkerPos.y - settings.farDistance
       ) {
-        entity.destroy();
-      }
-    });
+        const xPos = (tailPosition?.x ?? 0) + (Math.random() * 2 - 1) * 0.4;
+        const yPos = (tailPosition?.y ?? -10) - (tailChunk?.length ?? 0);
+        const zPos = (tailPosition?.z ?? 0) + (Math.random() * 2 - 1) * 0.4;
 
-  // Handle highlighting when new the marker
-  world
-    .query(TransformTrait, MaterialTrait, MapChunk)
-    .updateEach(([transform, material]) => {
-      const distance = Math.abs(progressMarkerPos.y - transform.position.y);
-      if (distance < 0.2) {
-        material.albedo = vec3f(1, 1, 0);
+        world.spawn(
+          MapChunk({ length: 1 + Math.random() * 5 }),
+          TransformTrait({
+            position: vec3f(xPos, yPos, zPos),
+            rotation: quat.fromEuler(
+              0,
+              Math.random() * Math.PI,
+              0,
+              'xyz',
+              vec4f(),
+            ),
+          }),
+          MeshTrait(pentagonMesh),
+          MapTail,
+          MaterialTrait({ albedo: vec3f(1, 0.5, 0) }),
+        );
+        tail?.remove(MapTail);
       } else {
-        material.albedo = vec3f(1, 0.5, 0);
+        break;
       }
-    });
 
-  // Add new chunks
-  let limit = 10;
-  do {
-    const tail = world.queryFirst(MapTail);
-    const tailPosition = tail?.get(TransformTrait).position;
-    const tailChunk = tail?.get(MapChunk);
+      limit--;
+    } while (limit > 0);
+  }
 
-    if (
-      !tail ||
-      !tailPosition ||
-      tailPosition.y > progressMarkerPos.y - settings.farDistance
-    ) {
-      const xPos = (tailPosition?.x ?? 0) + (Math.random() * 2 - 1) * 0.4;
-      const zPos = (tailPosition?.z ?? 0) + (Math.random() * 2 - 1) * 0.4;
-      const yPos = (tailPosition?.y ?? 0) - (tailChunk?.length ?? 0);
-      world.spawn(
-        MapChunk({ length: 1 + Math.random() * 5 }),
-        TransformTrait({
-          position: vec3f(xPos, yPos, zPos),
-          rotation: quat.fromEuler(
-            0,
-            Math.random() * Math.PI,
-            0,
-            'xyz',
-            vec4f(),
-          ),
-        }),
-        MeshTrait(pentagonMesh),
-        MapTail,
-        MaterialTrait({ albedo: vec3f(1, 0.5, 0) }),
-      );
-      tail?.remove(MapTail);
-    } else {
-      break;
-    }
-
-    limit--;
-  } while (limit > 0);
+  return { updateMapSystem };
 }
