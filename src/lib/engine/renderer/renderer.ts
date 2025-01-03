@@ -102,7 +102,7 @@ export class Renderer {
         uv: vertexLayout.attrib.uv,
       })
       .withFragment(fragmentFn, { format: presentationFormat })
-      .withPrimitive({ topology: 'triangle-list' })
+      .withPrimitive({ topology: 'triangle-list', cullMode: 'back' })
       .withDepthStencil({
         depthWriteEnabled: true,
         depthCompare: 'less',

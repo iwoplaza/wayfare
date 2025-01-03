@@ -1,24 +1,27 @@
 import { type DataType, type Loader, load } from '@loaders.gl/core';
 import { OBJLoader } from '@loaders.gl/obj';
-import { vec2f, vec3f, type v2f, type v3f } from 'typegpu/data';
+import { type v2f, type v3f, vec2f, vec3f } from 'typegpu/data';
 import type { ExperimentalTgpuRoot as TgpuRoot } from 'typegpu/experimental';
 
 import { type Mesh, vertexLayout } from './mesh.ts';
 
 export type MeshAssetOptions = {
-  url: string;
+  url?: string | undefined;
+  data?: MeshData | undefined;
 };
 
 export type MeshAsset = {
   preload(): Promise<MeshAsset>;
   get(root: TgpuRoot): Promise<Mesh> | Mesh;
   peek(root: TgpuRoot): Mesh | undefined;
-  readonly url: string;
 };
 
-export const meshAsset = ({ url }: MeshAssetOptions): MeshAsset => {
+export const meshAsset = ({
+  url,
+  data: preexistingData,
+}: MeshAssetOptions): MeshAsset => {
   let meshDataPromise: Promise<MeshData> | null = null;
-  let meshData: MeshData | null = null;
+  let meshData: MeshData | undefined = preexistingData;
 
   const meshPromiseStore = new WeakMap<TgpuRoot, Promise<Mesh>>();
   const meshStore = new WeakMap<TgpuRoot, Mesh>();
@@ -30,7 +33,7 @@ export const meshAsset = ({ url }: MeshAssetOptions): MeshAsset => {
       }
 
       if (!meshDataPromise) {
-        meshDataPromise = loadModel(url).then((data) => {
+        meshDataPromise = loadModel(url ?? '').then((data) => {
           meshData = data;
           return data;
         });
@@ -72,8 +75,6 @@ export const meshAsset = ({ url }: MeshAssetOptions): MeshAsset => {
       }
       return value;
     },
-
-    url,
   };
 };
 

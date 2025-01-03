@@ -7,16 +7,16 @@ import {
   TransformTrait,
 } from 'jolted';
 import { meshAsset } from 'jolted/assets';
+import { encroach } from 'jolted/easing';
 import { Input } from 'jolted/input';
 import { Renderer } from 'jolted/renderer';
+import { Time } from 'jolted/time';
 import { type World, trait } from 'koota';
-import { vec3f, vec4f } from 'typegpu/data';
+import { vec2f, vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
 import { length, normalize } from 'typegpu/std';
 import { quat } from 'wgpu-matrix';
 
-import { encroach } from 'jolted/easing';
-import { Time } from 'jolted/time';
 import dudePath from '../assets/dude.obj?url';
 import { MapProgressMarker, createMap } from './map';
 
@@ -40,6 +40,43 @@ const GameCameraTag = trait();
 const loadingScreen = document.getElementById('loading-screen');
 
 const dudeMesh = await meshAsset({ url: dudePath }).preload();
+const fullscreenRectMesh = meshAsset({
+  data: {
+    vertices: [
+      {
+        position: vec3f(-1, -1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(0, 0),
+      },
+      {
+        position: vec3f(1, -1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(1, 0),
+      },
+      {
+        position: vec3f(1, 1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(1, 1),
+      },
+      // Second triangle
+      {
+        position: vec3f(-1, -1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(0, 0),
+      },
+      {
+        position: vec3f(1, 1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(1, 1),
+      },
+      {
+        position: vec3f(-1, 1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(0, 1),
+      },
+    ],
+  },
+});
 const { updateMapSystem } = await createMap();
 
 if (loadingScreen) {
@@ -91,7 +128,7 @@ function updateDudeVelocitySystem(world: World) {
   });
 }
 
-function animatedDudeSystem(world: World) {
+function animateDudeSystem(world: World) {
   world
     .query(Velocity, TransformTrait, Dude)
     .updateEach(([velocity, transform]) => {
@@ -141,7 +178,7 @@ export async function main(canvas: HTMLCanvasElement) {
     Velocity(vec3f(0, -5, 0)),
   );
 
-  world.spawn(
+  const gameCamera = world.spawn(
     GameCameraTag,
     ActiveCameraTag,
     PerspectiveCamera({ fov: 120, clearColor: [0.1, 0.6, 1, 1] }),
@@ -149,6 +186,19 @@ export async function main(canvas: HTMLCanvasElement) {
       rotation: quat.fromEuler(-Math.PI / 2, 0, 0, 'xyz', vec4f()),
     }),
   );
+
+  // // Red rectangle in the UI
+  // connectAsChild(
+  //   gameCamera,
+  //   world.spawn(
+  //     MeshTrait(fullscreenRectMesh),
+  //     MaterialTrait({ albedo: vec3f(1, 0, 0) }),
+  //     TransformTrait({
+  //       position: vec3f(0, 0, -1),
+  //       scale: vec3f(0.1),
+  //     }),
+  //   ),
+  // );
 
   engine.run((deltaSeconds) => {
     // "Advancing by velocity" system
@@ -163,7 +213,7 @@ export async function main(canvas: HTMLCanvasElement) {
     followCameraSystem(world);
     controlPlayerSystem(world);
     updateDudeVelocitySystem(world);
-    animatedDudeSystem(world);
+    animateDudeSystem(world);
     updateMapSystem(world);
   });
 }
