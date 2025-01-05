@@ -18,7 +18,7 @@ import {
   sharedBindGroupLayout,
   uniformsBindGroupLayout,
   UniformsStruct,
-  type MaterialInstance,
+  type Material,
   type SharedBindGroup,
   type UniformsBindGroup,
 } from './material.ts';
@@ -27,7 +27,8 @@ export type GameObject = {
   id: number;
   meshAsset: MeshAsset;
   worldMatrix: m4x4f;
-  material: MaterialInstance;
+  material: Material;
+  materialParams: unknown;
 };
 
 type ObjectResources = {
@@ -118,10 +119,7 @@ export class Renderer {
     this._povBuffer.write({ viewProjMat });
   }
 
-  private _resourcesFor(
-    id: number,
-    material: MaterialInstance,
-  ): ObjectResources {
+  private _resourcesFor(id: number, material: Material): ObjectResources {
     let resources = this._cachedResources.get(id);
 
     if (!resources) {
@@ -140,11 +138,11 @@ export class Renderer {
       );
 
       const instanceParamsBuffer = this.root
-        .createBuffer(material.material.instanceParamsSchema as AnyWgslData)
+        .createBuffer(material.instanceParamsSchema as AnyWgslData)
         .$usage('uniform');
 
       const instanceParamsBindGroup = this.root.createBindGroup(
-        material.material.instanceParamsLayout,
+        material.instanceParamsLayout,
         {
           params: instanceParamsBuffer,
         },
@@ -162,11 +160,12 @@ export class Renderer {
     return resources;
   }
 
-  private _recomputeUniformsFor(
-    id: number,
-    worldMatrix: m4x4f,
-    material: MaterialInstance,
-  ) {
+  private _recomputeUniformsFor({
+    id,
+    worldMatrix,
+    material,
+    materialParams,
+  }: GameObject) {
     const { uniformsBuffer, instanceParamsBuffer } = this._resourcesFor(
       id,
       material,
@@ -180,14 +179,14 @@ export class Renderer {
       normalModelMat: this._matrices.normalModel,
     });
 
-    instanceParamsBuffer.write(material.params);
+    instanceParamsBuffer.write(materialParams);
   }
 
   render() {
     this._updatePOV();
 
-    for (const { id, worldMatrix, material } of this._objects) {
-      this._recomputeUniformsFor(id, worldMatrix, material);
+    for (const obj of this._objects) {
+      this._recomputeUniformsFor(obj);
     }
 
     let firstPass = true;
@@ -198,7 +197,7 @@ export class Renderer {
         continue;
       }
 
-      const pipeline = material.material.getPipeline(
+      const pipeline = material.getPipeline(
         this.root,
         this._presentationFormat,
       );
@@ -211,7 +210,7 @@ export class Renderer {
       pipeline
         .with(sharedBindGroupLayout, this._sharedBindGroup)
         .with(uniformsBindGroupLayout, uniformsBindGroup)
-        .with(material.material.instanceParamsLayout, instanceParamsBindGroup)
+        .with(material.instanceParamsLayout, instanceParamsBindGroup)
         .with(POS_NORMAL_UV, mesh.vertexBuffer)
         .withColorAttachment({
           view: this._context.getCurrentTexture().createView(),

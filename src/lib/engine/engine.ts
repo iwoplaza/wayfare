@@ -1,12 +1,13 @@
 import {
   type Entity,
   Not,
+  type Trait,
   createAdded,
   createRemoved,
   createWorld,
   trait,
 } from 'koota';
-import { mat4x4f, vec3f, vec4f, type AnyWgslData } from 'typegpu/data';
+import { mat4x4f, vec3f, vec4f } from 'typegpu/data';
 import type { ExperimentalTgpuRoot } from 'typegpu/experimental';
 import { mat4, quat } from 'wgpu-matrix';
 
@@ -15,8 +16,8 @@ import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
 import { ChildOf, ParentOf } from './node-tree.ts';
 import type { Renderer } from './renderer/renderer.ts';
 import { Time } from './time.ts';
-import { MaterialInstance } from './renderer/material.ts';
 import { BlinnPhongMaterial } from './renderer/blinn-phong-material.ts';
+import { MaterialTrait, type Material } from './renderer/material.ts';
 
 const Added = createAdded();
 const Removed = createRemoved();
@@ -28,8 +29,6 @@ export const TransformTrait = trait({
   scale: () => vec3f(1),
 });
 
-export const MaterialTrait = trait(() => ({}) as MaterialInstance<AnyWgslData>);
-
 /**
  * @internal
  */
@@ -38,7 +37,7 @@ export const MatricesTrait = trait(() => ({
   world: mat4x4f(),
 }));
 
-const DefaultMaterial = new MaterialInstance(BlinnPhongMaterial);
+const DefaultMaterial = BlinnPhongMaterial.material;
 
 export class Engine {
   public readonly world = createWorld();
@@ -107,13 +106,22 @@ export class Engine {
           throw new Error('Entities with meshes require a TransformTrait');
         }
 
+        let material: Material = DefaultMaterial;
+        const materialTrait = entity.get(MaterialTrait);
+        if (materialTrait) {
+          material = materialTrait.material;
+        }
+
         this.renderer.addObject({
           id: entity.id(),
           meshAsset,
           worldMatrix: entity.get(MatricesTrait).world,
-          material: entity.has(MaterialTrait)
-            ? entity.get(MaterialTrait)
-            : DefaultMaterial,
+          material,
+          get materialParams() {
+            return materialTrait
+              ? entity.get(materialTrait.paramsTrait as unknown as Trait)
+              : DefaultMaterial.defaultParams;
+          },
         });
       });
 

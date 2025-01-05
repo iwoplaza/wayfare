@@ -1,3 +1,4 @@
+import { trait, type ConfigurableTrait, type Schema, type Trait } from 'koota';
 import {
   mat4x4f,
   struct,
@@ -37,7 +38,7 @@ export interface MaterialOptions {
   pipeline: TgpuRenderPipeline;
 }
 
-export interface Material<TParams extends BaseWgslData> {
+export interface Material<TParams extends BaseWgslData = BaseWgslData> {
   readonly instanceParamsSchema: TParams;
   readonly instanceParamsLayout: TgpuBindGroupLayout;
   readonly defaultParams: Infer<TParams>;
@@ -75,11 +76,22 @@ export type UniformsBindGroup = TgpuBindGroup<
 const { pov } = sharedBindGroupLayout.bound;
 const { uniforms } = uniformsBindGroupLayout.bound;
 
+type TraitFor<T> = T extends Schema ? Trait<T> : never;
+
+export const MaterialTrait = trait({
+  material: {} as Material,
+  paramsTrait: {} as Trait,
+});
+
 export function createMaterial<TParams extends AnyWgslData>(
   instanceParamsSchema: TParams,
   defaultParams: Infer<Normal<TParams>>,
   maker: (ctx: MaterialContext<Normal<TParams>>) => MaterialOptions,
-): Material<Normal<TParams>> {
+): {
+  material: Material<Normal<TParams>>;
+  Params: TraitFor<Infer<Normal<TParams>>>;
+  Bundle(params?: Infer<Normal<TParams>>): ConfigurableTrait[];
+} {
   const pipelineStore = new WeakMap<TgpuRoot, TgpuRenderPipeline<Vec4f>>();
 
   const instanceParamsLayout = tgpu.bindGroupLayout({
@@ -88,7 +100,7 @@ export function createMaterial<TParams extends AnyWgslData>(
     params: { uniform: Normal<TParams> };
   }>;
 
-  return {
+  const material: Material<Normal<TParams>> = {
     instanceParamsSchema: instanceParamsSchema as Normal<TParams>,
     instanceParamsLayout,
     defaultParams,
@@ -124,6 +136,20 @@ export function createMaterial<TParams extends AnyWgslData>(
       pipelineStore.set(root, pipeline);
       return pipeline;
     },
+  };
+
+  const paramsTrait = trait(defaultParams as Schema) as TraitFor<
+    Infer<Normal<TParams>>
+  >;
+
+  return {
+    material,
+    Params: paramsTrait,
+    Bundle: (params) => [
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      MaterialTrait({ material, paramsTrait: paramsTrait as any }),
+      params ? paramsTrait(params) : paramsTrait,
+    ],
   };
 }
 

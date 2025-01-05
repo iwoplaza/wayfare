@@ -1,7 +1,6 @@
 import {
   ActiveCameraTag,
   Engine,
-  MaterialTrait,
   MeshTrait,
   PerspectiveCamera,
   TransformTrait,
@@ -10,7 +9,6 @@ import { meshAsset } from 'jolted/assets';
 import { encroach } from 'jolted/easing';
 import { Input } from 'jolted/input';
 import { Renderer } from 'jolted/renderer';
-import { MaterialInstance } from 'jolted/renderer/material';
 import { BlinnPhongMaterial } from 'jolted/renderer/blinn-phong-material';
 import { Time } from 'jolted/time';
 import { type World, trait } from 'koota';
@@ -176,9 +174,7 @@ export async function main(canvas: HTMLCanvasElement) {
       position: vec3f(0, 0, 0),
       scale: vec3f(0.1),
     }),
-    MaterialTrait(
-      new MaterialInstance(BlinnPhongMaterial, { albedo: vec3f(1, 1, 1) }),
-    ),
+    ...BlinnPhongMaterial.Bundle({ albedo: vec3f(1, 1, 1) }),
     Velocity(vec3f(0, -5, 0)),
   );
 

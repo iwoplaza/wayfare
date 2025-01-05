@@ -5,13 +5,16 @@ import { normalize, mul, max, dot, add } from 'typegpu/std';
 
 import { createMaterial } from './material';
 
-export const BlinnPhongParams = struct({
-  albedo: vec3f,
-});
-
 export const BlinnPhongMaterial = createMaterial(
-  BlinnPhongParams,
+  // schema
+  struct({
+    albedo: vec3f,
+  }),
+
+  // defaults
   { albedo: vec3f(1, 0, 1) },
+
+  // shader
   ({ root, format, getPOV, getUniforms, getParams }) => {
     const vertexFn = tgpu
       .vertexFn(

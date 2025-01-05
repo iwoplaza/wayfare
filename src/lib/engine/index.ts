@@ -1,6 +1,5 @@
 export {
   Engine,
-  MaterialTrait,
   MatricesTrait,
   MeshTrait,
   TransformTrait,
