@@ -10,6 +10,8 @@ import { meshAsset } from 'jolted/assets';
 import { encroach } from 'jolted/easing';
 import { Input } from 'jolted/input';
 import { Renderer } from 'jolted/renderer';
+import { MaterialInstance } from 'jolted/renderer/material';
+import { BlinnPhongMaterial } from 'jolted/renderer/blinn-phong-material';
 import { Time } from 'jolted/time';
 import { type World, trait } from 'koota';
 import { vec2f, vec3f, vec4f } from 'typegpu/data';
@@ -44,33 +46,33 @@ const fullscreenRectMesh = meshAsset({
   data: {
     vertices: [
       {
-        position: vec3f(-1, -1, 0),
+        pos: vec3f(-1, -1, 0),
         normal: vec3f(0, 0, 1),
         uv: vec2f(0, 0),
       },
       {
-        position: vec3f(1, -1, 0),
+        pos: vec3f(1, -1, 0),
         normal: vec3f(0, 0, 1),
         uv: vec2f(1, 0),
       },
       {
-        position: vec3f(1, 1, 0),
+        pos: vec3f(1, 1, 0),
         normal: vec3f(0, 0, 1),
         uv: vec2f(1, 1),
       },
       // Second triangle
       {
-        position: vec3f(-1, -1, 0),
+        pos: vec3f(-1, -1, 0),
         normal: vec3f(0, 0, 1),
         uv: vec2f(0, 0),
       },
       {
-        position: vec3f(1, 1, 0),
+        pos: vec3f(1, 1, 0),
         normal: vec3f(0, 0, 1),
         uv: vec2f(1, 1),
       },
       {
-        position: vec3f(-1, 1, 0),
+        pos: vec3f(-1, 1, 0),
         normal: vec3f(0, 0, 1),
         uv: vec2f(0, 1),
       },
@@ -174,7 +176,9 @@ export async function main(canvas: HTMLCanvasElement) {
       position: vec3f(0, 0, 0),
       scale: vec3f(0.1),
     }),
-    MaterialTrait({ albedo: vec3f(1, 1, 1) }),
+    MaterialTrait(
+      new MaterialInstance(BlinnPhongMaterial, { albedo: vec3f(1, 1, 1) }),
+    ),
     Velocity(vec3f(0, -5, 0)),
   );
 

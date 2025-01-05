@@ -4,11 +4,11 @@ import { type TgpuBuffer, type Vertex, tgpu } from 'typegpu/experimental';
 export interface Mesh {
   vertexCount: number;
   vertexBuffer: TgpuBuffer<
-    ReturnType<(typeof vertexLayout)['schemaForCount']>
+    ReturnType<(typeof POS_NORMAL_UV)['schemaForCount']>
   > &
     Vertex;
 }
 
-export const vertexLayout = tgpu.vertexLayout((n) =>
-  looseArrayOf(looseStruct({ position: vec3f, normal: vec3f, uv: vec2f }), n),
+export const POS_NORMAL_UV = tgpu.vertexLayout((n) =>
+  looseArrayOf(looseStruct({ pos: vec3f, normal: vec3f, uv: vec2f }), n),
 );

@@ -1,5 +1,7 @@
 import { MaterialTrait, MeshTrait, TransformTrait, getOrAdd } from 'jolted';
 import { meshAsset } from 'jolted/assets';
+import { MaterialInstance } from 'jolted/renderer/material';
+import { BlinnPhongMaterial } from 'jolted/renderer/blinn-phong-material';
 import { type ExtractSchema, Not, type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import { quat } from 'wgpu-matrix';
@@ -59,9 +61,9 @@ export async function createMap() {
       .updateEach(([transform, material]) => {
         const distance = Math.abs(progressMarkerPos.y - transform.position.y);
         if (distance < 0.2) {
-          material.albedo = vec3f(1, 1, 0);
+          material.params = { albedo: vec3f(1, 1, 0) };
         } else {
-          material.albedo = vec3f(1, 0.5, 0);
+          material.params = { albedo: vec3f(1, 0.5, 0) };
         }
       });
 
@@ -95,7 +97,7 @@ export async function createMap() {
           }),
           MeshTrait(pentagonMesh),
           MapTail,
-          MaterialTrait({ albedo: vec3f(1, 0.5, 0) }),
+          MaterialTrait(new MaterialInstance(BlinnPhongMaterial)),
         );
         tail?.remove(MapTail);
       } else {

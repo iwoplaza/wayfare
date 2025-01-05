@@ -3,7 +3,7 @@ import { OBJLoader } from '@loaders.gl/obj';
 import { type v2f, type v3f, vec2f, vec3f } from 'typegpu/data';
 import type { ExperimentalTgpuRoot as TgpuRoot } from 'typegpu/experimental';
 
-import { type Mesh, vertexLayout } from './mesh.ts';
+import { type Mesh, POS_NORMAL_UV } from './mesh.ts';
 
 export type MeshAssetOptions = {
   url?: string | undefined;
@@ -79,7 +79,7 @@ export const meshAsset = ({
 };
 
 type MeshData = {
-  vertices: { position: v3f; normal: v3f; uv: v2f }[];
+  vertices: { pos: v3f; normal: v3f; uv: v2f }[];
 };
 
 async function loadModel(
@@ -95,11 +95,7 @@ async function loadModel(
 
   return {
     vertices: Array.from({ length: vertexCount }, (_, i) => ({
-      position: vec3f(
-        POSITION[i * 3],
-        POSITION[i * 3 + 1],
-        POSITION[i * 3 + 2],
-      ),
+      pos: vec3f(POSITION[i * 3], POSITION[i * 3 + 1], POSITION[i * 3 + 2]),
       normal: vec3f(NORMAL[i * 3], NORMAL[i * 3 + 1], NORMAL[i * 3 + 2]),
       uv: vec2f(TEXCOORD_0[i * 2], TEXCOORD_0[i * 2 + 1]),
     })),
@@ -110,7 +106,7 @@ function createMeshFromData(root: TgpuRoot, data: MeshData): Mesh {
   const vertexCount = data.vertices.length;
 
   const vertexBuffer = root
-    .createBuffer(vertexLayout.schemaForCount(vertexCount), data.vertices)
+    .createBuffer(POS_NORMAL_UV.schemaForCount(vertexCount), data.vertices)
     .$usage('vertex');
 
   return { vertexCount, vertexBuffer };

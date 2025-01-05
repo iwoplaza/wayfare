@@ -1,39 +1,41 @@
-import type { MeshAsset } from 'jolted/assets';
-import { type Vec4f, type m4x4f, mat4x4f, vec3f, vec4f } from 'typegpu/data';
+import { type AnyWgslData, type m4x4f, mat4x4f, vec4f } from 'typegpu/data';
 import type {
   ExperimentalTgpuRoot,
+  TgpuBindGroup,
   TgpuBuffer,
-  TgpuRenderPipeline,
   Uniform,
 } from 'typegpu/experimental';
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 
+import { POS_NORMAL_UV } from '../mesh.ts';
+import type { MeshAsset } from '../assets.ts';
 import type { PerspectiveConfig } from '../camera-traits.ts';
-import { vertexLayout } from '../mesh.ts';
 import type { Transform } from '../transform.ts';
+import { Viewport } from './viewport.ts';
 import {
-  type Material,
   POVStruct,
-  type UniformsBindGroup,
-  UniformsStruct,
-  fragmentFn,
   sharedBindGroupLayout,
   uniformsBindGroupLayout,
-  vertexFn,
-} from './shader.ts';
-import { Viewport } from './viewport.ts';
+  UniformsStruct,
+  type MaterialInstance,
+  type SharedBindGroup,
+  type UniformsBindGroup,
+} from './material.ts';
 
 export type GameObject = {
   id: number;
   meshAsset: MeshAsset;
   worldMatrix: m4x4f;
-  material: Material;
+  material: MaterialInstance;
 };
 
 type ObjectResources = {
   uniformsBindGroup: UniformsBindGroup;
   uniformsBuffer: TgpuBuffer<typeof UniformsStruct> & Uniform;
+
+  instanceParamsBindGroup: TgpuBindGroup;
+  instanceParamsBuffer: TgpuBuffer<AnyWgslData> & Uniform;
 };
 
 export class Renderer {
@@ -47,7 +49,8 @@ export class Renderer {
   private readonly _viewport: Viewport;
   private readonly _context: GPUCanvasContext;
   private readonly _povBuffer: TgpuBuffer<typeof POVStruct> & Uniform;
-  private readonly _renderPipeline: TgpuRenderPipeline<Vec4f>;
+  private readonly _sharedBindGroup: SharedBindGroup;
+  private readonly _presentationFormat: GPUTextureFormat;
   private readonly _cachedResources = new Map<number, ObjectResources>();
   private _cameraConfig: PerspectiveConfig | null = null;
 
@@ -58,11 +61,11 @@ export class Renderer {
     const device = root.device;
 
     this._context = canvas.getContext('webgpu') as GPUCanvasContext;
-    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    this._presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
     this._context.configure({
       device: device,
-      format: presentationFormat,
+      format: this._presentationFormat,
       alphaMode: 'premultiplied',
     });
 
@@ -91,25 +94,9 @@ export class Renderer {
     handleResize();
     window.addEventListener('resize', handleResize);
 
-    const sharedBindGroup = root.createBindGroup(sharedBindGroupLayout, {
+    this._sharedBindGroup = root.createBindGroup(sharedBindGroupLayout, {
       pov: this._povBuffer,
     });
-
-    this._renderPipeline = root
-      .withVertex(vertexFn, {
-        pos: vertexLayout.attrib.position,
-        normal: vertexLayout.attrib.normal,
-        uv: vertexLayout.attrib.uv,
-      })
-      .withFragment(fragmentFn, { format: presentationFormat })
-      .withPrimitive({ topology: 'triangle-list', cullMode: 'back' })
-      .withDepthStencil({
-        depthWriteEnabled: true,
-        depthCompare: 'less',
-        format: 'depth24plus',
-      })
-      .createPipeline()
-      .with(sharedBindGroupLayout, sharedBindGroup);
   }
 
   private _updateProjection() {
@@ -131,7 +118,10 @@ export class Renderer {
     this._povBuffer.write({ viewProjMat });
   }
 
-  private _resourcesFor(id: number): ObjectResources {
+  private _resourcesFor(
+    id: number,
+    material: MaterialInstance,
+  ): ObjectResources {
     let resources = this._cachedResources.get(id);
 
     if (!resources) {
@@ -139,7 +129,6 @@ export class Renderer {
         .createBuffer(UniformsStruct, {
           modelMat: mat4.identity(mat4x4f()),
           normalModelMat: mat4.identity(mat4x4f()),
-          material: { albedo: vec3f(1, 1, 1) },
         })
         .$usage('uniform');
 
@@ -150,7 +139,23 @@ export class Renderer {
         },
       );
 
-      resources = { uniformsBindGroup, uniformsBuffer };
+      const instanceParamsBuffer = this.root
+        .createBuffer(material.material.instanceParamsSchema as AnyWgslData)
+        .$usage('uniform');
+
+      const instanceParamsBindGroup = this.root.createBindGroup(
+        material.material.instanceParamsLayout,
+        {
+          params: instanceParamsBuffer,
+        },
+      );
+
+      resources = {
+        uniformsBindGroup,
+        uniformsBuffer,
+        instanceParamsBuffer,
+        instanceParamsBindGroup,
+      };
       this._cachedResources.set(id, resources);
     }
 
@@ -160,9 +165,12 @@ export class Renderer {
   private _recomputeUniformsFor(
     id: number,
     worldMatrix: m4x4f,
-    material: Material,
+    material: MaterialInstance,
   ) {
-    const { uniformsBuffer } = this._resourcesFor(id);
+    const { uniformsBuffer, instanceParamsBuffer } = this._resourcesFor(
+      id,
+      material,
+    );
 
     mat4.invert(worldMatrix, this._matrices.normalModel);
     mat4.transpose(this._matrices.normalModel, this._matrices.normalModel);
@@ -170,12 +178,9 @@ export class Renderer {
     uniformsBuffer.write({
       modelMat: worldMatrix,
       normalModelMat: this._matrices.normalModel,
-      material,
     });
-  }
 
-  private _latestUniformsFor(id: number) {
-    return this._resourcesFor(id).uniformsBindGroup;
+    instanceParamsBuffer.write(material.params);
   }
 
   render() {
@@ -185,39 +190,50 @@ export class Renderer {
       this._recomputeUniformsFor(id, worldMatrix, material);
     }
 
-    this._renderPipeline
-      .withColorAttachment({
-        view: this._context.getCurrentTexture().createView(),
-        loadOp: 'clear',
-        storeOp: 'store',
-        clearValue: this._cameraConfig?.clearColor ?? {
-          r: 0.0,
-          g: 0.0,
-          b: 0.0,
-          a: 1.0,
-        },
-      })
-      .withDepthStencilAttachment({
-        view: this._viewport.depthTextureView,
-        depthLoadOp: 'clear',
-        depthStoreOp: 'store',
-        depthClearValue: 1.0,
-      })
-      .beginPass((pass) => {
-        for (const { id, meshAsset } of this._objects) {
-          const bindGroup = this._latestUniformsFor(id);
+    let firstPass = true;
+    for (const { id, meshAsset, material } of this._objects) {
+      const mesh = meshAsset.peek(this.root);
+      if (!mesh) {
+        // Mesh is not loaded yet...
+        continue;
+      }
 
-          const mesh = meshAsset.peek(this.root);
-          if (!mesh) {
-            // Mesh is not loaded yet...
-            continue;
-          }
+      const pipeline = material.material.getPipeline(
+        this.root,
+        this._presentationFormat,
+      );
 
-          pass.setBindGroup(uniformsBindGroupLayout, bindGroup);
-          pass.setVertexBuffer(vertexLayout, mesh.vertexBuffer);
-          pass.draw(mesh.vertexCount);
-        }
-      });
+      const { uniformsBindGroup, instanceParamsBindGroup } = this._resourcesFor(
+        id,
+        material,
+      );
+
+      pipeline
+        .with(sharedBindGroupLayout, this._sharedBindGroup)
+        .with(uniformsBindGroupLayout, uniformsBindGroup)
+        .with(material.material.instanceParamsLayout, instanceParamsBindGroup)
+        .with(POS_NORMAL_UV, mesh.vertexBuffer)
+        .withColorAttachment({
+          view: this._context.getCurrentTexture().createView(),
+          loadOp: firstPass ? 'clear' : 'load',
+          storeOp: 'store',
+          clearValue: this._cameraConfig?.clearColor ?? {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
+            a: 1.0,
+          },
+        })
+        .withDepthStencilAttachment({
+          view: this._viewport.depthTextureView,
+          depthLoadOp: firstPass ? 'clear' : 'load',
+          depthStoreOp: 'store',
+          depthClearValue: 1.0,
+        })
+        .draw(mesh.vertexCount);
+
+      firstPass = false;
+    }
 
     this.root.flush();
   }
