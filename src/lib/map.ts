@@ -1,7 +1,7 @@
-import { MeshTrait, TransformTrait, getOrAdd } from 'jolted';
-import { MaterialTrait } from 'jolted/renderer/material';
-import { meshAsset } from 'jolted/assets';
-import { BlinnPhongMaterial } from 'jolted/renderer/blinn-phong-material';
+import { MeshTrait, TransformTrait, getOrAdd } from 'renia';
+import { MaterialTrait } from 'renia/renderer/material';
+import { meshAsset } from 'renia/assets';
+import { BlinnPhongMaterial } from 'renia/renderer/blinn-phong-material';
 import { type ExtractSchema, Not, type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import { quat } from 'wgpu-matrix';

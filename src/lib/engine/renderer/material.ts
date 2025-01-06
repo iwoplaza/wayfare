@@ -15,6 +15,7 @@ import {
   tgpu,
   type TgpuBindGroup,
   type TgpuBindGroupLayout,
+  type TgpuVertexLayout,
 } from 'typegpu/experimental';
 
 export interface MaterialContext<TParams> {
@@ -39,9 +40,10 @@ export interface MaterialOptions {
 }
 
 export interface Material<TParams extends BaseWgslData = BaseWgslData> {
-  readonly instanceParamsSchema: TParams;
-  readonly instanceParamsLayout: TgpuBindGroupLayout;
-  readonly defaultParams: Infer<TParams>;
+  readonly paramsSchema: TParams;
+  readonly paramsLayout: TgpuBindGroupLayout;
+  readonly vertexLayout: TgpuVertexLayout;
+  readonly paramsDefaults: Infer<TParams>;
   getPipeline(
     root: TgpuRoot,
     format: GPUTextureFormat,
@@ -83,27 +85,31 @@ export const MaterialTrait = trait({
   paramsTrait: {} as Trait,
 });
 
-export function createMaterial<TParams extends AnyWgslData>(
-  instanceParamsSchema: TParams,
-  defaultParams: Infer<Normal<TParams>>,
-  maker: (ctx: MaterialContext<Normal<TParams>>) => MaterialOptions,
-): {
+export function createMaterial<TParams extends AnyWgslData>(options: {
+  paramsSchema: TParams;
+  paramsDefaults: Infer<Normal<TParams>>;
+  vertexLayout: TgpuVertexLayout;
+  createPipeline: (ctx: MaterialContext<Normal<TParams>>) => MaterialOptions;
+}): {
   material: Material<Normal<TParams>>;
   Params: TraitFor<Infer<Normal<TParams>>>;
   Bundle(params?: Infer<Normal<TParams>>): ConfigurableTrait[];
 } {
+  const { paramsSchema, paramsDefaults, vertexLayout, createPipeline } =
+    options;
   const pipelineStore = new WeakMap<TgpuRoot, TgpuRenderPipeline<Vec4f>>();
 
-  const instanceParamsLayout = tgpu.bindGroupLayout({
-    params: { uniform: instanceParamsSchema },
+  const paramsLayout = tgpu.bindGroupLayout({
+    params: { uniform: paramsSchema },
   }) as TgpuBindGroupLayout<{
     params: { uniform: Normal<TParams> };
   }>;
 
   const material: Material<Normal<TParams>> = {
-    instanceParamsSchema: instanceParamsSchema as Normal<TParams>,
-    instanceParamsLayout,
-    defaultParams,
+    paramsSchema: paramsSchema as Normal<TParams>,
+    paramsLayout,
+    vertexLayout,
+    paramsDefaults,
 
     getPipeline(
       root: TgpuRoot,
@@ -114,12 +120,12 @@ export function createMaterial<TParams extends AnyWgslData>(
         return memo;
       }
 
-      const { pipeline } = maker({
+      const { pipeline } = createPipeline({
         root,
         format,
 
         getParams(): { value: Infer<Normal<TParams>> } {
-          return instanceParamsLayout.bound.params as {
+          return paramsLayout.bound.params as {
             value: Infer<Normal<TParams>>;
           };
         },
@@ -138,7 +144,7 @@ export function createMaterial<TParams extends AnyWgslData>(
     },
   };
 
-  const paramsTrait = trait(defaultParams as Schema) as TraitFor<
+  const paramsTrait = trait(paramsDefaults as Schema) as TraitFor<
     Infer<Normal<TParams>>
   >;
 
@@ -151,19 +157,4 @@ export function createMaterial<TParams extends AnyWgslData>(
       params ? paramsTrait(params) : paramsTrait,
     ],
   };
-}
-
-export class MaterialInstance<TParams extends BaseWgslData = BaseWgslData> {
-  constructor(
-    public readonly material: Material<TParams>,
-    private _params: Infer<TParams> = material.defaultParams,
-  ) {}
-
-  set params(params: Infer<TParams>) {
-    this._params = params;
-  }
-
-  get params() {
-    return this._params;
-  }
 }

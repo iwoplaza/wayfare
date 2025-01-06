@@ -9,7 +9,7 @@ export default defineConfig({
     plugins: [typegpu({ include: [/\.ts$/] })],
     resolve: {
       alias: {
-        jolted: '/src/lib/engine',
+        renia: '/src/lib/engine',
       },
     },
   },

@@ -5,8 +5,8 @@
   "compilerOptions": {
     "typeRoots": ["./node_modules/@types", "./node_modules/@webgpu/types"],
     "paths": {
-      "jolted": ["./src/lib/engine/index.ts"],
-      "jolted/*": ["./src/lib/engine/*"]
+      "renia": ["./src/lib/engine/index.ts"],
+      "renia/*": ["./src/lib/engine/*"]
     }
   }
 }

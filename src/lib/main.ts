@@ -4,13 +4,13 @@ import {
   MeshTrait,
   PerspectiveCamera,
   TransformTrait,
-} from 'jolted';
-import { meshAsset } from 'jolted/assets';
-import { encroach } from 'jolted/easing';
-import { Input } from 'jolted/input';
-import { Renderer } from 'jolted/renderer';
-import { BlinnPhongMaterial } from 'jolted/renderer/blinn-phong-material';
-import { Time } from 'jolted/time';
+} from 'renia';
+import { meshAsset } from 'renia/assets';
+import { encroach } from 'renia/easing';
+import { Input } from 'renia/input';
+import { Renderer } from 'renia/renderer';
+import { BlinnPhongMaterial } from 'renia/renderer/blinn-phong-material';
+import { Time } from 'renia/time';
 import { type World, trait } from 'koota';
 import { vec2f, vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';

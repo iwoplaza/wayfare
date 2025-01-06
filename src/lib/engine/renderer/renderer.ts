@@ -8,7 +8,6 @@ import type {
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 
-import { POS_NORMAL_UV } from '../mesh.ts';
 import type { MeshAsset } from '../assets.ts';
 import type { PerspectiveConfig } from '../camera-traits.ts';
 import type { Transform } from '../transform.ts';
@@ -138,11 +137,11 @@ export class Renderer {
       );
 
       const instanceParamsBuffer = this.root
-        .createBuffer(material.instanceParamsSchema as AnyWgslData)
+        .createBuffer(material.paramsSchema as AnyWgslData)
         .$usage('uniform');
 
       const instanceParamsBindGroup = this.root.createBindGroup(
-        material.instanceParamsLayout,
+        material.paramsLayout,
         {
           params: instanceParamsBuffer,
         },
@@ -210,8 +209,8 @@ export class Renderer {
       pipeline
         .with(sharedBindGroupLayout, this._sharedBindGroup)
         .with(uniformsBindGroupLayout, uniformsBindGroup)
-        .with(material.instanceParamsLayout, instanceParamsBindGroup)
-        .with(POS_NORMAL_UV, mesh.vertexBuffer)
+        .with(material.paramsLayout, instanceParamsBindGroup)
+        .with(material.vertexLayout, mesh.vertexBuffer)
         .withColorAttachment({
           view: this._context.getCurrentTexture().createView(),
           loadOp: firstPass ? 'clear' : 'load',

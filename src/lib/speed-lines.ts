@@ -1,19 +1,13 @@
 import { POS_NORMAL_UV } from 'renia/mesh';
+import { createMaterial } from 'renia/renderer/material';
+import { builtin, f32, vec2f, vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
-import { struct, vec2f, vec3f, vec4f, builtin } from 'typegpu/data';
-import { normalize, mul, max, dot, add } from 'typegpu/std';
+import { normalize, max, dot, mul, add } from 'typegpu/std';
 
-import { createMaterial } from './material';
-
-export const BlinnPhongMaterial = createMaterial({
-  paramsSchema: struct({
-    albedo: vec3f,
-  }),
-
-  paramsDefaults: { albedo: vec3f(1, 0, 1) },
-
+export const SpeedLinesMaterial = createMaterial({
+  paramsSchema: f32,
+  paramsDefaults: 0,
   vertexLayout: POS_NORMAL_UV,
-
   createPipeline({ root, format, getPOV, getUniforms, getParams }) {
     const vertexFn = tgpu
       .vertexFn(
@@ -47,7 +41,7 @@ export const BlinnPhongMaterial = createMaterial({
       const diffuse = vec3f(1.0, 0.9, 0.7);
       const ambient = vec3f(0.1, 0.15, 0.2);
       const att = max(0, dot(normalize(normal), sunDir));
-      const albedo = getParams().value.albedo;
+      const albedo = vec3f(1, 1, 1);
 
       const finalColor = mul(add(ambient, mul(att, diffuse)), albedo);
       return vec4f(finalColor.x, finalColor.y, finalColor.z, 1.0);
