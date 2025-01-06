@@ -15,7 +15,7 @@
     "@loaders.gl/gltf": "^4.3.3",
     "@loaders.gl/obj": "^4.3.3",
     "astro": "^5.1.1",
-    "koota": "^0.1.8",
+    "koota": "^0.1.12",
     "rollup-plugin-typegpu": "^0.0.1",
     "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/ff652e06/typegpu",
     "wgpu-matrix": "^3.3.0"

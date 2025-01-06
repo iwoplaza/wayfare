@@ -18,8 +18,8 @@ dependencies:
     specifier: ^5.1.1
     version: 5.1.1(typescript@5.7.2)
   koota:
-    specifier: ^0.1.8
-    version: 0.1.8(react@18.3.1)
+    specifier: ^0.1.12
+    version: 0.1.12(react@18.3.1)
   rollup-plugin-typegpu:
     specifier: ^0.0.1
     version: 0.0.1
@@ -2056,8 +2056,8 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /koota@0.1.8(react@18.3.1):
-    resolution: {integrity: sha512-Q7S0IXbLjHXhGDNXW5ICLYWYx1Uhs+jg6Pay/BxGneaDrR950TccAN/oEIZUJtl5+EAPbBiraaG1XT4dwTELLg==}
+  /koota@0.1.12(react@18.3.1):
+    resolution: {integrity: sha512-szsxHTQmi7DP6WDdrmPUDPOsk0GSU7UgUK7i0hB355D9jJ9BYhG0GDeTTpgKn8oRjfNUag1Dff8s45pbBLCWBw==}
     peerDependencies:
       '@react-three/fiber': ^8.17.10
       react: ^18.3.1

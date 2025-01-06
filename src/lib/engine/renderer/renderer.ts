@@ -3,6 +3,7 @@ import type {
   ExperimentalTgpuRoot,
   TgpuBindGroup,
   TgpuBuffer,
+  TgpuRenderPipeline,
   Uniform,
 } from 'typegpu/experimental';
 import { add } from 'typegpu/std';
@@ -34,8 +35,8 @@ type ObjectResources = {
   uniformsBindGroup: UniformsBindGroup;
   uniformsBuffer: TgpuBuffer<typeof UniformsStruct> & Uniform;
 
-  instanceParamsBindGroup: TgpuBindGroup;
-  instanceParamsBuffer: TgpuBuffer<AnyWgslData> & Uniform;
+  instanceParamsBindGroup: TgpuBindGroup | undefined;
+  instanceParamsBuffer: (TgpuBuffer<AnyWgslData> & Uniform) | undefined;
 };
 
 export class Renderer {
@@ -136,16 +137,18 @@ export class Renderer {
         },
       );
 
-      const instanceParamsBuffer = this.root
-        .createBuffer(material.paramsSchema as AnyWgslData)
-        .$usage('uniform');
+      const instanceParamsBuffer = material.paramsSchema
+        ? this.root
+            .createBuffer(material.paramsSchema as AnyWgslData)
+            .$usage('uniform')
+        : undefined;
 
-      const instanceParamsBindGroup = this.root.createBindGroup(
-        material.paramsLayout,
-        {
-          params: instanceParamsBuffer,
-        },
-      );
+      const instanceParamsBindGroup =
+        instanceParamsBuffer && material.paramsLayout
+          ? this.root.createBindGroup(material.paramsLayout, {
+              params: instanceParamsBuffer,
+            })
+          : undefined;
 
       resources = {
         uniformsBindGroup,
@@ -178,7 +181,7 @@ export class Renderer {
       normalModelMat: this._matrices.normalModel,
     });
 
-    instanceParamsBuffer.write(materialParams);
+    instanceParamsBuffer?.write(materialParams);
   }
 
   render() {
@@ -206,10 +209,20 @@ export class Renderer {
         material,
       );
 
-      pipeline
+      const withOptionals = <T extends TgpuRenderPipeline>(pipeline: T) => {
+        let result = pipeline;
+        if (material.paramsLayout && instanceParamsBindGroup) {
+          result = result.with(
+            material.paramsLayout,
+            instanceParamsBindGroup,
+          ) as T;
+        }
+        return result;
+      };
+
+      withOptionals(pipeline)
         .with(sharedBindGroupLayout, this._sharedBindGroup)
         .with(uniformsBindGroupLayout, uniformsBindGroup)
-        .with(material.paramsLayout, instanceParamsBindGroup)
         .with(material.vertexLayout, mesh.vertexBuffer)
         .withColorAttachment({
           view: this._context.getCurrentTexture().createView(),

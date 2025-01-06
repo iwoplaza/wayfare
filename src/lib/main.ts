@@ -1,6 +1,8 @@
 import {
   ActiveCameraTag,
+  connectAsChild,
   Engine,
+  getOrThrow,
   MeshTrait,
   PerspectiveCamera,
   TransformTrait,
@@ -19,6 +21,7 @@ import { quat } from 'wgpu-matrix';
 
 import dudePath from '../assets/dude.obj?url';
 import { MapProgressMarker, createMap } from './map';
+import { SpeedLinesMaterial } from './speed-lines';
 
 const Velocity = trait(() => vec3f());
 
@@ -84,7 +87,7 @@ if (loadingScreen) {
 }
 
 function controlPlayerSystem(world: World) {
-  const deltaSeconds = world.get(Time).deltaSeconds;
+  const deltaSeconds = getOrThrow(world, Time).deltaSeconds;
 
   world.query(Player, Dude).updateEach(([player, dude]) => {
     let dir = vec3f();
@@ -117,7 +120,7 @@ function controlPlayerSystem(world: World) {
 }
 
 function updateDudeVelocitySystem(world: World) {
-  const deltaSeconds = world.get(Time).deltaSeconds;
+  const deltaSeconds = getOrThrow(world, Time).deltaSeconds;
 
   world.query(Dude, Velocity).updateEach(([dude, velocity]) => {
     const dir = dude.movementDir;
@@ -144,11 +147,11 @@ function animateDudeSystem(world: World) {
 }
 
 function followCameraSystem(world: World) {
-  const deltaSeconds = world.get(Time).deltaSeconds;
+  const deltaSeconds = getOrThrow(world, Time).deltaSeconds;
   const player = world.queryFirst(Player);
   if (!player) return;
 
-  const playerPos = player.get(TransformTrait).position;
+  const playerPos = getOrThrow(player, TransformTrait).position;
 
   world.query(TransformTrait, GameCameraTag).updateEach(([cameraTransform]) => {
     const pos = cameraTransform.position;
@@ -187,18 +190,18 @@ export async function main(canvas: HTMLCanvasElement) {
     }),
   );
 
-  // // Red rectangle in the UI
-  // connectAsChild(
-  //   gameCamera,
-  //   world.spawn(
-  //     MeshTrait(fullscreenRectMesh),
-  //     MaterialTrait({ albedo: vec3f(1, 0, 0) }),
-  //     TransformTrait({
-  //       position: vec3f(0, 0, -1),
-  //       scale: vec3f(0.1),
-  //     }),
-  //   ),
-  // );
+  // Red rectangle in the UI
+  connectAsChild(
+    gameCamera,
+    world.spawn(
+      MeshTrait(fullscreenRectMesh),
+      TransformTrait({
+        position: vec3f(0, 0, -1),
+        scale: vec3f(0.1),
+      }),
+      ...SpeedLinesMaterial.Bundle(),
+    ),
+  );
 
   engine.run((deltaSeconds) => {
     // "Advancing by velocity" system

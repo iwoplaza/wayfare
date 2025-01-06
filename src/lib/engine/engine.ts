@@ -18,6 +18,7 @@ import type { Renderer } from './renderer/renderer.ts';
 import { Time } from './time.ts';
 import { BlinnPhongMaterial } from './renderer/blinn-phong-material.ts';
 import { MaterialTrait, type Material } from './renderer/material.ts';
+import { getOrAdd, getOrThrow } from './get-or-add.ts';
 
 const Added = createAdded();
 const Removed = createRemoved();
@@ -62,13 +63,8 @@ export class Engine {
 
       // "Updating matrices based on transforms" system
       const updateMatrices = (entity: Entity) => {
-        const transform = entity.get(TransformTrait);
-
-        if (!entity.has(MatricesTrait)) {
-          entity.add(MatricesTrait);
-        }
-
-        const matrices = entity.get(MatricesTrait);
+        const transform = getOrThrow(entity, TransformTrait);
+        const matrices = getOrAdd(entity, MatricesTrait);
 
         mat4.identity(matrices.local);
         mat4.translate(matrices.local, transform.position, matrices.local);
@@ -82,7 +78,7 @@ export class Engine {
         // Parent-child relationship
         const parent = this.world.queryFirst(ParentOf(entity));
         if (parent) {
-          const parentWorld = parent.get(MatricesTrait).world;
+          const parentWorld = getOrThrow(parent, MatricesTrait).world;
           mat4.multiply(parentWorld, matrices.local, matrices.world);
         } else {
           mat4.copy(matrices.local, matrices.world);
@@ -106,6 +102,8 @@ export class Engine {
           throw new Error('Entities with meshes require a TransformTrait');
         }
 
+        const matrices = getOrThrow(entity, MatricesTrait);
+
         let material: Material = DefaultMaterial;
         const materialTrait = entity.get(MaterialTrait);
         if (materialTrait) {
@@ -115,12 +113,12 @@ export class Engine {
         this.renderer.addObject({
           id: entity.id(),
           meshAsset,
-          worldMatrix: entity.get(MatricesTrait).world,
+          worldMatrix: matrices.world,
           material,
           get materialParams() {
             return materialTrait
               ? entity.get(materialTrait.paramsTrait as unknown as Trait)
-              : DefaultMaterial.defaultParams;
+              : DefaultMaterial.paramsDefaults;
           },
         });
       });
@@ -133,11 +131,11 @@ export class Engine {
       // "Updating the point-of-view based on the main camera" system
       const activeCam = this.world.queryFirst(ActiveCameraTag);
       if (activeCam) {
-        const transform = activeCam.get(TransformTrait);
+        const transform = getOrThrow(activeCam, TransformTrait);
         if (activeCam.has(PerspectiveCamera)) {
           this.renderer.setPerspectivePOV(
             transform,
-            activeCam.get(PerspectiveCamera),
+            getOrThrow(activeCam, PerspectiveCamera),
           );
         }
       }

@@ -1,12 +1,10 @@
 import { POS_NORMAL_UV } from 'renia/mesh';
 import { createMaterial } from 'renia/renderer/material';
-import { builtin, f32, vec2f, vec3f, vec4f } from 'typegpu/data';
+import { builtin, vec2f, vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
 import { normalize, max, dot, mul, add } from 'typegpu/std';
 
 export const SpeedLinesMaterial = createMaterial({
-  paramsSchema: f32,
-  paramsDefaults: 0,
   vertexLayout: POS_NORMAL_UV,
   createPipeline({ root, format, getPOV, getUniforms, getParams }) {
     const vertexFn = tgpu
