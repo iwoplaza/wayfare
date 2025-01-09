@@ -1,25 +1,78 @@
+import type { World } from 'koota';
+import { meshAsset } from 'renia/assets';
 import { POS_NORMAL_UV } from 'renia/mesh';
 import { createMaterial } from 'renia/renderer/material';
-import { builtin, vec2f, vec3f, vec4f } from 'typegpu/data';
+import { builtin, disarrayOf, vec2f, vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
 import { normalize, max, dot, mul, add } from 'typegpu/std';
 
+export const SpeedLinesInstanceLayout = tgpu.vertexLayout(
+  (count) => disarrayOf(vec3f, count),
+  'instance',
+);
+
+const fullscreenRectMesh = meshAsset({
+  data: {
+    vertices: [
+      {
+        pos: vec3f(-1, -1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(0, 0),
+      },
+      {
+        pos: vec3f(1, -1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(1, 0),
+      },
+      {
+        pos: vec3f(1, 1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(1, 1),
+      },
+      // Second triangle
+      {
+        pos: vec3f(-1, -1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(0, 0),
+      },
+      {
+        pos: vec3f(1, 1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(1, 1),
+      },
+      {
+        pos: vec3f(-1, 1, 0),
+        normal: vec3f(0, 0, 1),
+        uv: vec2f(0, 1),
+      },
+    ],
+  },
+});
+
 export const SpeedLinesMaterial = createMaterial({
   vertexLayout: POS_NORMAL_UV,
+  instanceLayout: SpeedLinesInstanceLayout,
   createPipeline({ root, format, getPOV, getUniforms, getParams }) {
     const vertexFn = tgpu
       .vertexFn(
-        { idx: builtin.vertexIndex, pos: vec3f, normal: vec3f, uv: vec2f },
+        {
+          idx: builtin.vertexIndex,
+          pos: vec3f,
+          normal: vec3f,
+          uv: vec2f,
+          origin: vec3f,
+        },
         { pos: builtin.position, normal: vec3f, uv: vec2f },
       )
       .does(`(
         @builtin(vertex_index) idx: u32,
         @location(0) pos: vec3f,
         @location(1) normal: vec3f,
-        @location(2) uv: vec2f
+        @location(2) uv: vec2f,
+        @location(3) origin: vec3f,
       ) -> Output {
         var out: Output;
-        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(pos, 1.0);
+        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(pos + origin, 1.0);
         out.normal = (uniforms.normalModelMat * vec4f(normal, 0.0)).xyz;
         out.uv = uv;
         return out;
@@ -54,7 +107,10 @@ export const SpeedLinesMaterial = createMaterial({
 
     return {
       pipeline: root
-        .withVertex(vertexFn, POS_NORMAL_UV.attrib)
+        .withVertex(vertexFn, {
+          ...POS_NORMAL_UV.attrib,
+          origin: SpeedLinesInstanceLayout.attrib,
+        })
         .withFragment(fragmentFn, { format })
         .withPrimitive({ topology: 'triangle-list', cullMode: 'back' })
         .withDepthStencil({
@@ -66,3 +122,11 @@ export const SpeedLinesMaterial = createMaterial({
     };
   },
 });
+
+export function createSpeedLines() {
+  return {
+    initSpeedLines(world: World) {},
+
+    updateSpeedLines(world: World) {},
+  };
+}

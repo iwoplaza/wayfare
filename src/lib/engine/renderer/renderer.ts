@@ -1,10 +1,18 @@
-import { type AnyWgslData, type m4x4f, mat4x4f, vec4f } from 'typegpu/data';
+import {
+  type AnyWgslData,
+  type Disarray,
+  type m4x4f,
+  mat4x4f,
+  vec4f,
+  type WgslArray,
+} from 'typegpu/data';
 import type {
   ExperimentalTgpuRoot,
   TgpuBindGroup,
   TgpuBuffer,
   TgpuRenderPipeline,
   Uniform,
+  Vertex,
 } from 'typegpu/experimental';
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
@@ -26,6 +34,7 @@ import {
 export type GameObject = {
   id: number;
   meshAsset: MeshAsset;
+  instanceBuffer?: (TgpuBuffer<WgslArray | Disarray> & Vertex) | undefined;
   worldMatrix: m4x4f;
   material: Material;
   materialParams: unknown;
@@ -192,7 +201,7 @@ export class Renderer {
     }
 
     let firstPass = true;
-    for (const { id, meshAsset, material } of this._objects) {
+    for (const { id, meshAsset, instanceBuffer, material } of this._objects) {
       const mesh = meshAsset.peek(this.root);
       if (!mesh) {
         // Mesh is not loaded yet...
@@ -211,12 +220,18 @@ export class Renderer {
 
       const withOptionals = <T extends TgpuRenderPipeline>(pipeline: T) => {
         let result = pipeline;
+
         if (material.paramsLayout && instanceParamsBindGroup) {
           result = result.with(
             material.paramsLayout,
             instanceParamsBindGroup,
           ) as T;
         }
+
+        if (material.instanceLayout && instanceBuffer) {
+          result = result.with(material.instanceLayout, instanceBuffer) as T;
+        }
+
         return result;
       };
 
@@ -241,7 +256,10 @@ export class Renderer {
           depthStoreOp: 'store',
           depthClearValue: 1.0,
         })
-        .draw(mesh.vertexCount);
+        .draw(
+          mesh.vertexCount,
+          instanceBuffer ? instanceBuffer.dataType.elementCount : undefined,
+        );
 
       firstPass = false;
     }

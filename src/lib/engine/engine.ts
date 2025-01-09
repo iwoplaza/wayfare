@@ -7,8 +7,18 @@ import {
   createWorld,
   trait,
 } from 'koota';
-import { mat4x4f, vec3f, vec4f } from 'typegpu/data';
-import type { ExperimentalTgpuRoot } from 'typegpu/experimental';
+import {
+  mat4x4f,
+  vec3f,
+  vec4f,
+  type Disarray,
+  type WgslArray,
+} from 'typegpu/data';
+import type {
+  ExperimentalTgpuRoot,
+  TgpuBuffer,
+  Vertex,
+} from 'typegpu/experimental';
 import { mat4, quat } from 'wgpu-matrix';
 
 import type { MeshAsset } from './assets.ts';
@@ -29,6 +39,10 @@ export const TransformTrait = trait({
   rotation: () => quat.identity(vec4f()),
   scale: () => vec3f(1),
 });
+
+export const InstanceBufferTrait = trait(
+  () => ({}) as TgpuBuffer<WgslArray | Disarray> & Vertex,
+);
 
 /**
  * @internal
@@ -110,11 +124,14 @@ export class Engine {
           material = materialTrait.material;
         }
 
+        const instanceBuffer = entity.get(InstanceBufferTrait);
+
         this.renderer.addObject({
           id: entity.id(),
           meshAsset,
           worldMatrix: matrices.world,
           material,
+          instanceBuffer,
           get materialParams() {
             return materialTrait
               ? entity.get(materialTrait.paramsTrait as unknown as Trait)

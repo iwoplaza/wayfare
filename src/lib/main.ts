@@ -21,7 +21,8 @@ import { quat } from 'wgpu-matrix';
 
 import dudePath from '../assets/dude.obj?url';
 import { MapProgressMarker, createMap } from './map';
-import { SpeedLinesMaterial } from './speed-lines';
+import { SpeedLinesInstanceLayout, SpeedLinesMaterial } from './speed-lines';
+import { InstanceBufferTrait } from 'renia/engine';
 
 const Velocity = trait(() => vec3f());
 
@@ -190,6 +191,15 @@ export async function main(canvas: HTMLCanvasElement) {
     }),
   );
 
+  const speedLinesBuffer = root
+    .createBuffer(
+      SpeedLinesInstanceLayout.schemaForCount(10),
+      Array.from({ length: 10 }).map(() =>
+        vec3f(Math.random(), 0, Math.random()),
+      ),
+    )
+    .$usage('vertex');
+
   // Red rectangle in the UI
   connectAsChild(
     gameCamera,
@@ -199,6 +209,7 @@ export async function main(canvas: HTMLCanvasElement) {
         position: vec3f(0, 0, -1),
         scale: vec3f(0.1),
       }),
+      InstanceBufferTrait(speedLinesBuffer),
       ...SpeedLinesMaterial.Bundle(),
     ),
   );

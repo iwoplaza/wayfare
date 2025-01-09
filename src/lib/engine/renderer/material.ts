@@ -43,6 +43,7 @@ export interface Material<TParams extends BaseWgslData = BaseWgslData> {
   readonly paramsSchema: TParams | undefined;
   readonly paramsLayout: TgpuBindGroupLayout | undefined;
   readonly vertexLayout: TgpuVertexLayout;
+  readonly instanceLayout: TgpuVertexLayout | undefined;
   readonly paramsDefaults: Infer<TParams> | undefined;
   getPipeline(
     root: TgpuRoot,
@@ -89,6 +90,7 @@ export function createMaterial<TParams extends AnyWgslData>(
   options: {
     paramsSchema?: TParams;
     vertexLayout: TgpuVertexLayout;
+    instanceLayout?: TgpuVertexLayout;
     createPipeline: (ctx: MaterialContext<Normal<TParams>>) => MaterialOptions;
   } & (AnyWgslData extends TParams
     ? { paramsDefaults?: undefined }
@@ -98,8 +100,13 @@ export function createMaterial<TParams extends AnyWgslData>(
   Params: TraitFor<Infer<Normal<TParams>>>;
   Bundle(params?: Infer<Normal<TParams>>): ConfigurableTrait[];
 } {
-  const { paramsSchema, paramsDefaults, vertexLayout, createPipeline } =
-    options;
+  const {
+    paramsSchema,
+    paramsDefaults,
+    vertexLayout,
+    instanceLayout,
+    createPipeline,
+  } = options;
   const pipelineStore = new WeakMap<TgpuRoot, TgpuRenderPipeline<Vec4f>>();
 
   const paramsLayout = paramsSchema
@@ -114,6 +121,7 @@ export function createMaterial<TParams extends AnyWgslData>(
     paramsSchema: paramsSchema as Normal<TParams> | undefined,
     paramsLayout,
     vertexLayout,
+    instanceLayout,
     paramsDefaults,
 
     getPipeline(
