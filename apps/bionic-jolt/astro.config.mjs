@@ -7,10 +7,5 @@ export default defineConfig({
   base: 'bionic-jolt',
   vite: {
     plugins: [typegpu({ include: [/\.ts$/] })],
-    resolve: {
-      alias: {
-        wayfare: '/src/lib/engine',
-      },
-    },
   },
 });

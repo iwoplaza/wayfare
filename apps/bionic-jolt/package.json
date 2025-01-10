@@ -1,10 +1,13 @@
 {
-  "name": "wayfare-monorepo",
+  "name": "bionic-jolt",
   "private": true,
   "type": "module",
   "version": "0.0.0",
   "scripts": {
-    "dev": "pnpm -r dev:build && pnpm --parallel -r dev:watch",
+    "dev:watch": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
     "check": "biome check",
     "fix": "biome check --write"
   },
@@ -16,7 +19,8 @@
     "koota": "^0.1.12",
     "rollup-plugin-typegpu": "^0.0.1",
     "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/e62d915f/typegpu",
-    "wgpu-matrix": "^3.3.0"
+    "wgpu-matrix": "^3.3.0",
+    "wayfare": "workspace:*"
   },
   "packageManager": "pnpm@8.15.8+sha256.691fe176eea9a8a80df20e4976f3dfb44a04841ceb885638fe2a26174f81e65e",
   "devDependencies": {

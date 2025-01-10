@@ -8,6 +8,8 @@ import {
   type Vec4f,
   type Normal,
   type BaseWgslData,
+  type WgslStruct,
+  type Mat4x4f,
 } from 'typegpu/data';
 import {
   type ExperimentalTgpuRoot as TgpuRoot,
@@ -51,20 +53,27 @@ export interface Material<TParams extends BaseWgslData = BaseWgslData> {
   ): TgpuRenderPipeline<Vec4f>;
 }
 
-export const UniformsStruct = struct({
+export const UniformsStruct: WgslStruct<{
+  modelMat: Mat4x4f;
+  normalModelMat: Mat4x4f;
+}> = struct({
   modelMat: mat4x4f,
   normalModelMat: mat4x4f,
 });
 
-export const POVStruct = struct({
+export const POVStruct: WgslStruct<{ viewProjMat: Mat4x4f }> = struct({
   viewProjMat: mat4x4f,
 });
 
-export const sharedBindGroupLayout = tgpu.bindGroupLayout({
+export const sharedBindGroupLayout: TgpuBindGroupLayout<{
+  pov: { uniform: typeof POVStruct };
+}> = tgpu.bindGroupLayout({
   pov: { uniform: POVStruct },
 });
 
-export const uniformsBindGroupLayout = tgpu.bindGroupLayout({
+export const uniformsBindGroupLayout: TgpuBindGroupLayout<{
+  uniforms: { uniform: typeof UniformsStruct };
+}> = tgpu.bindGroupLayout({
   uniforms: { uniform: UniformsStruct },
 });
 
@@ -81,10 +90,19 @@ const { uniforms } = uniformsBindGroupLayout.bound;
 
 type TraitFor<T> = T extends Schema ? Trait<T> : never;
 
-export const MaterialTrait = trait({
+export const MaterialTrait: Trait<{
+  material: Material;
+  paramsTrait: Trait;
+}> = trait({
   material: {} as Material,
   paramsTrait: {} as Trait,
 });
+
+export type CreateMaterialResult<TParams extends AnyWgslData> = {
+  material: Material<Normal<TParams>>;
+  Params: TraitFor<Infer<Normal<TParams>>>;
+  Bundle(params?: Infer<Normal<TParams>>): ConfigurableTrait[];
+};
 
 export function createMaterial<TParams extends AnyWgslData>(
   options: {
@@ -95,11 +113,7 @@ export function createMaterial<TParams extends AnyWgslData>(
   } & (AnyWgslData extends TParams
     ? { paramsDefaults?: undefined }
     : { paramsDefaults: Infer<Normal<TParams>> }),
-): {
-  material: Material<Normal<TParams>>;
-  Params: TraitFor<Infer<Normal<TParams>>>;
-  Bundle(params?: Infer<Normal<TParams>>): ConfigurableTrait[];
-} {
+): CreateMaterialResult<TParams> {
   const {
     paramsSchema,
     paramsDefaults,

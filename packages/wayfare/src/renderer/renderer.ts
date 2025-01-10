@@ -17,10 +17,10 @@ import type {
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 
-import type { MeshAsset } from '../assets.ts';
-import type { PerspectiveConfig } from '../camera-traits.ts';
-import type { Transform } from '../transform.ts';
-import { Viewport } from './viewport.ts';
+import type { MeshAsset } from '../asset/meshAsset.js';
+import type { PerspectiveConfig } from '../camera-traits.js';
+import type { Transform } from '../transform.js';
+import { Viewport } from './viewport.js';
 import {
   POVStruct,
   sharedBindGroupLayout,
@@ -29,7 +29,7 @@ import {
   type Material,
   type SharedBindGroup,
   type UniformsBindGroup,
-} from './material.ts';
+} from './material.js';
 
 export type GameObject = {
   id: number;

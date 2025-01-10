@@ -1,6 +1,7 @@
-import { meshAsset, type MeshAsset } from 'wayfare/assets';
 import { vec2f, type v3f } from 'typegpu/data';
 import { add, cross, mul, normalize } from 'typegpu/std';
+
+import { meshAsset, type MeshAsset } from '../asset/meshAsset';
 
 export interface RectangleProps {
   width: v3f;

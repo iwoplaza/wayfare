@@ -1,14 +1,25 @@
 import tgpu from 'typegpu/experimental';
-import { struct, vec2f, vec3f, vec4f, builtin } from 'typegpu/data';
+import {
+  struct,
+  vec2f,
+  vec3f,
+  vec4f,
+  builtin,
+  type Normal,
+} from 'typegpu/data';
 import { normalize, mul, max, dot, add } from 'typegpu/std';
 
-import { POS_NORMAL_UV } from '../mesh';
-import { createMaterial } from './material';
+import { POS_NORMAL_UV } from '../mesh.js';
+import { createMaterial, type CreateMaterialResult } from './material.js';
 
-export const BlinnPhongMaterial = createMaterial({
-  paramsSchema: struct({
-    albedo: vec3f,
-  }),
+const ParamsSchema = struct({
+  albedo: vec3f,
+});
+
+export const BlinnPhongMaterial: CreateMaterialResult<
+  Normal<typeof ParamsSchema>
+> = createMaterial({
+  paramsSchema: ParamsSchema,
 
   paramsDefaults: { albedo: vec3f(1, 0, 1) },
 

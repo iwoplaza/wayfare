@@ -1,17 +1,16 @@
 import {
+  encroach,
   ActiveCameraTag,
+  Time,
   Engine,
   getOrThrow,
   MeshTrait,
   PerspectiveCamera,
   TransformTrait,
+  Input,
 } from 'wayfare';
-import { meshAsset } from 'wayfare/assets';
-import { encroach } from 'wayfare/easing';
-import { Input } from 'wayfare/input';
-import { Renderer } from 'wayfare/renderer';
-import { BlinnPhongMaterial } from 'wayfare/renderer/blinn-phong-material';
-import { Time } from 'wayfare/time';
+import { meshAsset } from 'wayfare/asset';
+import { Renderer, BlinnPhongMaterial } from 'wayfare/renderer';
 import { type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';

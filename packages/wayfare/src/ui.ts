@@ -1,5 +1,5 @@
 import { trait } from 'koota';
-import { vec2f } from 'typegpu/data/index';
+import { vec2f } from 'typegpu/data';
 
 type XAnchor = 'left' | 'center' | 'right' | 'stretch';
 type YAnchor = 'top' | 'center' | 'bottom' | 'stretch';

@@ -1,7 +1,6 @@
 import { MeshTrait, TransformTrait, getOrAdd } from 'wayfare';
-import { MaterialTrait } from 'wayfare/renderer/material';
-import { meshAsset } from 'wayfare/assets';
-import { BlinnPhongMaterial } from 'wayfare/renderer/blinn-phong-material';
+import { MaterialTrait, BlinnPhongMaterial } from 'wayfare/renderer';
+import { meshAsset } from 'wayfare/asset';
 import { type ExtractSchema, Not, type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import { quat } from 'wgpu-matrix';
@@ -39,7 +38,7 @@ export async function createMap() {
   function updateMapSystem(world: World) {
     const settings = getOrAdd(world, MapSettings);
     const progressMarker = world.queryFirst(MapProgressMarker);
-    const progressMarkerPos = progressMarker?.get(TransformTrait).position;
+    const progressMarkerPos = progressMarker?.get(TransformTrait)?.position;
 
     if (!progressMarkerPos) return;
 
@@ -71,7 +70,7 @@ export async function createMap() {
     let limit = 10;
     do {
       const tail = world.queryFirst(MapTail);
-      const tailPosition = tail?.get(TransformTrait).position;
+      const tailPosition = tail?.get(TransformTrait)?.position;
       const tailChunk = tail?.get(MapChunk);
 
       if (

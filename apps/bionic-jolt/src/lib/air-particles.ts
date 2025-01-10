@@ -1,9 +1,11 @@
 import type { World } from 'koota';
-import { MeshTrait, TransformTrait } from 'wayfare';
-import { createRectangle } from 'wayfare/geometry';
-import { InstanceBufferTrait } from 'wayfare/engine';
-import { POS_NORMAL_UV } from 'wayfare/mesh';
-import { createMaterial } from 'wayfare/renderer/material';
+import {
+  MeshTrait,
+  TransformTrait,
+  InstanceBufferTrait,
+  POS_NORMAL_UV,
+} from 'wayfare';
+import { createRectangle, createMaterial } from 'wayfare/renderer';
 import { builtin, disarrayOf, vec2f, vec3f, vec4f } from 'typegpu/data';
 import tgpu, {
   type ExperimentalTgpuRoot as TgpuRoot,
