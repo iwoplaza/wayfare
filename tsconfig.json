@@ -5,8 +5,8 @@
   "compilerOptions": {
     "typeRoots": ["./node_modules/@types", "./node_modules/@webgpu/types"],
     "paths": {
-      "renia": ["./src/lib/engine/index.ts"],
-      "renia/*": ["./src/lib/engine/*"]
+      "wayfare": ["./src/lib/engine/index.ts"],
+      "wayfare/*": ["./src/lib/engine/*"]
     }
   }
 }

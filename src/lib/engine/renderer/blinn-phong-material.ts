@@ -1,8 +1,8 @@
-import { POS_NORMAL_UV } from 'renia/mesh';
 import tgpu from 'typegpu/experimental';
 import { struct, vec2f, vec3f, vec4f, builtin } from 'typegpu/data';
 import { normalize, mul, max, dot, add } from 'typegpu/std';
 
+import { POS_NORMAL_UV } from '../mesh';
 import { createMaterial } from './material';
 
 export const BlinnPhongMaterial = createMaterial({

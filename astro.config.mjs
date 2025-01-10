@@ -9,7 +9,7 @@ export default defineConfig({
     plugins: [typegpu({ include: [/\.ts$/] })],
     resolve: {
       alias: {
-        renia: '/src/lib/engine',
+        wayfare: '/src/lib/engine',
       },
     },
   },

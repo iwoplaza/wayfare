@@ -1,28 +1,26 @@
 import {
   ActiveCameraTag,
-  connectAsChild,
   Engine,
   getOrThrow,
   MeshTrait,
   PerspectiveCamera,
   TransformTrait,
-} from 'renia';
-import { meshAsset } from 'renia/assets';
-import { encroach } from 'renia/easing';
-import { Input } from 'renia/input';
-import { Renderer } from 'renia/renderer';
-import { BlinnPhongMaterial } from 'renia/renderer/blinn-phong-material';
-import { Time } from 'renia/time';
+} from 'wayfare';
+import { meshAsset } from 'wayfare/assets';
+import { encroach } from 'wayfare/easing';
+import { Input } from 'wayfare/input';
+import { Renderer } from 'wayfare/renderer';
+import { BlinnPhongMaterial } from 'wayfare/renderer/blinn-phong-material';
+import { Time } from 'wayfare/time';
 import { type World, trait } from 'koota';
-import { vec2f, vec3f, vec4f } from 'typegpu/data';
+import { vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';
 import { length, normalize } from 'typegpu/std';
 import { quat } from 'wgpu-matrix';
 
 import dudePath from '../assets/dude.obj?url';
 import { MapProgressMarker, createMap } from './map';
-import { SpeedLinesInstanceLayout, SpeedLinesMaterial } from './speed-lines';
-import { InstanceBufferTrait } from 'renia/engine';
+import { createAirParticles } from './air-particles';
 
 const Velocity = trait(() => vec3f());
 
@@ -44,43 +42,6 @@ const GameCameraTag = trait();
 const loadingScreen = document.getElementById('loading-screen');
 
 const dudeMesh = await meshAsset({ url: dudePath }).preload();
-const fullscreenRectMesh = meshAsset({
-  data: {
-    vertices: [
-      {
-        pos: vec3f(-1, -1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(0, 0),
-      },
-      {
-        pos: vec3f(1, -1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(1, 0),
-      },
-      {
-        pos: vec3f(1, 1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(1, 1),
-      },
-      // Second triangle
-      {
-        pos: vec3f(-1, -1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(0, 0),
-      },
-      {
-        pos: vec3f(1, 1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(1, 1),
-      },
-      {
-        pos: vec3f(-1, 1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(0, 1),
-      },
-    ],
-  },
-});
 const { updateMapSystem } = await createMap();
 
 if (loadingScreen) {
@@ -169,6 +130,8 @@ export async function main(canvas: HTMLCanvasElement) {
   const engine = new Engine(root, renderer);
   const world = engine.world;
 
+  const AirParticles = await createAirParticles(root);
+
   world.spawn(
     Player,
     Dude,
@@ -191,28 +154,7 @@ export async function main(canvas: HTMLCanvasElement) {
     }),
   );
 
-  const speedLinesBuffer = root
-    .createBuffer(
-      SpeedLinesInstanceLayout.schemaForCount(10),
-      Array.from({ length: 10 }).map(() =>
-        vec3f(Math.random(), 0, Math.random()),
-      ),
-    )
-    .$usage('vertex');
-
-  // Red rectangle in the UI
-  connectAsChild(
-    gameCamera,
-    world.spawn(
-      MeshTrait(fullscreenRectMesh),
-      TransformTrait({
-        position: vec3f(0, 0, -1),
-        scale: vec3f(0.1),
-      }),
-      InstanceBufferTrait(speedLinesBuffer),
-      ...SpeedLinesMaterial.Bundle(),
-    ),
-  );
+  AirParticles.init(world);
 
   engine.run((deltaSeconds) => {
     // "Advancing by velocity" system
@@ -229,5 +171,6 @@ export async function main(canvas: HTMLCanvasElement) {
     updateDudeVelocitySystem(world);
     animateDudeSystem(world);
     updateMapSystem(world);
+    AirParticles.update(world);
   });
 }

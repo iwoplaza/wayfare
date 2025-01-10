@@ -1,7 +1,7 @@
-import { MeshTrait, TransformTrait, getOrAdd } from 'renia';
-import { MaterialTrait } from 'renia/renderer/material';
-import { meshAsset } from 'renia/assets';
-import { BlinnPhongMaterial } from 'renia/renderer/blinn-phong-material';
+import { MeshTrait, TransformTrait, getOrAdd } from 'wayfare';
+import { MaterialTrait } from 'wayfare/renderer/material';
+import { meshAsset } from 'wayfare/assets';
+import { BlinnPhongMaterial } from 'wayfare/renderer/blinn-phong-material';
 import { type ExtractSchema, Not, type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import { quat } from 'wgpu-matrix';

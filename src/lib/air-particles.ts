@@ -1,9 +1,13 @@
 import type { World } from 'koota';
-import { meshAsset } from 'renia/assets';
-import { POS_NORMAL_UV } from 'renia/mesh';
-import { createMaterial } from 'renia/renderer/material';
+import { MeshTrait, TransformTrait } from 'wayfare';
+import { createRectangle } from 'wayfare/geometry';
+import { InstanceBufferTrait } from 'wayfare/engine';
+import { POS_NORMAL_UV } from 'wayfare/mesh';
+import { createMaterial } from 'wayfare/renderer/material';
 import { builtin, disarrayOf, vec2f, vec3f, vec4f } from 'typegpu/data';
-import tgpu from 'typegpu/experimental';
+import tgpu, {
+  type ExperimentalTgpuRoot as TgpuRoot,
+} from 'typegpu/experimental';
 import { normalize, max, dot, mul, add } from 'typegpu/std';
 
 export const SpeedLinesInstanceLayout = tgpu.vertexLayout(
@@ -11,42 +15,9 @@ export const SpeedLinesInstanceLayout = tgpu.vertexLayout(
   'instance',
 );
 
-const fullscreenRectMesh = meshAsset({
-  data: {
-    vertices: [
-      {
-        pos: vec3f(-1, -1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(0, 0),
-      },
-      {
-        pos: vec3f(1, -1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(1, 0),
-      },
-      {
-        pos: vec3f(1, 1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(1, 1),
-      },
-      // Second triangle
-      {
-        pos: vec3f(-1, -1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(0, 0),
-      },
-      {
-        pos: vec3f(1, 1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(1, 1),
-      },
-      {
-        pos: vec3f(-1, 1, 0),
-        normal: vec3f(0, 0, 1),
-        uv: vec2f(0, 1),
-      },
-    ],
-  },
+const particleMesh = createRectangle({
+  width: vec3f(1, 0, 0),
+  height: vec3f(0, 1, 0),
 });
 
 export const SpeedLinesMaterial = createMaterial({
@@ -123,10 +94,29 @@ export const SpeedLinesMaterial = createMaterial({
   },
 });
 
-export function createSpeedLines() {
+export function createAirParticles(root: TgpuRoot) {
   return {
-    initSpeedLines(world: World) {},
+    init(world: World) {
+      const speedLinesBuffer = root
+        .createBuffer(
+          SpeedLinesInstanceLayout.schemaForCount(1),
+          Array.from({ length: 1 }).map(() =>
+            vec3f(Math.random(), 0, Math.random()),
+          ),
+        )
+        .$usage('vertex');
 
-    updateSpeedLines(world: World) {},
+      world.spawn(
+        MeshTrait(particleMesh),
+        TransformTrait({
+          position: vec3f(0, 0, -1),
+          scale: vec3f(0.1),
+        }),
+        InstanceBufferTrait(speedLinesBuffer),
+        ...SpeedLinesMaterial.Bundle(),
+      );
+    },
+
+    update(world: World) {},
   };
 }
