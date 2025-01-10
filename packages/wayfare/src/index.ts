@@ -13,3 +13,6 @@ export { Time } from './time.js';
 export { encroach } from './easing.js';
 export { Input } from './input.js';
 export { POS_NORMAL_UV } from './mesh.js';
+
+export * from './asset/index.js';
+export * from './renderer/index.js';

@@ -11,18 +11,6 @@
       "module": "./dist/index.js",
       "import": "./dist/index.js",
       "default": "./dist/index.cjs"
-    },
-    "./asset": {
-      "types": "./dist/asset/index.d.ts",
-      "module": "./dist/asset/index.js",
-      "import": "./dist/asset/index.js",
-      "default": "./dist/asset/index.cjs"
-    },
-    "./renderer": {
-      "types": "./dist/renderer/index.d.ts",
-      "module": "./dist/renderer/index.js",
-      "import": "./dist/renderer/index.js",
-      "default": "./dist/renderer/index.cjs"
     }
   },
   "files": ["README.md", "package.json", "dist/**/*"],

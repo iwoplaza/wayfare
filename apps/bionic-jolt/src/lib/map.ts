@@ -1,6 +1,11 @@
-import { MeshTrait, TransformTrait, getOrAdd } from 'wayfare';
-import { MaterialTrait, BlinnPhongMaterial } from 'wayfare/renderer';
-import { meshAsset } from 'wayfare/asset';
+import {
+  MeshTrait,
+  TransformTrait,
+  MaterialTrait,
+  BlinnPhongMaterial,
+  getOrAdd,
+  meshAsset,
+} from 'wayfare';
 import { type ExtractSchema, Not, type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import { quat } from 'wgpu-matrix';

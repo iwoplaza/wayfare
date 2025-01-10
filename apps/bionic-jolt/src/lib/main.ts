@@ -8,9 +8,10 @@ import {
   PerspectiveCamera,
   TransformTrait,
   Input,
+  meshAsset,
+  Renderer,
+  BlinnPhongMaterial,
 } from 'wayfare';
-import { meshAsset } from 'wayfare/asset';
-import { Renderer, BlinnPhongMaterial } from 'wayfare/renderer';
 import { type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import tgpu from 'typegpu/experimental';

@@ -4,8 +4,9 @@ import {
   TransformTrait,
   InstanceBufferTrait,
   POS_NORMAL_UV,
+  createRectangle,
+  createMaterial,
 } from 'wayfare';
-import { createRectangle, createMaterial } from 'wayfare/renderer';
 import { builtin, disarrayOf, vec2f, vec3f, vec4f } from 'typegpu/data';
 import tgpu, {
   type ExperimentalTgpuRoot as TgpuRoot,

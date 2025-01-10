@@ -9,8 +9,6 @@ import terser from '@rollup/plugin-terser';
 export default {
   input: {
     index: 'src/index.ts',
-    'asset/index': 'src/asset/index.ts',
-    'renderer/index': 'src/renderer/index.ts',
   },
   external: ['typegpu', /^typegpu\//, 'koota', 'wgpu-matrix', /^@loaders.gl\//],
   output: [
