@@ -18,7 +18,7 @@
     "astro": "^5.1.1",
     "koota": "^0.1.12",
     "rollup-plugin-typegpu": "^0.0.1",
-    "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/e62d915f/typegpu",
+    "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu",
     "wgpu-matrix": "^3.3.0",
     "wayfare": "workspace:*"
   },

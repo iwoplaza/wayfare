@@ -7,18 +7,16 @@ import terser from '@rollup/plugin-terser';
  * @type {import('rollup').RollupOptions}
  */
 export default {
-  input: {
-    index: 'src/index.ts',
-  },
+  input: 'src/index.ts',
   external: ['typegpu', /^typegpu\//, 'koota', 'wgpu-matrix', /^@loaders.gl\//],
   output: [
     {
-      dir: 'dist',
+      file: 'dist/index.js',
       format: 'esm',
       sourcemap: true,
     },
     {
-      dir: 'dist',
+      file: 'dist/index.cjs',
       format: 'cjs',
       sourcemap: true,
     },

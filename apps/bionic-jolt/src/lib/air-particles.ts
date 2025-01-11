@@ -1,4 +1,4 @@
-import type { World } from 'koota';
+import { trait, type World } from 'koota';
 import {
   MeshTrait,
   TransformTrait,
@@ -6,12 +6,37 @@ import {
   POS_NORMAL_UV,
   createRectangle,
   createMaterial,
+  ActiveCameraTag,
 } from 'wayfare';
-import { builtin, disarrayOf, vec2f, vec3f, vec4f } from 'typegpu/data';
+import {
+  builtin,
+  disarrayOf,
+  f32,
+  mat3x3f,
+  struct,
+  vec2f,
+  vec3f,
+  vec4f,
+} from 'typegpu/data';
 import tgpu, {
   type ExperimentalTgpuRoot as TgpuRoot,
 } from 'typegpu/experimental';
-import { normalize, max, dot, mul, add } from 'typegpu/std';
+import {
+  normalize,
+  max,
+  dot,
+  mul,
+  add,
+  cos,
+  sin,
+  sub,
+  fract,
+} from 'typegpu/std';
+
+const particleAmount = 100;
+const span = 10;
+
+const AirParticleSystem = trait({});
 
 export const SpeedLinesInstanceLayout = tgpu.vertexLayout(
   (count) => disarrayOf(vec3f, count),
@@ -23,10 +48,45 @@ const particleMesh = createRectangle({
   height: vec3f(0, 1, 0),
 });
 
-export const SpeedLinesMaterial = createMaterial({
+// TODO: Contribute back to `typegpu`
+const atan2 = tgpu.fn([f32, f32], f32).does(`(y: f32, x: f32) -> f32 {
+  return atan2(y, x);
+}`);
+
+// TODO: Contribute back to `typegpu`
+const matMul3x3 = tgpu
+  .fn([mat3x3f, vec3f], vec3f)
+  .does(`(mat: mat3x3f, vec: vec3f) -> vec3f {
+  return mat * vec;
+}`);
+
+export const AirParticlesMaterial = createMaterial({
+  paramsSchema: struct({
+    cameraPosition: vec3f,
+  }),
+  paramsDefaults: {
+    cameraPosition: vec3f(),
+  },
   vertexLayout: POS_NORMAL_UV,
   instanceLayout: SpeedLinesInstanceLayout,
   createPipeline({ root, format, getPOV, getUniforms, getParams }) {
+    const computePosition = tgpu
+      .fn([vec3f, vec3f], vec3f)
+      .does((pos, origin) => {
+        const wrappedOrigin = sub(origin, getParams().value.cameraPosition);
+        wrappedOrigin.y = -fract(-wrappedOrigin.y / span) * span;
+
+        const cameraDiff = sub(origin, getParams().value.cameraPosition);
+        const angle = -atan2(cameraDiff.x, cameraDiff.z) + Math.PI;
+        const rot_mat = mat3x3f(
+          vec3f(cos(angle), 0, sin(angle)), // i
+          vec3f(0, 1, 0), // j
+          vec3f(-sin(angle), 0, cos(angle)), // k
+        );
+
+        return add(matMul3x3(rot_mat, pos), wrappedOrigin);
+      });
+
     const vertexFn = tgpu
       .vertexFn(
         {
@@ -46,7 +106,8 @@ export const SpeedLinesMaterial = createMaterial({
         @location(3) origin: vec3f,
       ) -> Output {
         var out: Output;
-        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(pos + origin, 1.0);
+
+        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(computePosition(pos, origin), 1.0);
         out.normal = (uniforms.normalModelMat * vec4f(normal, 0.0)).xyz;
         out.uv = uv;
         return out;
@@ -58,6 +119,7 @@ export const SpeedLinesMaterial = createMaterial({
         get pov() {
           return getPOV();
         },
+        computePosition,
       });
 
     const sunDir = normalize(vec3f(-0.5, 2, -0.5));
@@ -100,26 +162,46 @@ export const SpeedLinesMaterial = createMaterial({
 export function createAirParticles(root: TgpuRoot) {
   return {
     init(world: World) {
-      const speedLinesBuffer = root
+      const particlesBuffer = root
         .createBuffer(
-          SpeedLinesInstanceLayout.schemaForCount(1),
-          Array.from({ length: 1 }).map(() =>
-            vec3f(Math.random(), 0, Math.random()),
+          SpeedLinesInstanceLayout.schemaForCount(particleAmount),
+          Array.from({ length: particleAmount }).map(() =>
+            vec3f(
+              (Math.random() * 2 - 1) * span,
+              (Math.random() * 2 - 1) * span,
+              (Math.random() * 2 - 1) * span,
+            ),
           ),
         )
         .$usage('vertex');
 
       world.spawn(
+        AirParticleSystem,
         MeshTrait(particleMesh),
         TransformTrait({
           position: vec3f(0, 0, -1),
           scale: vec3f(0.1),
         }),
-        InstanceBufferTrait(speedLinesBuffer),
-        ...SpeedLinesMaterial.Bundle(),
+        InstanceBufferTrait(particlesBuffer),
+        ...AirParticlesMaterial.Bundle(),
       );
     },
 
-    update(world: World) {},
+    update(world: World) {
+      const activeCamera = world.queryFirst(ActiveCameraTag);
+      const cameraTransform = activeCamera?.get(TransformTrait);
+
+      if (!cameraTransform) {
+        console.warn('Using air particles with no active camera.');
+        return;
+      }
+
+      world
+        .query(TransformTrait, AirParticlesMaterial.Params, AirParticleSystem)
+        .updateEach(([transform, params]) => {
+          transform.position = cameraTransform.position;
+          params.cameraPosition = cameraTransform.position;
+        });
+    },
   };
 }
