@@ -21,24 +21,14 @@ import {
 import tgpu, {
   type ExperimentalTgpuRoot as TgpuRoot,
 } from 'typegpu/experimental';
-import {
-  normalize,
-  max,
-  dot,
-  mul,
-  add,
-  cos,
-  sin,
-  sub,
-  fract,
-} from 'typegpu/std';
+import { add, cos, sin, sub, fract } from 'typegpu/std';
 
-const particleAmount = 100;
-const span = 10;
+const particleAmount = 1000;
+const span = 20;
 
 const AirParticleSystem = trait({});
 
-export const SpeedLinesInstanceLayout = tgpu.vertexLayout(
+export const InstanceLayout = tgpu.vertexLayout(
   (count) => disarrayOf(vec3f, count),
   'instance',
 );
@@ -57,8 +47,8 @@ const atan2 = tgpu.fn([f32, f32], f32).does(`(y: f32, x: f32) -> f32 {
 const matMul3x3 = tgpu
   .fn([mat3x3f, vec3f], vec3f)
   .does(`(mat: mat3x3f, vec: vec3f) -> vec3f {
-  return mat * vec;
-}`);
+    return mat * vec;
+  }`);
 
 export const AirParticlesMaterial = createMaterial({
   paramsSchema: struct({
@@ -68,23 +58,33 @@ export const AirParticlesMaterial = createMaterial({
     cameraPosition: vec3f(),
   },
   vertexLayout: POS_NORMAL_UV,
-  instanceLayout: SpeedLinesInstanceLayout,
+  instanceLayout: InstanceLayout,
   createPipeline({ root, format, getPOV, getUniforms, getParams }) {
+    const getTransformedOrigin = tgpu.fn([vec3f], vec3f).does((localOrigin) => {
+      const wrappedOrigin = sub(localOrigin, getParams().value.cameraPosition);
+
+      // wrapping the space.
+      wrappedOrigin.y = -fract(-wrappedOrigin.y / span) * span;
+      wrappedOrigin.x =
+        (fract(wrappedOrigin.x / span / 2 + 0.5) - 0.5) * span * 2;
+      wrappedOrigin.z =
+        (fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
+
+      return wrappedOrigin;
+    });
+
     const computePosition = tgpu
       .fn([vec3f, vec3f], vec3f)
-      .does((pos, origin) => {
-        const wrappedOrigin = sub(origin, getParams().value.cameraPosition);
-        wrappedOrigin.y = -fract(-wrappedOrigin.y / span) * span;
-
-        const cameraDiff = sub(origin, getParams().value.cameraPosition);
-        const angle = -atan2(cameraDiff.x, cameraDiff.z) + Math.PI;
+      .does((pos, cameraRelToCamera) => {
+        const angle =
+          -atan2(cameraRelToCamera.x, cameraRelToCamera.z) + Math.PI;
         const rot_mat = mat3x3f(
           vec3f(cos(angle), 0, sin(angle)), // i
           vec3f(0, 1, 0), // j
           vec3f(-sin(angle), 0, cos(angle)), // k
         );
 
-        return add(matMul3x3(rot_mat, pos), wrappedOrigin);
+        return add(matMul3x3(rot_mat, pos), cameraRelToCamera);
       });
 
     const vertexFn = tgpu
@@ -96,7 +96,12 @@ export const AirParticlesMaterial = createMaterial({
           uv: vec2f,
           origin: vec3f,
         },
-        { pos: builtin.position, normal: vec3f, uv: vec2f },
+        {
+          pos: builtin.position,
+          normal: vec3f,
+          uv: vec2f,
+          cameraRelToCamera: vec3f,
+        },
       )
       .does(`(
         @builtin(vertex_index) idx: u32,
@@ -107,9 +112,11 @@ export const AirParticlesMaterial = createMaterial({
       ) -> Output {
         var out: Output;
 
-        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(computePosition(pos, origin), 1.0);
+        let cameraRelToCamera = getTransformedOrigin(origin);
+        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(computePosition(pos, cameraRelToCamera), 1.0);
         out.normal = (uniforms.normalModelMat * vec4f(normal, 0.0)).xyz;
         out.uv = uv;
+        out.cameraRelToCamera = cameraRelToCamera;
         return out;
       }`)
       .$uses({
@@ -119,25 +126,22 @@ export const AirParticlesMaterial = createMaterial({
         get pov() {
           return getPOV();
         },
+        getTransformedOrigin,
         computePosition,
       });
 
-    const sunDir = normalize(vec3f(-0.5, 2, -0.5));
-
-    const computeColor = tgpu.fn([vec3f], vec4f).does((normal) => {
-      const diffuse = vec3f(1.0, 0.9, 0.7);
-      const ambient = vec3f(0.1, 0.15, 0.2);
-      const att = max(0, dot(normalize(normal), sunDir));
-      const albedo = vec3f(1, 1, 1);
-
-      const finalColor = mul(add(ambient, mul(att, diffuse)), albedo);
-      return vec4f(finalColor.x, finalColor.y, finalColor.z, 1.0);
+    const computeColor = tgpu.fn([], vec4f).does(() => {
+      return vec4f(1, 0, 0, 1.0);
     });
 
     const fragmentFn = tgpu
-      .fragmentFn({}, vec4f)
-      .does(`(@location(0) normal: vec3f, @location(1) uv: vec2f) -> @location(0) vec4f {
-        return computeColor(normal);
+      .fragmentFn({ cameraRelToCamera: vec3f }, vec4f)
+      .does(`(@location(0) normal: vec3f, @location(1) uv: vec2f, @location(2) originRelToCamera: vec3f) -> @location(0) vec4f {
+        let xz_dist = length(originRelToCamera.xz);
+        if (xz_dist < 1) {
+          discard;
+        }
+        return computeColor();
       }`)
       .$uses({ computeColor });
 
@@ -145,7 +149,7 @@ export const AirParticlesMaterial = createMaterial({
       pipeline: root
         .withVertex(vertexFn, {
           ...POS_NORMAL_UV.attrib,
-          origin: SpeedLinesInstanceLayout.attrib,
+          origin: InstanceLayout.attrib,
         })
         .withFragment(fragmentFn, { format })
         .withPrimitive({ topology: 'triangle-list', cullMode: 'back' })
@@ -164,7 +168,7 @@ export function createAirParticles(root: TgpuRoot) {
     init(world: World) {
       const particlesBuffer = root
         .createBuffer(
-          SpeedLinesInstanceLayout.schemaForCount(particleAmount),
+          InstanceLayout.schemaForCount(particleAmount),
           Array.from({ length: particleAmount }).map(() =>
             vec3f(
               (Math.random() * 2 - 1) * span,
@@ -178,10 +182,7 @@ export function createAirParticles(root: TgpuRoot) {
       world.spawn(
         AirParticleSystem,
         MeshTrait(particleMesh),
-        TransformTrait({
-          position: vec3f(0, 0, -1),
-          scale: vec3f(0.1),
-        }),
+        TransformTrait,
         InstanceBufferTrait(particlesBuffer),
         ...AirParticlesMaterial.Bundle(),
       );
