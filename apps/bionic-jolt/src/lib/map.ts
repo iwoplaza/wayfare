@@ -1,13 +1,13 @@
+import { type ExtractSchema, Not, type World, trait } from 'koota';
+import { vec3f, vec4f } from 'typegpu/data';
 import {
+  BlinnPhongMaterial,
+  MaterialTrait,
   MeshTrait,
   TransformTrait,
-  MaterialTrait,
-  BlinnPhongMaterial,
   getOrAdd,
   meshAsset,
 } from 'wayfare';
-import { type ExtractSchema, Not, type World, trait } from 'koota';
-import { vec3f, vec4f } from 'typegpu/data';
 import { quat } from 'wgpu-matrix';
 
 import pentagonPath from '../assets/pentagon.obj?url';

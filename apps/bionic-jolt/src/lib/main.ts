@@ -1,13 +1,15 @@
-import { Engine, Renderer } from 'wayfare';
 import tgpu from 'typegpu/experimental';
+import { Engine, Renderer } from 'wayfare';
 
-import { createMap } from './map';
 import { createAirParticles } from './air-particles';
 import { createDudes } from './dude';
-import { createPlayers } from './player';
 import { createGameCamera } from './game-camera';
+// These imports are preloading the necessary assets
+// TODO: Hopefully the VM is smart enough to parallelize these, but
+//       better to test this anyway.
+import { createMap } from './map';
+import { createPlayers } from './player';
 
-// Preloading...
 const loadingScreen = document.getElementById('loading-screen');
 
 if (loadingScreen) {
@@ -17,7 +19,6 @@ if (loadingScreen) {
 export async function main(canvas: HTMLCanvasElement) {
   const root = await tgpu.init();
   const renderer = new Renderer(root, canvas);
-
   const engine = new Engine(root, renderer);
   const world = engine.world;
 

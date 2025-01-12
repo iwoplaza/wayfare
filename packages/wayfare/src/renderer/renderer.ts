@@ -1,10 +1,10 @@
 import {
   type AnyWgslData,
   type Disarray,
+  type WgslArray,
   type m4x4f,
   mat4x4f,
   vec4f,
-  type WgslArray,
 } from 'typegpu/data';
 import type {
   ExperimentalTgpuRoot,
@@ -20,16 +20,16 @@ import { mat4 } from 'wgpu-matrix';
 import type { MeshAsset } from '../asset/meshAsset.js';
 import type { PerspectiveConfig } from '../camera-traits.js';
 import type { Transform } from '../transform.js';
-import { Viewport } from './viewport.js';
 import {
-  POVStruct,
-  sharedBindGroupLayout,
-  uniformsBindGroupLayout,
-  UniformsStruct,
   type Material,
+  POVStruct,
   type SharedBindGroup,
   type UniformsBindGroup,
+  UniformsStruct,
+  sharedBindGroupLayout,
+  uniformsBindGroupLayout,
 } from './material.js';
+import { Viewport } from './viewport.js';
 
 export type GameObject = {
   id: number;

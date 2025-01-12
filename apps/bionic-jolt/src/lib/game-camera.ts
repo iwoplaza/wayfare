@@ -1,12 +1,12 @@
-import { trait, type World } from 'koota';
+import { type World, trait } from 'koota';
 import { vec4f } from 'typegpu/data';
 import {
   ActiveCameraTag,
-  encroach,
-  getOrThrow,
   PerspectiveCamera,
   Time,
   TransformTrait,
+  encroach,
+  getOrThrow,
 } from 'wayfare';
 import { quat } from 'wgpu-matrix';
 import { Player } from './player';

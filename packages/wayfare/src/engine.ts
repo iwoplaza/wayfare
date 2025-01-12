@@ -8,11 +8,11 @@ import {
   trait,
 } from 'koota';
 import {
+  type Disarray,
+  type WgslArray,
   mat4x4f,
   vec3f,
   vec4f,
-  type Disarray,
-  type WgslArray,
 } from 'typegpu/data';
 import type {
   ExperimentalTgpuRoot,
@@ -23,12 +23,12 @@ import { mat4, quat } from 'wgpu-matrix';
 
 import type { MeshAsset } from './asset/meshAsset.js';
 import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.js';
+import { getOrAdd, getOrThrow } from './get-or-add.js';
 import { ChildOf, ParentOf } from './node-tree.js';
+import { BlinnPhongMaterial } from './renderer/blinn-phong-material.js';
+import { type Material, MaterialTrait } from './renderer/material.js';
 import type { Renderer } from './renderer/renderer.js';
 import { Time } from './time.js';
-import { BlinnPhongMaterial } from './renderer/blinn-phong-material.js';
-import { MaterialTrait, type Material } from './renderer/material.js';
-import { getOrAdd, getOrThrow } from './get-or-add.js';
 
 const Added = createAdded();
 const Removed = createRemoved();

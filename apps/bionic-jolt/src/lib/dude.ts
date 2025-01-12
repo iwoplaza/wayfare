@@ -2,21 +2,21 @@
  * All code related to the character that the players embody.
  */
 
-import { trait, type World, type ConfigurableTrait } from 'koota';
+import { type ConfigurableTrait, type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import {
   BlinnPhongMaterial,
-  encroach,
-  getOrThrow,
-  meshAsset,
   MeshTrait,
   Time,
   TransformTrait,
   Velocity,
+  encroach,
+  getOrThrow,
+  meshAsset,
 } from 'wayfare';
+import { quat } from 'wgpu-matrix';
 
 import dudePath from '../assets/dude.obj?url';
-import { quat } from 'wgpu-matrix';
 
 const dudeMesh = await meshAsset({ url: dudePath }).preload();
 
@@ -40,7 +40,7 @@ export function createDudes(world: World) {
     world.query(Dude, Velocity).updateEach(([dude, velocity]) => {
       const dir = dude.movementDir;
       const speed = dude.freeFallHorizontalSpeed;
-      // Encroaching the movement direction
+      // Smoothly encroaching the movement direction
       velocity.x = encroach(velocity.x, dir.x * speed, 0.1, deltaSeconds);
       velocity.z = encroach(velocity.z, dir.z * speed, 0.1, deltaSeconds);
     });

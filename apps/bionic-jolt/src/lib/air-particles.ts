@@ -1,15 +1,4 @@
-import { trait, type World } from 'koota';
-import {
-  MeshTrait,
-  TransformTrait,
-  InstanceBufferTrait,
-  POS_NORMAL_UV,
-  createRectangle,
-  createMaterial,
-  ActiveCameraTag,
-  getOrThrow,
-  Time,
-} from 'wayfare';
+import { type World, trait } from 'koota';
 import {
   builtin,
   disarrayOf,
@@ -23,7 +12,18 @@ import {
 import tgpu, {
   type ExperimentalTgpuRoot as TgpuRoot,
 } from 'typegpu/experimental';
-import { add, cos, sin, sub, fract } from 'typegpu/std';
+import { add, cos, fract, sin, sub } from 'typegpu/std';
+import {
+  ActiveCameraTag,
+  InstanceBufferTrait,
+  MeshTrait,
+  POS_NORMAL_UV,
+  Time,
+  TransformTrait,
+  createMaterial,
+  createRectangle,
+  getOrThrow,
+} from 'wayfare';
 
 const particleAmount = 1000;
 const span = 10;

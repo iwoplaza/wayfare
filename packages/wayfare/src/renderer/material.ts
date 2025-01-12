@@ -1,23 +1,23 @@
-import { trait, type ConfigurableTrait, type Schema, type Trait } from 'koota';
+import { type ConfigurableTrait, type Schema, type Trait, trait } from 'koota';
 import {
+  type AnyWgslData,
+  type BaseWgslData,
+  type Infer,
+  type Mat4x4f,
+  type Normal,
+  type Vec4f,
+  type WgslStruct,
+  type m4x4f,
   mat4x4f,
   struct,
-  type AnyWgslData,
-  type Infer,
-  type m4x4f,
-  type Vec4f,
-  type Normal,
-  type BaseWgslData,
-  type WgslStruct,
-  type Mat4x4f,
 } from 'typegpu/data';
 import {
-  type ExperimentalTgpuRoot as TgpuRoot,
-  type TgpuRenderPipeline,
-  tgpu,
   type TgpuBindGroup,
   type TgpuBindGroupLayout,
+  type TgpuRenderPipeline,
+  type ExperimentalTgpuRoot as TgpuRoot,
   type TgpuVertexLayout,
+  tgpu,
 } from 'typegpu/experimental';
 
 export interface MaterialContext<TParams> {

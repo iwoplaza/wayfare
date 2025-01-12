@@ -1,10 +1,10 @@
-import { trait, type World } from 'koota';
-import { Input, TransformTrait, Velocity } from 'wayfare';
+import { type World, trait } from 'koota';
 import { vec3f } from 'typegpu/data';
 import { length, normalize } from 'typegpu/std';
+import { Input, TransformTrait, Velocity } from 'wayfare';
 
-import { MapProgressMarker } from './map';
 import { Dude, DudeBundle } from './dude';
+import { MapProgressMarker } from './map';
 
 export const Player = trait({
   upKey: 'KeyW',

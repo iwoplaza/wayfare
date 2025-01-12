@@ -1,10 +1,10 @@
 import {
+  type Disarray,
+  type WgslArray,
   disarrayOf,
   unstruct,
   vec2f,
   vec3f,
-  type Disarray,
-  type WgslArray,
 } from 'typegpu/data';
 import { type TgpuBuffer, type Vertex, tgpu } from 'typegpu/experimental';
 
