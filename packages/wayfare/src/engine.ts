@@ -67,9 +67,9 @@ export class Engine {
   }
 
   run(onFrame: (deltaSeconds: number) => unknown) {
-    let lastTime = Date.now();
+    let lastTime = performance.now();
     const handleFrame = () => {
-      const now = Date.now();
+      const now = performance.now();
       const deltaSeconds = (now - lastTime) / 1000;
       lastTime = now;
 
