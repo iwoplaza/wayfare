@@ -4,7 +4,7 @@ import typegpu from 'rollup-plugin-typegpu';
 
 // https://astro.build/config
 export default defineConfig({
-  base: 'bionic-jolt',
+  base: 'wayfare',
   vite: {
     plugins: [typegpu({ include: [/\.ts$/] })],
   },
