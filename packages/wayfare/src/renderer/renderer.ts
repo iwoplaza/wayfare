@@ -96,8 +96,12 @@ export class Renderer {
 
     // Listen to changes in window size and resize the canvas
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+
+      const devicePixelRatio = window.devicePixelRatio;
+      canvas.width = window.innerWidth * devicePixelRatio;
+      canvas.height = window.innerHeight * devicePixelRatio;
       this._viewport.resize(canvas.width, canvas.height);
       this._updateProjection();
     };
