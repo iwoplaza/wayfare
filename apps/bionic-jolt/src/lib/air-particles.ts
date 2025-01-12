@@ -24,7 +24,7 @@ import tgpu, {
 import { add, cos, sin, sub, fract } from 'typegpu/std';
 
 const particleAmount = 1000;
-const span = 20;
+const span = 10;
 
 const AirParticleSystem = trait({});
 
@@ -34,8 +34,8 @@ export const InstanceLayout = tgpu.vertexLayout(
 );
 
 const particleMesh = createRectangle({
-  width: vec3f(1, 0, 0),
-  height: vec3f(0, 1, 0),
+  width: vec3f(0.02, 0, 0),
+  height: vec3f(0, 0.5, 0),
 });
 
 // TODO: Contribute back to `typegpu`
@@ -131,7 +131,7 @@ export const AirParticlesMaterial = createMaterial({
       });
 
     const computeColor = tgpu.fn([], vec4f).does(() => {
-      return vec4f(1, 0, 0, 1.0);
+      return vec4f(1, 1, 1, 1.0);
     });
 
     const fragmentFn = tgpu
