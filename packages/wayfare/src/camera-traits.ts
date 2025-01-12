@@ -20,7 +20,7 @@ type PerspectiveCamera = Trait<{
 export const ActiveCameraTag: ActiveCameraTag = trait();
 export const PerspectiveCamera: PerspectiveCamera = trait({
   fov: 45,
-  near: 0.1,
+  near: 0.02,
   far: 1000,
   clearColor: [0, 0, 0, 1] as [number, number, number, number],
 });

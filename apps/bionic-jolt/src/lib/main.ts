@@ -1,12 +1,21 @@
 import tgpu from 'typegpu/experimental';
 import { Engine, Renderer } from 'wayfare';
 
-import { createAirParticles } from './air-particles';
-import { createDudes } from './dude';
-import { createGameCamera } from './game-camera';
+// Locking the zoom behavior on mobile.
+document.addEventListener(
+  'touchmove',
+  (event) => {
+    event.preventDefault();
+  },
+  { passive: false },
+);
+
 // These imports are preloading the necessary assets
 // TODO: Hopefully the VM is smart enough to parallelize these, but
 //       better to test this anyway.
+import { createAirParticles } from './air-particles';
+import { createDudes } from './dude';
+import { createGameCamera } from './game-camera';
 import { createMap } from './map';
 import { createPlayers } from './player';
 

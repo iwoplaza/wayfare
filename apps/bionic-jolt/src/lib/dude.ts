@@ -23,6 +23,7 @@ const dudeMesh = await meshAsset({ url: dudePath }).preload();
 export const Dude = trait({
   freeFallHorizontalSpeed: 2,
   movementDir: () => vec3f(),
+  smoothTurnDir: () => vec3f(),
 });
 
 export function DudeBundle(): ConfigurableTrait[] {
@@ -40,25 +41,44 @@ export function createDudes(world: World) {
     world.query(Dude, Velocity).updateEach(([dude, velocity]) => {
       const dir = dude.movementDir;
       const speed = dude.freeFallHorizontalSpeed;
-      // Smoothly encroaching the movement direction
+      // Smoothly encroaching the velocity
       velocity.x = encroach(velocity.x, dir.x * speed, 0.1, deltaSeconds);
       velocity.z = encroach(velocity.z, dir.z * speed, 0.1, deltaSeconds);
     });
   }
 
+  function updateSmoothTurnSystem() {
+    world.query(Dude).updateEach(() => {});
+  }
+
   function animateDudeSystem() {
-    world
-      .query(Velocity, TransformTrait, Dude)
-      .updateEach(([velocity, transform]) => {
-        // Tilting based on movement direction
-        transform.rotation = quat.fromEuler(
-          velocity.z * Math.PI * 0.1,
-          0,
-          velocity.x * -Math.PI * 0.1,
-          'xyz',
-          vec4f(),
-        );
-      });
+    const deltaSeconds = getOrThrow(world, Time).deltaSeconds;
+
+    world.query(TransformTrait, Dude).updateEach(([transform, dude]) => {
+      const dir = dude.movementDir;
+      // Smoothly encroaching the turn direction
+      dude.smoothTurnDir.x = encroach(
+        dude.smoothTurnDir.x,
+        dir.x,
+        0.01,
+        deltaSeconds,
+      );
+      dude.smoothTurnDir.z = encroach(
+        dude.smoothTurnDir.z,
+        dir.z,
+        0.01,
+        deltaSeconds,
+      );
+
+      // Tilting based on movement direction
+      transform.rotation = quat.fromEuler(
+        dude.smoothTurnDir.z * Math.PI * 0.2,
+        0,
+        dude.smoothTurnDir.x * -Math.PI * 0.2,
+        'xyz',
+        vec4f(),
+      );
+    });
   }
 
   return {
