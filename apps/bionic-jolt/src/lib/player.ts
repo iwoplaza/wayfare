@@ -2,6 +2,7 @@ import { type World, trait } from 'koota';
 import { vec3f } from 'typegpu/data';
 import { length, normalize } from 'typegpu/std';
 import { Input, TransformTrait, Velocity } from 'wayfare';
+import { getJoysticks } from '@manapotion/vanilla';
 
 import { Dude, DudeBundle } from './dude';
 import { MapProgressMarker } from './map';
@@ -17,20 +18,29 @@ function controlPlayerSystem(world: World) {
   world.query(Player, Dude).updateEach(([player, dude]) => {
     let dir = vec3f();
 
-    if (Input.isKeyDown(player.upKey)) {
-      dir.z = -1;
-    } else if (Input.isKeyDown(player.downKey)) {
-      dir.z = 1;
-    } else {
-      dir.z = 0;
-    }
+    const joystick = getJoysticks().movement;
 
-    if (Input.isKeyDown(player.leftKey)) {
-      dir.x = -1;
-    } else if (Input.isKeyDown(player.rightKey)) {
-      dir.x = 1;
+    if (joystick.isActive) {
+      dir.x = (joystick.current.x ?? 0) - (joystick.origin.x ?? 0);
+      dir.z = (joystick.current.y ?? 0) - (joystick.origin.y ?? 0);
+      dir.x /= 50;
+      dir.z /= -50;
     } else {
-      dir.x = 0;
+      if (Input.isKeyDown(player.upKey)) {
+        dir.z = -1;
+      } else if (Input.isKeyDown(player.downKey)) {
+        dir.z = 1;
+      } else {
+        dir.z = 0;
+      }
+
+      if (Input.isKeyDown(player.leftKey)) {
+        dir.x = -1;
+      } else if (Input.isKeyDown(player.rightKey)) {
+        dir.x = 1;
+      } else {
+        dir.x = 0;
+      }
     }
 
     if (length(dir) > 1) {

@@ -1,15 +1,6 @@
 import tgpu from 'typegpu/experimental';
 import { Engine, Renderer } from 'wayfare';
 
-// Locking the zoom behavior on mobile.
-document.addEventListener(
-  'touchmove',
-  (event) => {
-    event.preventDefault();
-  },
-  { passive: false },
-);
-
 // These imports are preloading the necessary assets
 // TODO: Hopefully the VM is smart enough to parallelize these, but
 //       better to test this anyway.
@@ -18,6 +9,7 @@ import { createDudes } from './dude';
 import { createGameCamera } from './game-camera';
 import { createMap } from './map';
 import { createPlayers } from './player';
+import { createJoystick } from './joystick';
 
 const loadingScreen = document.getElementById('loading-screen');
 
@@ -30,6 +22,8 @@ export async function main(canvas: HTMLCanvasElement) {
   const renderer = new Renderer(root, canvas);
   const engine = new Engine(root, renderer);
   const world = engine.world;
+
+  createJoystick();
 
   const MapStuff = createMap(world);
   const AirParticles = createAirParticles(world, root);

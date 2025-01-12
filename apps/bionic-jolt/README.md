@@ -22,8 +22,11 @@ Prototype:
   - [ ] Death sound
   - [ ] "Got point" sounds
 - [ ] Gameplay
-  - [x] Procedurally generated map 
+  - [x] Keyboard controls
+  - [x] Procedurally generated map
+  - [x] Mobile controls
   - [ ] At least 10 different chunk types
+  - [ ] Collecting points
 - [ ] Basic Main Menu
   - [ ] "Fall" button
   - [ ] Scoreboard
@@ -31,4 +34,4 @@ Prototype:
   - [ ] Collision detection
 
 v0.2:
-
+- [ ] "Turbulent" clothes on the Dudes

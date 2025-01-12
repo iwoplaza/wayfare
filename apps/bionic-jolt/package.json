@@ -12,15 +12,18 @@
     "fix": "biome check --write"
   },
   "dependencies": {
+    "@astrojs/tailwind": "^5.1.4",
     "@loaders.gl/core": "^4.3.3",
     "@loaders.gl/gltf": "^4.3.3",
     "@loaders.gl/obj": "^4.3.3",
+    "@manapotion/vanilla": "^1.0.0",
     "astro": "^5.1.1",
     "koota": "^0.1.12",
     "rollup-plugin-typegpu": "^0.0.1",
+    "tailwindcss": "^3.4.17",
     "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu",
-    "wgpu-matrix": "^3.3.0",
-    "wayfare": "workspace:*"
+    "wayfare": "workspace:*",
+    "wgpu-matrix": "^3.3.0"
   },
   "packageManager": "pnpm@8.15.8+sha256.691fe176eea9a8a80df20e4976f3dfb44a04841ceb885638fe2a26174f81e65e",
   "devDependencies": {

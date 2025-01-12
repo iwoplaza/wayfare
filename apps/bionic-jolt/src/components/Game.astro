@@ -4,6 +4,19 @@
 <main>
 	<div id="loading-screen"><p>loading...</p></div>
 	<canvas id="canvas"></canvas>
+	<div
+		id="joystick-area"
+		class="fixed inset-0"
+	>
+		<div
+			id="joystick-current"
+			class="pointer-events-none absolute -bottom-6 -left-6 size-12 rounded-full bg-red-500 opacity-0 transition-opacity"
+		></div>
+		<div
+			id="joystick-origin"
+			class="pointer-events-none absolute -bottom-6 -left-6 size-12 rounded-full bg-blue-500 opacity-0 transition-opacity"
+		></div>
+	</div>
 </main>
 
 <script>
