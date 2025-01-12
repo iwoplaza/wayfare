@@ -7,6 +7,8 @@ import {
   createRectangle,
   createMaterial,
   ActiveCameraTag,
+  getOrThrow,
+  Time,
 } from 'wayfare';
 import {
   builtin,
@@ -53,15 +55,18 @@ const matMul3x3 = tgpu
 export const AirParticlesMaterial = createMaterial({
   paramsSchema: struct({
     cameraPosition: vec3f,
+    yOffset: f32,
   }),
   paramsDefaults: {
     cameraPosition: vec3f(),
+    yOffset: 0,
   },
   vertexLayout: POS_NORMAL_UV,
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, getPOV, getUniforms, getParams }) {
     const getTransformedOrigin = tgpu.fn([vec3f], vec3f).does((localOrigin) => {
       const wrappedOrigin = sub(localOrigin, getParams().value.cameraPosition);
+      wrappedOrigin.y -= getParams().value.yOffset;
 
       // wrapping the space.
       wrappedOrigin.y = -fract(-wrappedOrigin.y / span) * span;
@@ -189,6 +194,7 @@ export function createAirParticles(root: TgpuRoot) {
     },
 
     update(world: World) {
+      const time = getOrThrow(world, Time);
       const activeCamera = world.queryFirst(ActiveCameraTag);
       const cameraTransform = activeCamera?.get(TransformTrait);
 
@@ -201,7 +207,9 @@ export function createAirParticles(root: TgpuRoot) {
         .query(TransformTrait, AirParticlesMaterial.Params, AirParticleSystem)
         .updateEach(([transform, params]) => {
           transform.position = cameraTransform.position;
+
           params.cameraPosition = cameraTransform.position;
+          params.yOffset -= time.deltaSeconds * 10;
         });
     },
   };
