@@ -11,6 +11,7 @@ import { vec3f, vec4f } from 'typegpu/data';
 import { quat } from 'wgpu-matrix';
 
 import pentagonPath from '../assets/pentagon.obj?url';
+const pentagonMesh = await meshAsset({ url: pentagonPath }).preload();
 
 /**
  * Settings given to a world.
@@ -37,10 +38,8 @@ export const MapChunk = trait({
  */
 export const MapTail = trait({});
 
-export async function createMap() {
-  const pentagonMesh = await meshAsset({ url: pentagonPath }).preload();
-
-  function updateMapSystem(world: World) {
+export function createMap(world: World) {
+  function updateMapSystem() {
     const settings = getOrAdd(world, MapSettings);
     const progressMarker = world.queryFirst(MapProgressMarker);
     const progressMarkerPos = progressMarker?.get(TransformTrait)?.position;
@@ -112,5 +111,9 @@ export async function createMap() {
     } while (limit > 0);
   }
 
-  return { updateMapSystem };
+  return {
+    update() {
+      updateMapSystem();
+    },
+  };
 }

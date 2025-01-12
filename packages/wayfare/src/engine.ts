@@ -54,6 +54,8 @@ export const MatricesTrait = trait(() => ({
 
 const DefaultMaterial = BlinnPhongMaterial.material;
 
+export const Velocity = trait(() => vec3f());
+
 export class Engine {
   public readonly world = createWorld();
 
@@ -74,6 +76,15 @@ export class Engine {
       this.world.set(Time, { deltaSeconds });
 
       onFrame(deltaSeconds);
+
+      // "Advancing by velocity" system
+      this.world
+        .query(TransformTrait, Velocity)
+        .updateEach(([transform, velocity]) => {
+          transform.position.x += velocity.x * deltaSeconds;
+          transform.position.y += velocity.y * deltaSeconds;
+          transform.position.z += velocity.z * deltaSeconds;
+        });
 
       // "Updating matrices based on transforms" system
       const updateMatrices = (entity: Entity) => {

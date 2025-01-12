@@ -168,32 +168,30 @@ export const AirParticlesMaterial = createMaterial({
   },
 });
 
-export function createAirParticles(root: TgpuRoot) {
+export function createAirParticles(world: World, root: TgpuRoot) {
+  const particlesBuffer = root
+    .createBuffer(
+      InstanceLayout.schemaForCount(particleAmount),
+      Array.from({ length: particleAmount }).map(() =>
+        vec3f(
+          (Math.random() * 2 - 1) * span,
+          (Math.random() * 2 - 1) * span,
+          (Math.random() * 2 - 1) * span,
+        ),
+      ),
+    )
+    .$usage('vertex');
+
+  world.spawn(
+    AirParticleSystem,
+    MeshTrait(particleMesh),
+    TransformTrait,
+    InstanceBufferTrait(particlesBuffer),
+    ...AirParticlesMaterial.Bundle(),
+  );
+
   return {
-    init(world: World) {
-      const particlesBuffer = root
-        .createBuffer(
-          InstanceLayout.schemaForCount(particleAmount),
-          Array.from({ length: particleAmount }).map(() =>
-            vec3f(
-              (Math.random() * 2 - 1) * span,
-              (Math.random() * 2 - 1) * span,
-              (Math.random() * 2 - 1) * span,
-            ),
-          ),
-        )
-        .$usage('vertex');
-
-      world.spawn(
-        AirParticleSystem,
-        MeshTrait(particleMesh),
-        TransformTrait,
-        InstanceBufferTrait(particlesBuffer),
-        ...AirParticlesMaterial.Bundle(),
-      );
-    },
-
-    update(world: World) {
+    update() {
       const time = getOrThrow(world, Time);
       const activeCamera = world.queryFirst(ActiveCameraTag);
       const cameraTransform = activeCamera?.get(TransformTrait);
