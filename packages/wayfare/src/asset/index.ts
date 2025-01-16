@@ -1,2 +1,2 @@
-export { meshAsset } from './meshAsset.js';
-export type { MeshAsset, MeshAssetOptions } from './meshAsset.js';
+export { meshAsset } from './mesh-asset.js';
+export type { MeshAsset, MeshAssetOptions } from './mesh-asset.js';

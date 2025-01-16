@@ -17,7 +17,7 @@ import type {
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 
-import type { MeshAsset } from '../asset/meshAsset.js';
+import type { MeshAsset } from '../asset/mesh-asset.js';
 import type { PerspectiveConfig } from '../camera-traits.js';
 import type { Transform } from '../transform.js';
 import {
@@ -116,7 +116,7 @@ export class Renderer {
   private _updateProjection() {
     mat4.perspective(
       ((this._cameraConfig?.fov ?? 45) / 180) * Math.PI, // fov
-      this.canvas.width / this.canvas.height, // aspect
+      this._viewport.width / this._viewport.height, // aspect
       this._cameraConfig?.near ?? 0.1, // near
       this._cameraConfig?.far ?? 1000.0, // far
       this._matrices.proj,
@@ -269,6 +269,11 @@ export class Renderer {
     }
 
     this.root.flush();
+  }
+
+  updateViewport(width: number, height: number) {
+    this._viewport.resize(width, height);
+    this._updateProjection();
   }
 
   setPerspectivePOV(transform: Transform, config: PerspectiveConfig) {

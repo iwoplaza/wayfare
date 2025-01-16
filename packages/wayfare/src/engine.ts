@@ -2,6 +2,7 @@ import {
   type Entity,
   Not,
   type Trait,
+  type World,
   createAdded,
   createRemoved,
   createWorld,
@@ -21,7 +22,7 @@ import type {
 } from 'typegpu/experimental';
 import { mat4, quat } from 'wgpu-matrix';
 
-import type { MeshAsset } from './asset/meshAsset.js';
+import type { MeshAsset } from './asset/mesh-asset.js';
 import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.js';
 import { getOrAdd, getOrThrow } from './get-or-add.js';
 import { ChildOf, ParentOf } from './node-tree.js';
@@ -55,6 +56,19 @@ export const MatricesTrait = trait(() => ({
 const DefaultMaterial = BlinnPhongMaterial.material;
 
 export const Velocity = trait(() => vec3f());
+
+/**
+ * Schedules a function to be ran every frame.
+ * Even if multiple entities
+ */
+export const ScheduleSystem = trait(() => (world: World): void => {
+  throw new Error('No system registered.');
+});
+
+// TODO: Add a mechanism for unscheduling systems
+// export const UnscheduleSystem = trait(() => (world: World): void => {
+//   throw new Error('No system registered.');
+// });
 
 export class Engine {
   public readonly world = createWorld();

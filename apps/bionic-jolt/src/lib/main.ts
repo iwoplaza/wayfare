@@ -10,11 +10,15 @@ import { createGameCamera } from './game-camera';
 import { createMap } from './map';
 import { createPlayers } from './player';
 import { createJoystick } from './joystick';
+import { createAudio } from './audio';
 
-const loadingScreen = document.getElementById('loading-screen');
+const loadingScreen = document.getElementById('loading-screen') as HTMLElement;
+const mainMenu = document.getElementById('main-menu') as HTMLElement;
+const fallBtn = document.getElementById('fall-btn') as HTMLElement;
 
 if (loadingScreen) {
   loadingScreen.style.display = 'none';
+  mainMenu.style.display = 'flex';
 }
 
 export async function main(canvas: HTMLCanvasElement) {
@@ -23,15 +27,35 @@ export async function main(canvas: HTMLCanvasElement) {
   const engine = new Engine(root, renderer);
   const world = engine.world;
 
+  // Listen to changes in window size and resize the canvas
+  const handleResize = () => {
+    canvas.style.width = `${window.innerWidth}px`;
+    canvas.style.height = `${window.innerHeight}px`;
+
+    const devicePixelRatio = window.devicePixelRatio;
+    const width = window.innerWidth * devicePixelRatio;
+    const height = window.innerHeight * devicePixelRatio;
+    renderer.updateViewport(width, height);
+  };
+  handleResize();
+  window.addEventListener('resize', handleResize);
+
   createJoystick();
 
+  const Audio = createAudio(world);
   const MapStuff = createMap(world);
   const AirParticles = createAirParticles(world, root);
   const Dudes = createDudes(world);
   const Players = createPlayers(world);
   const GameCamera = createGameCamera(world);
 
+  fallBtn.addEventListener('click', () => {
+    mainMenu.style.display = 'none';
+    Audio.tryResume();
+  });
+
   engine.run(() => {
+    Audio.update();
     Dudes.update();
     Players.update();
     MapStuff.update();

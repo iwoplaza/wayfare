@@ -6,11 +6,13 @@ import {
   MeshTrait,
   TransformTrait,
   getOrAdd,
+  getOrThrow,
   meshAsset,
 } from 'wayfare';
 import { quat } from 'wgpu-matrix';
 
 import pentagonPath from '../assets/pentagon.obj?url';
+import { WindAudio } from './audio';
 const pentagonMesh = await meshAsset({ url: pentagonPath }).preload();
 
 /**
@@ -25,7 +27,9 @@ export const MapSettings = trait({
  * The entity who's position is used to determine the progress of the map.
  * Typically the player.
  */
-export const MapProgressMarker = trait({});
+export const MapProgressMarker = trait();
+
+export const WindListener = trait();
 
 export type MapChunk = ExtractSchema<typeof MapChunk>;
 export const MapChunk = trait({
@@ -36,9 +40,17 @@ export const MapChunk = trait({
  * The chunk that's at end of the currently generated map.
  * Used to know where to append new chunks.
  */
-export const MapTail = trait({});
+export const MapTail = trait();
+
+const WindAudioSource = trait();
+
+function clamp01(x: number) {
+  return Math.max(0, Math.min(x, 1));
+}
 
 export function createMap(world: World) {
+  world.spawn(WindAudioSource, ...WindAudio.Bundle());
+
   function updateMapSystem() {
     const settings = getOrAdd(world, MapSettings);
     const progressMarker = world.queryFirst(MapProgressMarker);
@@ -114,6 +126,28 @@ export function createMap(world: World) {
   return {
     update() {
       updateMapSystem();
+
+      const listenerY = getOrThrow(
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        world.queryFirst(WindListener)!,
+        TransformTrait,
+      ).position.y;
+
+      const minDist = world.query(MapChunk).reduce((acc, chunk) => {
+        const chunkY = getOrThrow(chunk, TransformTrait).position.y;
+        return Math.min(acc, Math.abs(chunkY - listenerY));
+      }, Number.POSITIVE_INFINITY);
+
+      if (minDist < Number.POSITIVE_INFINITY) {
+        world
+          .query(WindAudio.Params, WindAudioSource)
+          .updateEach(([params]) => {
+            const clamped1 = clamp01(1 - minDist * 0.5);
+
+            params.gainNode.gain.value = 0.2 + clamped1 ** 3 * 0.8;
+            params.highPass.frequency.value = 1000 - clamped1 ** 0.5 * 1000;
+          });
+      }
     },
   };
 }

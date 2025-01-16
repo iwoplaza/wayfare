@@ -5,7 +5,7 @@ import { Input, TransformTrait, Velocity } from 'wayfare';
 import { getJoysticks } from '@manapotion/vanilla';
 
 import { Dude, DudeBundle } from './dude';
-import { MapProgressMarker } from './map';
+import { MapProgressMarker, WindListener } from './map';
 
 export const Player = trait({
   upKey: 'KeyW',
@@ -59,6 +59,7 @@ export function createPlayers(world: World) {
     Player,
     ...DudeBundle(),
     MapProgressMarker,
+    WindListener,
     TransformTrait({
       position: vec3f(0, 0, 0),
       scale: vec3f(0.1),

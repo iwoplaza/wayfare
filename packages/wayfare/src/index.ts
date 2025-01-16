@@ -5,6 +5,7 @@ export {
   TransformTrait,
   InstanceBufferTrait,
   Velocity,
+  ScheduleSystem,
 } from './engine.js';
 export { ActiveCameraTag, PerspectiveCamera } from './camera-traits.js';
 export type { PerspectiveConfig } from './camera-traits.js';
