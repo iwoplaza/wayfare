@@ -53,7 +53,8 @@ export const WindAudio = (() => {
     Bundle(): ConfigurableTrait[] {
       const lowPass = audioCtx.createBiquadFilter();
       lowPass.type = 'lowpass';
-      lowPass.frequency.value = 2000;
+      lowPass.frequency.value = 1000;
+      lowPass.Q.value = 1;
 
       const highPass = audioCtx.createBiquadFilter();
       highPass.type = 'highpass';

@@ -144,7 +144,7 @@ export function createMap(world: World) {
           .updateEach(([params]) => {
             const clamped1 = clamp01(1 - minDist * 0.5);
 
-            params.gainNode.gain.value = 0.2 + clamped1 ** 3 * 0.8;
+            params.gainNode.gain.value = clamped1 ** 3;
             params.highPass.frequency.value = 1000 - clamped1 ** 0.5 * 1000;
           });
       }
