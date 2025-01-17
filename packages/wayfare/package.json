@@ -1,7 +1,7 @@
 {
   "name": "wayfare",
   "type": "module",
-  "version": "0.0.0-alpha.1",
+  "version": "0.0.0-alpha.2",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
