@@ -21,7 +21,11 @@ function captureWebEvents() {
   );
 }
 
-if (typeof window !== 'undefined') {
+if (
+  // Are we running on the web?
+  typeof window !== 'undefined' &&
+  typeof window.addEventListener !== 'undefined'
+) {
   captureWebEvents();
 }
 
