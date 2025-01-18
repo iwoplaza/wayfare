@@ -255,6 +255,12 @@ export class Renderer {
     }
 
     this.root.flush();
+
+    // In react-native-wgpu, we have to call `context.present` in order
+    // to show what's been drawn to the canvas.
+    if ('present' in this._context) {
+      (this._context.present as () => void)();
+    }
   }
 
   updateViewport(width: number, height: number) {
