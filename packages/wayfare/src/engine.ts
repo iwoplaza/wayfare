@@ -71,7 +71,7 @@ export const ScheduleSystem = trait(() => (world: World): void => {
 // });
 
 export class Engine {
-  public readonly world = createWorld();
+  public readonly world: World = createWorld();
 
   constructor(
     public readonly root: ExperimentalTgpuRoot,
