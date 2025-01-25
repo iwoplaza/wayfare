@@ -8,56 +8,111 @@ import {
   Renderer,
   TransformTrait,
 } from 'wayfare';
-import { StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { PixelRatio, StyleSheet, View } from 'react-native';
 import tgpu from 'typegpu/experimental';
-import { Canvas, useCanvasEffect } from 'react-native-wgpu';
+import { Canvas, useGPUContext } from 'react-native-wgpu';
 import { vec3f } from 'typegpu/data';
 import '@/constants/polyfills';
+import { trait } from 'koota';
 
 const squareMesh = createRectangle({
   width: vec3f(1, 0, 0),
   height: vec3f(0, 1, 0),
 });
 
-const hello = globalThis.structuredClone([1, 2, 3]);
-console.log(hello);
+const Foo = trait();
 
-async function setupGame(canvas: HTMLCanvasElement) {
-  const root = await tgpu.init();
+function setupGame(canvas: HTMLCanvasElement, context: GPUCanvasContext) {
+  let destroyed = false;
+  let engine: Engine | undefined;
 
-  const renderer = new Renderer(root, canvas);
-  console.log('CANVAS EFFECT bruh');
-  const engine = new Engine(root, renderer);
-  console.log('Engine created...');
-  const world = engine.world;
+  (async () => {
+    const root = await tgpu.init();
 
-  // Camera
-  world.spawn(
-    ActiveCameraTag,
-    TransformTrait({}),
-    PerspectiveCamera({
-      clearColor: [1, 0, 0, 1],
-    })
-  );
+    if (destroyed) {
+      return;
+    }
 
-  // Random square
-  world.spawn(
-    MeshTrait(squareMesh),
-    TransformTrait({ position: vec3f(0, 0, 0) }),
-    ...BlinnPhongMaterial.Bundle({
-      albedo: vec3f(0, 1, 0),
-    })
-  );
+    const renderer = new Renderer(root, canvas, context);
+    engine = new Engine(root, renderer);
+    const world = engine.world;
 
-  engine.run((deltaSeconds) => {
-    console.log(`${deltaSeconds}`);
-  });
+    let prevCanvasWidth = 0;
+    let prevCanvasHeight = 0;
+
+    function updateViewport() {
+      prevCanvasWidth = canvas.clientWidth * PixelRatio.get();
+      prevCanvasHeight = canvas.clientHeight * PixelRatio.get();
+      canvas.width = prevCanvasWidth;
+      canvas.height = prevCanvasHeight;
+      renderer.updateViewport(prevCanvasWidth, prevCanvasHeight);
+    }
+
+    updateViewport();
+
+    // Camera
+    world.spawn(
+      ActiveCameraTag,
+      TransformTrait({}),
+      PerspectiveCamera({
+        clearColor: [1, 0, 0, 1],
+      })
+    );
+
+    // Random square
+    world.spawn(
+      Foo,
+      MeshTrait(squareMesh),
+      TransformTrait({ position: vec3f(0, 0, -10) }),
+      ...BlinnPhongMaterial.Bundle({
+        albedo: vec3f(0, 1, 0),
+      })
+    );
+
+    engine.run(() => {
+      // Updating viewport
+      const newWidth = canvas.clientWidth * PixelRatio.get();
+      const newHeight = canvas.clientHeight * PixelRatio.get();
+      if (newWidth !== prevCanvasWidth || newHeight !== prevCanvasHeight) {
+        prevCanvasWidth = newWidth;
+        prevCanvasHeight = newHeight;
+        updateViewport();
+      }
+
+      world.query(TransformTrait, Foo).updateEach(([transform]) => {
+        transform.position = vec3f(Math.sin(Date.now() * 0.001), 0, -10);
+      });
+    });
+  })();
+
+  return () => {
+    destroyed = true;
+    if (engine) {
+      engine.destroy();
+    }
+  };
 }
 
 export default function HomeScreen() {
-  const ref = useCanvasEffect(async () => {
-    setupGame(ref.current as unknown as HTMLCanvasElement);
-  });
+  const { ref, context } = useGPUContext();
+
+  useEffect(() => {
+    if (!context) {
+      return;
+    }
+
+    console.log(context);
+
+    const destroy = setupGame(
+      context.canvas as unknown as HTMLCanvasElement,
+      context
+    );
+
+    return () => {
+      destroy();
+    };
+  }, [context]);
 
   return (
     <View style={styles.container}>
@@ -72,7 +127,5 @@ const styles = StyleSheet.create({
   },
   webgpu: {
     flex: 1,
-    width: 512,
-    height: 512,
   },
 });

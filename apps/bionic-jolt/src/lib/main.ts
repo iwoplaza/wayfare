@@ -23,7 +23,11 @@ if (loadingScreen) {
 
 export async function main(canvas: HTMLCanvasElement) {
   const root = await tgpu.init();
-  const renderer = new Renderer(root, canvas);
+  const renderer = new Renderer(
+    root,
+    canvas,
+    canvas.getContext('webgpu') as GPUCanvasContext,
+  );
   const engine = new Engine(root, renderer);
   const world = engine.world;
 
@@ -35,6 +39,8 @@ export async function main(canvas: HTMLCanvasElement) {
     const devicePixelRatio = window.devicePixelRatio;
     const width = window.innerWidth * devicePixelRatio;
     const height = window.innerHeight * devicePixelRatio;
+    canvas.width = width;
+    canvas.height = height;
     renderer.updateViewport(width, height);
   };
   handleResize();
@@ -51,7 +57,9 @@ export async function main(canvas: HTMLCanvasElement) {
 
   fallBtn.addEventListener('click', () => {
     mainMenu.style.display = 'none';
+
     Audio.tryResume();
+    Players.init();
   });
 
   engine.run(() => {

@@ -127,11 +127,11 @@ export function createMap(world: World) {
     update() {
       updateMapSystem();
 
-      const listenerY = getOrThrow(
-        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        world.queryFirst(WindListener)!,
-        TransformTrait,
-      ).position.y;
+      const windListener = world.queryFirst(WindListener)?.get(TransformTrait);
+
+      if (!windListener) return;
+
+      const listenerY = windListener.position.y;
 
       const minDist = world.query(MapChunk).reduce((acc, chunk) => {
         const chunkY = getOrThrow(chunk, TransformTrait).position.y;

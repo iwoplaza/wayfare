@@ -194,6 +194,9 @@ importers:
       '@types/ungap__structured-clone':
         specifier: ^1.2.0
         version: 1.2.0
+      '@webgpu/types':
+        specifier: ^0.1.52
+        version: 0.1.52
       jest:
         specifier: ^29.2.1
         version: 29.7.0

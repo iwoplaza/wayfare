@@ -55,19 +55,27 @@ function controlPlayerSystem(world: World) {
 }
 
 export function createPlayers(world: World) {
-  world.spawn(
-    Player,
-    ...DudeBundle(),
-    MapProgressMarker,
-    WindListener,
-    TransformTrait({
-      position: vec3f(0, 0, 0),
-      scale: vec3f(0.1),
-    }),
-    Velocity(vec3f(0, -5, 0)),
-  );
-
   return {
+    init() {
+      this.cleanup();
+
+      world.spawn(
+        Player,
+        ...DudeBundle(),
+        MapProgressMarker,
+        WindListener,
+        TransformTrait({
+          position: vec3f(0, 0, 0),
+          scale: vec3f(0.1),
+        }),
+        Velocity(vec3f(0, -5, 0)),
+      );
+    },
+    cleanup() {
+      world.query(Player).updateEach((_, entity) => {
+        entity.destroy();
+      });
+    },
     update() {
       controlPlayerSystem(world);
     },

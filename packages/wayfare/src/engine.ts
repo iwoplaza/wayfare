@@ -72,6 +72,7 @@ export const ScheduleSystem = trait(() => (world: World): void => {
 
 export class Engine {
   public readonly world: World = createWorld();
+  #animationFrame: number | undefined;
 
   constructor(
     public readonly root: ExperimentalTgpuRoot,
@@ -183,9 +184,15 @@ export class Engine {
       }
 
       this.renderer.render();
-      requestAnimationFrame(handleFrame);
+      this.#animationFrame = requestAnimationFrame(handleFrame);
     };
 
     handleFrame();
+  }
+
+  destroy() {
+    if (this.#animationFrame) {
+      cancelAnimationFrame(this.#animationFrame);
+    }
   }
 }

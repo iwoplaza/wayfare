@@ -57,7 +57,6 @@ export class Renderer {
     normalModel: m4x4f;
   };
   private readonly _viewport: Viewport;
-  private readonly _context: GPUCanvasContext;
   private readonly _povBuffer: TgpuBuffer<typeof POVStruct> & Uniform;
   private readonly _sharedBindGroup: SharedBindGroup;
   private readonly _presentationFormat: GPUTextureFormat;
@@ -67,10 +66,10 @@ export class Renderer {
   constructor(
     public readonly root: ExperimentalTgpuRoot,
     public readonly canvas: HTMLCanvasElement,
+    private readonly _context: GPUCanvasContext,
   ) {
     const device = root.device;
 
-    this._context = canvas.getContext('webgpu') as GPUCanvasContext;
     this._presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
     this._context.configure({
