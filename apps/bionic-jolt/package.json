@@ -21,7 +21,7 @@
     "koota": "^0.1.12",
     "rollup-plugin-typegpu": "^0.0.1",
     "tailwindcss": "^3.4.17",
-    "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu",
+    "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu",
     "wayfare": "workspace:*",
     "wgpu-matrix": "^3.3.0"
   },

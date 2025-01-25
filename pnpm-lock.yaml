@@ -7,31 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@loaders.gl/core':
-        specifier: ^4.3.3
-        version: 4.3.3
-      '@loaders.gl/gltf':
-        specifier: ^4.3.3
-        version: 4.3.3(@loaders.gl/core@4.3.3)
-      '@loaders.gl/obj':
-        specifier: ^4.3.3
-        version: 4.3.3(@loaders.gl/core@4.3.3)
-      astro:
-        specifier: ^5.1.1
-        version: 5.1.1(typescript@5.7.2)
-      koota:
-        specifier: ^0.1.12
-        version: 0.1.12(react-dom@18.3.1)(react@18.3.1)
-      rollup-plugin-typegpu:
-        specifier: ^0.0.1
-        version: 0.0.1
-      typegpu:
-        specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu
-        version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu'
-      wgpu-matrix:
-        specifier: ^3.3.0
-        version: 3.3.0
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
@@ -70,8 +45,8 @@ importers:
         specifier: ^3.4.17
         version: 3.4.17
       typegpu:
-        specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu
-        version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu'
+        specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu
+        version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu'
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -170,8 +145,8 @@ importers:
         specifier: ^0.1.22
         version: 0.1.22(react-native@0.76.6)(react@18.3.1)
       typegpu:
-        specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu
-        version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu'
+        specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu
+        version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu'
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -244,8 +219,8 @@ importers:
         specifier: ^2.8.1
         version: 2.8.1
       typegpu:
-        specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu
-        version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu'
+        specifier: https://pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu
+        version: '@pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu'
       wgpu-matrix:
         specifier: ^3.3.0
         version: 3.3.0
@@ -11503,10 +11478,10 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
 
-  '@pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu':
-    resolution: {tarball: https://pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu}
+  '@pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu':
+    resolution: {tarball: https://pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu}
     name: typegpu
-    version: 0.2.2
+    version: 0.3.2
     engines: {node: '>=12.20.0'}
     dependencies:
       tinyest: 0.1.0-alpha.1

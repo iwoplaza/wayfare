@@ -4,7 +4,7 @@ import {
   type BaseWgslData,
   type Infer,
   type Mat4x4f,
-  type Normal,
+  type Base,
   type Vec4f,
   type WgslStruct,
   type m4x4f,
@@ -15,10 +15,10 @@ import {
   type TgpuBindGroup,
   type TgpuBindGroupLayout,
   type TgpuRenderPipeline,
-  type ExperimentalTgpuRoot as TgpuRoot,
+  type TgpuRoot,
   type TgpuVertexLayout,
   tgpu,
-} from 'typegpu/experimental';
+} from 'typegpu';
 
 export interface MaterialContext<TParams> {
   readonly root: TgpuRoot;
@@ -99,9 +99,9 @@ export const MaterialTrait: Trait<{
 });
 
 export type CreateMaterialResult<TParams extends AnyWgslData> = {
-  material: Material<Normal<TParams>>;
-  Params: TraitFor<Infer<Normal<TParams>>>;
-  Bundle(params?: Infer<Normal<TParams>>): ConfigurableTrait[];
+  material: Material<Base<TParams>>;
+  Params: TraitFor<Infer<Base<TParams>>>;
+  Bundle(params?: Infer<Base<TParams>>): ConfigurableTrait[];
 };
 
 export function createMaterial<TParams extends AnyWgslData>(
@@ -109,10 +109,10 @@ export function createMaterial<TParams extends AnyWgslData>(
     paramsSchema?: TParams;
     vertexLayout: TgpuVertexLayout;
     instanceLayout?: TgpuVertexLayout;
-    createPipeline: (ctx: MaterialContext<Normal<TParams>>) => MaterialOptions;
+    createPipeline: (ctx: MaterialContext<Base<TParams>>) => MaterialOptions;
   } & (AnyWgslData extends TParams
     ? { paramsDefaults?: undefined }
-    : { paramsDefaults: Infer<Normal<TParams>> }),
+    : { paramsDefaults: Infer<Base<TParams>> }),
 ): CreateMaterialResult<TParams> {
   const {
     paramsSchema,
@@ -127,12 +127,12 @@ export function createMaterial<TParams extends AnyWgslData>(
     ? (tgpu.bindGroupLayout({
         params: { uniform: paramsSchema },
       }) as TgpuBindGroupLayout<{
-        params: { uniform: Normal<TParams> };
+        params: { uniform: Base<TParams> };
       }>)
     : undefined;
 
-  const material: Material<Normal<TParams>> = {
-    paramsSchema: paramsSchema as Normal<TParams> | undefined,
+  const material: Material<Base<TParams>> = {
+    paramsSchema: paramsSchema as Base<TParams> | undefined,
     paramsLayout,
     vertexLayout,
     instanceLayout,
@@ -151,9 +151,9 @@ export function createMaterial<TParams extends AnyWgslData>(
         root,
         format,
 
-        getParams(): { value: Infer<Normal<TParams>> } {
+        getParams(): { value: Infer<Base<TParams>> } {
           return paramsLayout?.bound.params as {
-            value: Infer<Normal<TParams>>;
+            value: Infer<Base<TParams>>;
           };
         },
 
@@ -172,7 +172,7 @@ export function createMaterial<TParams extends AnyWgslData>(
   };
 
   const paramsTrait = trait(paramsDefaults as Schema) as TraitFor<
-    Infer<Normal<TParams>>
+    Infer<Base<TParams>>
   >;
 
   return {

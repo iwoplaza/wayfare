@@ -7,13 +7,13 @@ import {
   vec4f,
 } from 'typegpu/data';
 import type {
-  ExperimentalTgpuRoot,
+  TgpuRoot,
   TgpuBindGroup,
   TgpuBuffer,
   TgpuRenderPipeline,
   Uniform,
   Vertex,
-} from 'typegpu/experimental';
+} from 'typegpu';
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 
@@ -64,7 +64,7 @@ export class Renderer {
   private _cameraConfig: PerspectiveConfig | null = null;
 
   constructor(
-    public readonly root: ExperimentalTgpuRoot,
+    public readonly root: TgpuRoot,
     public readonly canvas: HTMLCanvasElement,
     private readonly _context: GPUCanvasContext,
   ) {
@@ -253,7 +253,7 @@ export class Renderer {
       firstPass = false;
     }
 
-    this.root.flush();
+    this.root['~unstable'].flush();
 
     // In react-native-wgpu, we have to call `context.present` in order
     // to show what's been drawn to the canvas.

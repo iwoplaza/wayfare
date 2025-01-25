@@ -43,7 +43,7 @@
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
     "react-native-wgpu": "^0.1.22",
-    "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/9039b9cb/typegpu",
+    "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu",
     "wayfare": "workspace:*",
     "wgpu-matrix": "^3.3.0"
   },

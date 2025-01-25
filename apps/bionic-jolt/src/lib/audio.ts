@@ -14,6 +14,21 @@ const masterGainNode = audioCtx.createGain();
 masterGainNode.gain.value = 0.2;
 masterGainNode.connect(audioCtx.destination);
 
+if (
+  typeof window !== 'undefined' &&
+  typeof window.addEventListener !== 'undefined'
+) {
+  // Disconnect audio context when the window is blurred
+  window.addEventListener('blur', () => {
+    masterGainNode.disconnect();
+  });
+
+  // Reconnect audio context when the window is focused
+  window.addEventListener('focus', () => {
+    masterGainNode.connect(audioCtx.destination);
+  });
+}
+
 export const AudioNodeTrait = trait({
   node: () => undefined as unknown as AudioNode,
 });

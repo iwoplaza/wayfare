@@ -9,9 +9,7 @@ import {
   vec3f,
   vec4f,
 } from 'typegpu/data';
-import tgpu, {
-  type ExperimentalTgpuRoot as TgpuRoot,
-} from 'typegpu/experimental';
+import tgpu, { type TgpuRoot } from 'typegpu';
 import { add, cos, fract, sin, sub } from 'typegpu/std';
 import {
   ActiveCameraTag,
@@ -30,7 +28,7 @@ const span = 10;
 
 const AirParticleSystem = trait({});
 
-export const InstanceLayout = tgpu.vertexLayout(
+export const InstanceLayout = tgpu['~unstable'].vertexLayout(
   (count) => disarrayOf(vec3f, count),
   'instance',
 );
@@ -41,12 +39,14 @@ const particleMesh = createRectangle({
 });
 
 // TODO: Contribute back to `typegpu`
-const atan2 = tgpu.fn([f32, f32], f32).does(`(y: f32, x: f32) -> f32 {
+const atan2 = tgpu['~unstable']
+  .fn([f32, f32], f32)
+  .does(`(y: f32, x: f32) -> f32 {
   return atan2(y, x);
 }`);
 
 // TODO: Contribute back to `typegpu`
-const matMul3x3 = tgpu
+const matMul3x3 = tgpu['~unstable']
   .fn([mat3x3f, vec3f], vec3f)
   .does(`(mat: mat3x3f, vec: vec3f) -> vec3f {
     return mat * vec;
@@ -64,21 +64,26 @@ export const AirParticlesMaterial = createMaterial({
   vertexLayout: POS_NORMAL_UV,
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, getPOV, getUniforms, getParams }) {
-    const getTransformedOrigin = tgpu.fn([vec3f], vec3f).does((localOrigin) => {
-      const wrappedOrigin = sub(localOrigin, getParams().value.cameraPosition);
-      wrappedOrigin.y -= getParams().value.yOffset;
+    const getTransformedOrigin = tgpu['~unstable']
+      .fn([vec3f], vec3f)
+      .does((localOrigin) => {
+        const wrappedOrigin = sub(
+          localOrigin,
+          getParams().value.cameraPosition,
+        );
+        wrappedOrigin.y -= getParams().value.yOffset;
 
-      // wrapping the space.
-      wrappedOrigin.y = -fract(-wrappedOrigin.y / span) * span;
-      wrappedOrigin.x =
-        (fract(wrappedOrigin.x / span / 2 + 0.5) - 0.5) * span * 2;
-      wrappedOrigin.z =
-        (fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
+        // wrapping the space.
+        wrappedOrigin.y = -fract(-wrappedOrigin.y / span) * span;
+        wrappedOrigin.x =
+          (fract(wrappedOrigin.x / span / 2 + 0.5) - 0.5) * span * 2;
+        wrappedOrigin.z =
+          (fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
 
-      return wrappedOrigin;
-    });
+        return wrappedOrigin;
+      });
 
-    const computePosition = tgpu
+    const computePosition = tgpu['~unstable']
       .fn([vec3f, vec3f], vec3f)
       .does((pos, cameraRelToCamera) => {
         const angle =
@@ -92,7 +97,7 @@ export const AirParticlesMaterial = createMaterial({
         return add(matMul3x3(rot_mat, pos), cameraRelToCamera);
       });
 
-    const vertexFn = tgpu
+    const vertexFn = tgpu['~unstable']
       .vertexFn(
         {
           idx: builtin.vertexIndex,
@@ -135,11 +140,11 @@ export const AirParticlesMaterial = createMaterial({
         computePosition,
       });
 
-    const computeColor = tgpu.fn([], vec4f).does(() => {
+    const computeColor = tgpu['~unstable'].fn([], vec4f).does(() => {
       return vec4f(1, 1, 1, 1.0);
     });
 
-    const fragmentFn = tgpu
+    const fragmentFn = tgpu['~unstable']
       .fragmentFn({ cameraRelToCamera: vec3f }, vec4f)
       .does(`(@location(0) normal: vec3f, @location(1) uv: vec2f, @location(2) originRelToCamera: vec3f) -> @location(0) vec4f {
         let xz_dist = length(originRelToCamera.xz);
@@ -151,7 +156,7 @@ export const AirParticlesMaterial = createMaterial({
       .$uses({ computeColor });
 
     return {
-      pipeline: root
+      pipeline: root['~unstable']
         .withVertex(vertexFn, {
           ...POS_NORMAL_UV.attrib,
           origin: InstanceLayout.attrib,

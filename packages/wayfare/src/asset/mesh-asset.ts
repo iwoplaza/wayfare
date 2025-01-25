@@ -1,7 +1,7 @@
 import { type DataType, type Loader, load } from '@loaders.gl/core';
 import { OBJLoader } from '@loaders.gl/obj';
 import { type v2f, type v3f, vec2f, vec3f } from 'typegpu/data';
-import type { ExperimentalTgpuRoot as TgpuRoot } from 'typegpu/experimental';
+import type { TgpuRoot } from 'typegpu';
 
 import { type Mesh, POS_NORMAL_UV } from '../mesh.js';
 

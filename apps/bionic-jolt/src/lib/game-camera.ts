@@ -9,7 +9,7 @@ import {
   getOrThrow,
 } from 'wayfare';
 import { quat } from 'wgpu-matrix';
-import { Player } from './player';
+import { Player } from './player.js';
 
 const GameCameraTag = trait();
 

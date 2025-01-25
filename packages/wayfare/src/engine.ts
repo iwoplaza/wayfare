@@ -15,11 +15,7 @@ import {
   vec3f,
   vec4f,
 } from 'typegpu/data';
-import type {
-  ExperimentalTgpuRoot,
-  TgpuBuffer,
-  Vertex,
-} from 'typegpu/experimental';
+import type { TgpuRoot, TgpuBuffer, Vertex } from 'typegpu';
 import { mat4, quat } from 'wgpu-matrix';
 
 import type { MeshAsset } from './asset/mesh-asset.js';
@@ -75,7 +71,7 @@ export class Engine {
   #animationFrame: number | undefined;
 
   constructor(
-    public readonly root: ExperimentalTgpuRoot,
+    public readonly root: TgpuRoot,
     public readonly renderer: Renderer,
   ) {
     this.world.add(Time);
@@ -194,5 +190,6 @@ export class Engine {
     if (this.#animationFrame) {
       cancelAnimationFrame(this.#animationFrame);
     }
+    this.world.destroy();
   }
 }

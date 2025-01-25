@@ -4,8 +4,8 @@ import { length, normalize } from 'typegpu/std';
 import { Input, TransformTrait, Velocity } from 'wayfare';
 import { getJoysticks } from '@manapotion/vanilla';
 
-import { Dude, DudeBundle } from './dude';
-import { MapProgressMarker, WindListener } from './map';
+import { Dude, DudeBundle } from './dude.js';
+import { MapProgressMarker, WindListener } from './map.js';
 
 export const Player = trait({
   upKey: 'KeyW',

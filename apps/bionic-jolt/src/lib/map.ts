@@ -12,7 +12,7 @@ import {
 import { quat } from 'wgpu-matrix';
 
 import pentagonPath from '../assets/pentagon.obj?url';
-import { WindAudio } from './audio';
+import { WindAudio } from './audio.js';
 const pentagonMesh = await meshAsset({ url: pentagonPath }).preload();
 
 /**
@@ -49,8 +49,6 @@ function clamp01(x: number) {
 }
 
 export function createMap(world: World) {
-  world.spawn(WindAudioSource, ...WindAudio.Bundle());
-
   function updateMapSystem() {
     const settings = getOrAdd(world, MapSettings);
     const progressMarker = world.queryFirst(MapProgressMarker);
@@ -123,31 +121,38 @@ export function createMap(world: World) {
     } while (limit > 0);
   }
 
+  function updateWindAudioSystem() {
+    if (!world.queryFirst(WindAudioSource)) {
+      world.spawn(WindAudioSource, ...WindAudio.Bundle());
+    }
+
+    const windListener = world.queryFirst(WindListener)?.get(TransformTrait);
+
+    if (!windListener) {
+      return;
+    }
+
+    const listenerY = windListener.position.y;
+
+    const minDist = world.query(MapChunk).reduce((acc, chunk) => {
+      const chunkY = getOrThrow(chunk, TransformTrait).position.y;
+      return Math.min(acc, Math.abs(chunkY - listenerY));
+    }, Number.POSITIVE_INFINITY);
+
+    if (minDist < Number.POSITIVE_INFINITY) {
+      world.query(WindAudio.Params, WindAudioSource).updateEach(([params]) => {
+        const clamped1 = clamp01(1 - minDist * 0.5);
+
+        params.gainNode.gain.value = clamped1 ** 3;
+        params.highPass.frequency.value = 1000 - clamped1 ** 0.5 * 1000;
+      });
+    }
+  }
+
   return {
     update() {
       updateMapSystem();
-
-      const windListener = world.queryFirst(WindListener)?.get(TransformTrait);
-
-      if (!windListener) return;
-
-      const listenerY = windListener.position.y;
-
-      const minDist = world.query(MapChunk).reduce((acc, chunk) => {
-        const chunkY = getOrThrow(chunk, TransformTrait).position.y;
-        return Math.min(acc, Math.abs(chunkY - listenerY));
-      }, Number.POSITIVE_INFINITY);
-
-      if (minDist < Number.POSITIVE_INFINITY) {
-        world
-          .query(WindAudio.Params, WindAudioSource)
-          .updateEach(([params]) => {
-            const clamped1 = clamp01(1 - minDist * 0.5);
-
-            params.gainNode.gain.value = clamped1 ** 3;
-            params.highPass.frequency.value = 1000 - clamped1 ** 0.5 * 1000;
-          });
-      }
+      updateWindAudioSystem();
     },
   };
 }
