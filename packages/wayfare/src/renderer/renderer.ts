@@ -189,6 +189,8 @@ export class Renderer {
       this._recomputeUniformsFor(obj);
     }
 
+    const targetView = this._context.getCurrentTexture().createView();
+
     let firstPass = true;
     for (const { id, meshAsset, instanceBuffer, material } of this._objects) {
       const mesh = meshAsset.peek(this.root);
@@ -229,7 +231,7 @@ export class Renderer {
         .with(uniformsBindGroupLayout, uniformsBindGroup)
         .with(material.vertexLayout, mesh.vertexBuffer)
         .withColorAttachment({
-          view: this._context.getCurrentTexture().createView(),
+          view: targetView,
           loadOp: firstPass ? 'clear' : 'load',
           storeOp: 'store',
           clearValue: this._cameraConfig?.clearColor ?? {

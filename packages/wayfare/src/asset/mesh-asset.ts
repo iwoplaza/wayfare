@@ -1,4 +1,5 @@
-import { type DataType, type Loader, load } from '@loaders.gl/core';
+import { type DataType, type Loader, load, parse } from '@loaders.gl/core';
+import type { Mesh as LoadersMesh } from '@loaders.gl/schema';
 import { OBJLoader } from '@loaders.gl/obj';
 import { type v2f, type v3f, vec2f, vec3f } from 'typegpu/data';
 import type { TgpuRoot } from 'typegpu';
@@ -7,6 +8,7 @@ import { type Mesh, POS_NORMAL_UV } from '../mesh.js';
 
 export type MeshAssetOptions = {
   url?: string | undefined;
+  src?: string | DataType | undefined;
   data?: MeshData | undefined;
 };
 
@@ -18,6 +20,7 @@ export type MeshAsset = {
 
 export const meshAsset = ({
   url,
+  src,
   data: preexistingData,
 }: MeshAssetOptions): MeshAsset => {
   let meshDataPromise: Promise<MeshData> | null = null;
@@ -33,10 +36,25 @@ export const meshAsset = ({
       }
 
       if (!meshDataPromise) {
-        meshDataPromise = loadModel(url ?? '').then((data) => {
-          meshData = data;
-          return data;
-        });
+        if (url) {
+          meshDataPromise = load(url, OBJLoader)
+            .then(transformObjModel)
+            .then((data) => {
+              meshData = data;
+              return data;
+            });
+        } else if (src) {
+          meshDataPromise = parse(src, OBJLoader)
+            .then(transformObjModel)
+            .then((data) => {
+              meshData = data;
+              return data;
+            });
+        } else {
+          throw new Error(
+            `Invalid mesh asset parameters. Expected either 'src' or 'url'`,
+          );
+        }
       }
 
       meshData = await meshDataPromise;
@@ -88,6 +106,21 @@ async function loadModel(
 ): Promise<MeshData> {
   const rawData = await load(src, loader);
 
+  const POSITION = rawData.attributes.POSITION.value;
+  const NORMAL = rawData.attributes.NORMAL.value;
+  const TEXCOORD_0 = rawData.attributes.TEXCOORD_0.value;
+  const vertexCount = POSITION.length / 3;
+
+  return {
+    vertices: Array.from({ length: vertexCount }, (_, i) => ({
+      pos: vec3f(POSITION[i * 3], POSITION[i * 3 + 1], POSITION[i * 3 + 2]),
+      normal: vec3f(NORMAL[i * 3], NORMAL[i * 3 + 1], NORMAL[i * 3 + 2]),
+      uv: vec2f(TEXCOORD_0[i * 2], TEXCOORD_0[i * 2 + 1]),
+    })),
+  };
+}
+
+async function transformObjModel(rawData: LoadersMesh): Promise<MeshData> {
   const POSITION = rawData.attributes.POSITION.value;
   const NORMAL = rawData.attributes.NORMAL.value;
   const TEXCOORD_0 = rawData.attributes.TEXCOORD_0.value;

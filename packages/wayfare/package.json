@@ -12,7 +12,11 @@
       "default": "./dist/index.cjs"
     }
   },
-  "files": ["README.md", "package.json", "dist/**/*"],
+  "files": [
+    "README.md",
+    "package.json",
+    "dist/**/*"
+  ],
   "sideEffects": false,
   "scripts": {
     "dev:build": "rollup -c",
@@ -24,13 +28,14 @@
   "packageManager": "pnpm@8.15.8+sha256.691fe176eea9a8a80df20e4976f3dfb44a04841ceb885638fe2a26174f81e65e",
   "peerDependencies": {
     "koota": "^0.1.12",
-    "typegpu": "^0.3.0",
+    "typegpu": "^0.3.3",
     "wgpu-matrix": "^3.3.0"
   },
   "dependencies": {
     "@loaders.gl/core": "^4.3.3",
     "@loaders.gl/gltf": "^4.3.3",
-    "@loaders.gl/obj": "^4.3.3"
+    "@loaders.gl/obj": "^4.3.3",
+    "@loaders.gl/schema": "^4.3.3"
   },
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
@@ -40,7 +45,7 @@
     "rollup": "^4.28.1",
     "rollup-plugin-typegpu": "^0.0.1",
     "tslib": "^2.8.1",
-    "typegpu": "https://pkg.csb.dev/software-mansion/TypeGPU/commit/776bc069/typegpu",
+    "typegpu": "^0.3.3",
     "wgpu-matrix": "^3.3.0"
   }
 }

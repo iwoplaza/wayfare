@@ -11,10 +11,9 @@ import {
 } from 'wayfare';
 import { quat } from 'wgpu-matrix';
 
-import pentagonPath from '../assets/pentagon.obj?url';
-import { WindAudio } from './audio.js';
+import pentagonFile from '@/constants/models/pentagon';
 
-const pentagonMesh = await meshAsset({ url: pentagonPath }).preload();
+const pentagonMesh = meshAsset({ src: pentagonFile });
 
 /**
  * Settings given to a world.
@@ -123,9 +122,9 @@ export function createMap(world: World) {
   }
 
   function updateWindAudioSystem() {
-    if (!world.queryFirst(WindAudioSource)) {
-      world.spawn(WindAudioSource, ...WindAudio.Bundle());
-    }
+    // if (!world.queryFirst(WindAudioSource)) {
+    //   world.spawn(WindAudioSource, ...WindAudio.Bundle());
+    // }
 
     const windListener = world.queryFirst(WindListener)?.get(TransformTrait);
 
@@ -140,14 +139,14 @@ export function createMap(world: World) {
       return Math.min(acc, Math.abs(chunkY - listenerY));
     }, Number.POSITIVE_INFINITY);
 
-    if (minDist < Number.POSITIVE_INFINITY) {
-      world.query(WindAudio.Params, WindAudioSource).updateEach(([params]) => {
-        const clamped1 = clamp01(1 - minDist * 0.5);
+    // if (minDist < Number.POSITIVE_INFINITY) {
+    //   world.query(WindAudio.Params, WindAudioSource).updateEach(([params]) => {
+    //     const clamped1 = clamp01(1 - minDist * 0.5);
 
-        params.gainNode.gain.value = clamped1 ** 3;
-        params.highPass.frequency.value = 1000 - clamped1 ** 0.5 * 1000;
-      });
-    }
+    //     params.gainNode.gain.value = clamped1 ** 3;
+    //     params.highPass.frequency.value = 1000 - clamped1 ** 0.5 * 1000;
+    //   });
+    // }
   }
 
   return {

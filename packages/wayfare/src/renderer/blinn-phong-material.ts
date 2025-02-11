@@ -24,16 +24,11 @@ export const BlinnPhongMaterial: CreateMaterialResult<
         { idx: builtin.vertexIndex, pos: vec3f, normal: vec3f, uv: vec2f },
         { pos: builtin.position, normal: vec3f, uv: vec2f },
       )
-      .does(`(
-        @builtin(vertex_index) idx: u32,
-        @location(0) pos: vec3f,
-        @location(1) normal: vec3f,
-        @location(2) uv: vec2f
-      ) -> Output {
+      .does(`(input: VertexInput) -> Output {
         var out: Output;
-        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(pos, 1.0);
-        out.normal = (uniforms.normalModelMat * vec4f(normal, 0.0)).xyz;
-        out.uv = uv;
+        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(input.pos, 1.0);
+        out.normal = (uniforms.normalModelMat * vec4f(input.normal, 0.0)).xyz;
+        out.uv = input.uv;
         return out;
       }`)
       .$uses({

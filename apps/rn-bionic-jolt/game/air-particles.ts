@@ -2,14 +2,14 @@ import { type World, trait } from 'koota';
 import {
   builtin,
   disarrayOf,
+  type F32,
   f32,
   mat3x3f,
   struct,
   vec2f,
+  type Vec3f,
   vec3f,
   vec4f,
-  type F32,
-  type Vec3f,
   type WgslStruct,
 } from 'typegpu/data';
 import tgpu, { type TgpuRoot } from 'typegpu';
@@ -45,8 +45,8 @@ const particleMesh = createRectangle({
 const atan2 = tgpu['~unstable']
   .fn([f32, f32], f32)
   .does(`(y: f32, x: f32) -> f32 {
-  return atan2(y, x);
-}`);
+    return atan2(y, x);
+  }`);
 
 // TODO: Contribute back to `typegpu`
 const matMul3x3 = tgpu['~unstable']
@@ -105,6 +105,7 @@ export const AirParticlesMaterial = createMaterial<
     const vertexFn = tgpu['~unstable']
       .vertexFn(
         {
+          idx: builtin.vertexIndex,
           pos: vec3f,
           normal: vec3f,
           uv: vec2f,
@@ -117,7 +118,9 @@ export const AirParticlesMaterial = createMaterial<
           cameraRelToCamera: vec3f,
         },
       )
-      .does(`(input: VertexIn) -> Output {
+      .does(/* wgsl */ `(
+        input: VertexIn
+      ) -> Output {
         var out: Output;
 
         let cameraRelToCamera = getTransformedOrigin(input.origin);

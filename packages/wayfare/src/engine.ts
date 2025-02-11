@@ -184,6 +184,7 @@ export class Engine {
     };
 
     handleFrame();
+    // setInterval(() => handleFrame(), 1000);
   }
 
   destroy() {
