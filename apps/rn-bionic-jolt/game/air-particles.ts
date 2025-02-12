@@ -2,15 +2,12 @@ import { type World, trait } from 'koota';
 import {
   builtin,
   disarrayOf,
-  type F32,
   f32,
   mat3x3f,
   struct,
   vec2f,
-  type Vec3f,
   vec3f,
   vec4f,
-  type WgslStruct,
 } from 'typegpu/data';
 import tgpu, { type TgpuRoot } from 'typegpu';
 import { add, cos, fract, sin, sub } from 'typegpu/std';
@@ -55,9 +52,7 @@ const matMul3x3 = tgpu['~unstable']
     return mat * vec;
   }`);
 
-export const AirParticlesMaterial = createMaterial<
-  WgslStruct<{ cameraPosition: Vec3f; yOffset: F32 }>
->({
+export const AirParticlesMaterial = createMaterial({
   paramsSchema: struct({
     cameraPosition: vec3f,
     yOffset: f32,
@@ -90,16 +85,16 @@ export const AirParticlesMaterial = createMaterial<
 
     const computePosition = tgpu['~unstable']
       .fn([vec3f, vec3f], vec3f)
-      .does((pos, cameraRelToCamera) => {
+      .does((pos, originRelToCamera) => {
         const angle =
-          -atan2(cameraRelToCamera.x, cameraRelToCamera.z) + Math.PI;
+          -atan2(originRelToCamera.x, originRelToCamera.z) + Math.PI;
         const rot_mat = mat3x3f(
           vec3f(cos(angle), 0, sin(angle)), // i
           vec3f(0, 1, 0), // j
           vec3f(-sin(angle), 0, cos(angle)), // k
         );
 
-        return add(matMul3x3(rot_mat, pos), cameraRelToCamera);
+        return add(matMul3x3(rot_mat, pos), originRelToCamera);
       });
 
     const vertexFn = tgpu['~unstable']
@@ -115,19 +110,17 @@ export const AirParticlesMaterial = createMaterial<
           pos: builtin.position,
           normal: vec3f,
           uv: vec2f,
-          cameraRelToCamera: vec3f,
+          originRelToCamera: vec3f,
         },
       )
-      .does(/* wgsl */ `(
-        input: VertexIn
-      ) -> Output {
+      .does(/* wgsl */ `(input: VertexIn) -> Output {
         var out: Output;
 
-        let cameraRelToCamera = getTransformedOrigin(input.origin);
-        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(computePosition(input.pos, cameraRelToCamera), 1.0);
+        let originRelToCamera = getTransformedOrigin(input.origin);
+        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(computePosition(input.pos, originRelToCamera), 1.0);
         out.normal = (uniforms.normalModelMat * vec4f(input.normal, 0.0)).xyz;
         out.uv = input.uv;
-        out.cameraRelToCamera = cameraRelToCamera;
+        out.originRelToCamera = originRelToCamera;
         return out;
       }`)
       .$uses({
@@ -146,9 +139,9 @@ export const AirParticlesMaterial = createMaterial<
     });
 
     const fragmentFn = tgpu['~unstable']
-      .fragmentFn({ cameraRelToCamera: vec3f }, vec4f)
-      .does(`(@location(0) normal: vec3f, @location(1) uv: vec2f, @location(2) originRelToCamera: vec3f) -> @location(0) vec4f {
-        let xz_dist = length(originRelToCamera.xz);
+      .fragmentFn({ originRelToCamera: vec3f }, vec4f)
+      .does(/* wgsl */ `(input: Input) -> @location(0) vec4f {
+        let xz_dist = length(input.originRelToCamera.xz);
         if (xz_dist < 1) {
           discard;
         }

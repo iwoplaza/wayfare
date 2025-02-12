@@ -10,7 +10,6 @@ import type {
   TgpuRoot,
   TgpuBindGroup,
   TgpuBuffer,
-  TgpuRenderPipeline,
   Uniform,
   Vertex,
 } from 'typegpu';
@@ -191,69 +190,65 @@ export class Renderer {
 
     const targetView = this._context.getCurrentTexture().createView();
 
-    let firstPass = true;
-    for (const { id, meshAsset, instanceBuffer, material } of this._objects) {
-      const mesh = meshAsset.peek(this.root);
-      if (!mesh) {
-        // Mesh is not loaded yet...
-        continue;
-      }
-
-      const pipeline = material.getPipeline(
-        this.root,
-        this._presentationFormat,
-      );
-
-      const { uniformsBindGroup, instanceParamsBindGroup } = this._resourcesFor(
-        id,
-        material,
-      );
-
-      const withOptionals = <T extends TgpuRenderPipeline>(pipeline: T) => {
-        let result = pipeline;
-
-        if (material.paramsLayout && instanceParamsBindGroup) {
-          result = result.with(
-            material.paramsLayout,
-            instanceParamsBindGroup,
-          ) as T;
-        }
-
-        if (material.instanceLayout && instanceBuffer) {
-          result = result.with(material.instanceLayout, instanceBuffer) as T;
-        }
-
-        return result;
-      };
-
-      withOptionals(pipeline)
-        .with(sharedBindGroupLayout, this._sharedBindGroup)
-        .with(uniformsBindGroupLayout, uniformsBindGroup)
-        .with(material.vertexLayout, mesh.vertexBuffer)
-        .withColorAttachment({
-          view: targetView,
-          loadOp: firstPass ? 'clear' : 'load',
-          storeOp: 'store',
-          clearValue: this._cameraConfig?.clearColor ?? {
-            r: 0.0,
-            g: 0.0,
-            b: 0.0,
-            a: 1.0,
+    this.root['~unstable'].beginRenderPass(
+      {
+        colorAttachments: [
+          {
+            view: targetView,
+            loadOp: 'clear',
+            storeOp: 'store',
+            clearValue: this._cameraConfig?.clearColor ?? {
+              r: 0.0,
+              g: 0.0,
+              b: 0.0,
+              a: 1.0,
+            },
           },
-        })
-        .withDepthStencilAttachment({
+        ],
+        depthStencilAttachment: {
           view: this._viewport.depthTextureView,
-          depthLoadOp: firstPass ? 'clear' : 'load',
+          depthLoadOp: 'clear',
           depthStoreOp: 'store',
           depthClearValue: 1.0,
-        })
-        .draw(
-          mesh.vertexCount,
-          instanceBuffer ? instanceBuffer.dataType.elementCount : undefined,
-        );
+        },
+      },
+      (pass) => {
+        for (const { id, meshAsset, instanceBuffer, material } of this
+          ._objects) {
+          const mesh = meshAsset.peek(this.root);
+          if (!mesh) {
+            // Mesh is not loaded yet...
+            continue;
+          }
 
-      firstPass = false;
-    }
+          const pipeline = material.getPipeline(
+            this.root,
+            this._presentationFormat,
+          );
+
+          const { uniformsBindGroup, instanceParamsBindGroup } =
+            this._resourcesFor(id, material);
+
+          pass.setPipeline(pipeline);
+          pass.setBindGroup(sharedBindGroupLayout, this._sharedBindGroup);
+          pass.setBindGroup(uniformsBindGroupLayout, uniformsBindGroup);
+          pass.setVertexBuffer(material.vertexLayout, mesh.vertexBuffer);
+
+          if (material.paramsLayout && instanceParamsBindGroup) {
+            pass.setBindGroup(material.paramsLayout, instanceParamsBindGroup);
+          }
+
+          if (material.instanceLayout && instanceBuffer) {
+            pass.setVertexBuffer(material.instanceLayout, instanceBuffer);
+          }
+
+          pass.draw(
+            mesh.vertexCount,
+            instanceBuffer ? instanceBuffer.dataType.elementCount : undefined,
+          );
+        }
+      },
+    );
 
     this.root['~unstable'].flush();
 

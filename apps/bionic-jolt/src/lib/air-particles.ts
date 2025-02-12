@@ -114,17 +114,17 @@ export const AirParticlesMaterial = createMaterial<
           pos: builtin.position,
           normal: vec3f,
           uv: vec2f,
-          cameraRelToCamera: vec3f,
+          originRelToCamera: vec3f,
         },
       )
       .does(`(input: VertexIn) -> Output {
         var out: Output;
 
-        let cameraRelToCamera = getTransformedOrigin(input.origin);
-        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(computePosition(input.pos, cameraRelToCamera), 1.0);
+        let originRelToCamera = getTransformedOrigin(input.origin);
+        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(computePosition(input.pos, originRelToCamera), 1.0);
         out.normal = (uniforms.normalModelMat * vec4f(input.normal, 0.0)).xyz;
         out.uv = input.uv;
-        out.cameraRelToCamera = cameraRelToCamera;
+        out.originRelToCamera = originRelToCamera;
         return out;
       }`)
       .$uses({
@@ -143,9 +143,9 @@ export const AirParticlesMaterial = createMaterial<
     });
 
     const fragmentFn = tgpu['~unstable']
-      .fragmentFn({ cameraRelToCamera: vec3f }, vec4f)
-      .does(`(@location(0) normal: vec3f, @location(1) uv: vec2f, @location(2) originRelToCamera: vec3f) -> @location(0) vec4f {
-        let xz_dist = length(originRelToCamera.xz);
+      .fragmentFn({ originRelToCamera: vec3f }, vec4f)
+      .does(`(input: Input) -> @location(0) vec4f {
+        let xz_dist = length(input.originRelToCamera.xz);
         if (xz_dist < 1) {
           discard;
         }

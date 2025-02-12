@@ -1,5 +1,5 @@
 import tgpu from 'typegpu';
-import { type Base, builtin, struct, vec2f, vec3f, vec4f } from 'typegpu/data';
+import { builtin, struct, vec2f, vec3f, vec4f } from 'typegpu/data';
 import { add, dot, max, mul, normalize } from 'typegpu/std';
 
 import { POS_NORMAL_UV } from '../mesh.js';
@@ -9,67 +9,68 @@ const ParamsSchema = struct({
   albedo: vec3f,
 });
 
-export const BlinnPhongMaterial: CreateMaterialResult<
-  Base<typeof ParamsSchema>
-> = createMaterial({
-  paramsSchema: ParamsSchema,
+export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
+  createMaterial({
+    paramsSchema: ParamsSchema,
 
-  paramsDefaults: { albedo: vec3f(1, 0, 1) },
+    paramsDefaults: { albedo: vec3f(1, 0, 1) },
 
-  vertexLayout: POS_NORMAL_UV,
+    vertexLayout: POS_NORMAL_UV,
 
-  createPipeline({ root, format, getPOV, getUniforms, getParams }) {
-    const vertexFn = tgpu['~unstable']
-      .vertexFn(
-        { idx: builtin.vertexIndex, pos: vec3f, normal: vec3f, uv: vec2f },
-        { pos: builtin.position, normal: vec3f, uv: vec2f },
-      )
-      .does(`(input: VertexInput) -> Output {
-        var out: Output;
-        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(input.pos, 1.0);
-        out.normal = (uniforms.normalModelMat * vec4f(input.normal, 0.0)).xyz;
-        out.uv = input.uv;
-        return out;
-      }`)
-      .$uses({
-        get uniforms() {
-          return getUniforms();
-        },
-        get pov() {
-          return getPOV();
-        },
-      });
+    createPipeline({ root, format, getPOV, getUniforms, getParams }) {
+      const vertexFn = tgpu['~unstable']
+        .vertexFn(
+          { idx: builtin.vertexIndex, pos: vec3f, normal: vec3f, uv: vec2f },
+          { pos: builtin.position, normal: vec3f, uv: vec2f },
+        )
+        .does(`(input: VertexInput) -> Output {
+          var out: Output;
+          out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(input.pos, 1.0);
+          out.normal = (uniforms.normalModelMat * vec4f(input.normal, 0.0)).xyz;
+          out.uv = input.uv;
+          return out;
+        }`)
+        .$uses({
+          get uniforms() {
+            return getUniforms();
+          },
+          get pov() {
+            return getPOV();
+          },
+        });
 
-    const sunDir = normalize(vec3f(-0.5, 2, -0.5));
+      const sunDir = normalize(vec3f(-0.5, 2, -0.5));
 
-    const computeColor = tgpu['~unstable'].fn([vec3f], vec4f).does((normal) => {
-      const diffuse = vec3f(1.0, 0.9, 0.7);
-      const ambient = vec3f(0.1, 0.15, 0.2);
-      const att = max(0, dot(normalize(normal), sunDir));
-      const albedo = getParams().value.albedo;
+      const computeColor = tgpu['~unstable']
+        .fn([vec3f], vec4f)
+        .does((normal) => {
+          const diffuse = vec3f(1.0, 0.9, 0.7);
+          const ambient = vec3f(0.1, 0.15, 0.2);
+          const att = max(0, dot(normalize(normal), sunDir));
+          const albedo = getParams().value.albedo;
 
-      const finalColor = mul(add(ambient, mul(att, diffuse)), albedo);
-      return vec4f(finalColor.x, finalColor.y, finalColor.z, 1.0);
-    });
+          const finalColor = mul(add(ambient, mul(att, diffuse)), albedo);
+          return vec4f(finalColor.x, finalColor.y, finalColor.z, 1.0);
+        });
 
-    const fragmentFn = tgpu['~unstable']
-      .fragmentFn({}, vec4f)
-      .does(`(@location(0) normal: vec3f, @location(1) uv: vec2f) -> @location(0) vec4f {
-        return computeColor(normal);
-      }`)
-      .$uses({ computeColor });
+      const fragmentFn = tgpu['~unstable']
+        .fragmentFn({ normal: vec3f }, vec4f)
+        .does(`(input: Input) -> @location(0) vec4f {
+          return computeColor(input.normal);
+        }`)
+        .$uses({ computeColor });
 
-    return {
-      pipeline: root['~unstable']
-        .withVertex(vertexFn, POS_NORMAL_UV.attrib)
-        .withFragment(fragmentFn, { format })
-        .withPrimitive({ topology: 'triangle-list', cullMode: 'back' })
-        .withDepthStencil({
-          depthWriteEnabled: true,
-          depthCompare: 'less',
-          format: 'depth24plus',
-        })
-        .createPipeline(),
-    };
-  },
-});
+      return {
+        pipeline: root['~unstable']
+          .withVertex(vertexFn, POS_NORMAL_UV.attrib)
+          .withFragment(fragmentFn, { format })
+          .withPrimitive({ topology: 'triangle-list', cullMode: 'back' })
+          .withDepthStencil({
+            depthWriteEnabled: true,
+            depthCompare: 'less',
+            format: 'depth24plus',
+          })
+          .createPipeline(),
+      };
+    },
+  });
