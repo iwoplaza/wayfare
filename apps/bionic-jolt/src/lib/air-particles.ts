@@ -119,26 +119,30 @@ export const AirParticlesMaterial = createMaterial<
           ...Varying,
         },
       })
-      .does(`(input: VertexIn) -> Output {
-        var out: Output;
+      .does((input) => {
+        const pov = getPOV().value;
+        const uniforms = getUniforms().value;
+        const originRelToCamera = getTransformedOrigin(input.origin);
+        const posRelToCamera = computePosition(input.pos, originRelToCamera);
+        const posRelToCamera4 = vec4f(
+          posRelToCamera.x,
+          posRelToCamera.y,
+          posRelToCamera.z,
+          1,
+        );
+        const normal4 = vec4f(
+          input.normal.x,
+          input.normal.y,
+          input.normal.z,
+          0,
+        );
 
-        let originRelToCamera = getTransformedOrigin(input.origin);
-        let posRelToCamera = computePosition(input.pos, originRelToCamera);
-        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(posRelToCamera, 1.0);
-        out.normal = (uniforms.normalModelMat * vec4f(input.normal, 0.0)).xyz;
-        out.uv = input.uv;
-        out.originRelToCamera = originRelToCamera;
-        return out;
-      }`)
-      .$uses({
-        get uniforms() {
-          return getUniforms();
-        },
-        get pov() {
-          return getPOV();
-        },
-        getTransformedOrigin,
-        computePosition,
+        return {
+          pos: mul(mul(pov.viewProjMat, uniforms.modelMat), posRelToCamera4),
+          normal: mul(uniforms.normalModelMat, normal4).xyz,
+          uv: input.uv,
+          originRelToCamera: originRelToCamera,
+        };
       });
 
     const fragmentFn = tgpu['~unstable']
