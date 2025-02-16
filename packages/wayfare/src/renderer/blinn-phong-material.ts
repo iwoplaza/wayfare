@@ -12,9 +12,7 @@ const ParamsSchema = struct({
 export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
   createMaterial({
     paramsSchema: ParamsSchema,
-
     paramsDefaults: { albedo: vec3f(1, 0, 1) },
-
     vertexLayout: POS_NORMAL_UV,
 
     createPipeline({ root, format, getPOV, getUniforms, getParams }) {
@@ -32,24 +30,28 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
           const uniforms = getUniforms().value;
           const pov = getPOV().value;
 
+          const pos4 = vec4f(input.pos.x, input.pos.y, input.pos.z, 1.0);
+          const normal4 = vec4f(
+            input.normal.x,
+            input.normal.y,
+            input.normal.z,
+            0.0,
+          );
+
           return {
-            pos: mul(
-              mul(pov.viewProjMat, uniforms.modelMat),
-              vec4f(input.pos.x, input.pos.y, input.pos.z, 1.0),
-            ),
-            normal: mul(
-              uniforms.normalModelMat,
-              vec4f(input.normal.x, input.normal.y, input.normal.z, 0.0),
-            ).xyz,
+            pos: mul(mul(pov.viewProjMat, uniforms.modelMat), pos4),
+            normal: mul(uniforms.normalModelMat, normal4).xyz,
             uv: input.uv,
           };
         });
 
       const sunDir = normalize(vec3f(-0.5, 2, -0.5));
 
-      const computeColor = tgpu['~unstable']
-        .fn([vec3f], vec4f)
-        .does((normal) => {
+      const fragmentFn = tgpu['~unstable']
+        .fragmentFn({ in: { normal: vec3f }, out: vec4f })
+        .does((input) => {
+          const normal = input.normal;
+
           const diffuse = vec3f(1.0, 0.9, 0.7);
           const ambient = vec3f(0.1, 0.15, 0.2);
           const att = max(0, dot(normalize(normal), sunDir));
@@ -58,13 +60,6 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
           const finalColor = mul(add(ambient, mul(att, diffuse)), albedo);
           return vec4f(finalColor.x, finalColor.y, finalColor.z, 1.0);
         });
-
-      const fragmentFn = tgpu['~unstable']
-        .fragmentFn({ in: { normal: vec3f }, out: vec4f })
-        .does(`(input: Input) -> @location(0) vec4f {
-          return computeColor(input.normal);
-        }`)
-        .$uses({ computeColor });
 
       return {
         pipeline: root['~unstable']

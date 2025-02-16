@@ -13,7 +13,7 @@ import {
   type WgslStruct,
 } from 'typegpu/data';
 import tgpu, { type TgpuRoot } from 'typegpu';
-import { add, cos, fract, sin, sub } from 'typegpu/std';
+import { add, cos, fract, length, mul, sin, sub } from 'typegpu/std';
 import {
   ActiveCameraTag,
   InstanceBufferTrait,
@@ -31,8 +31,8 @@ const span = 10;
 
 const AirParticleSystem = trait({});
 
-export const InstanceLayout = tgpu['~unstable'].vertexLayout(
-  (count) => disarrayOf(vec3f, count),
+export const InstanceLayout = tgpu.vertexLayout(
+  (count: number) => disarrayOf(vec3f, count),
   'instance',
 );
 
@@ -49,11 +49,9 @@ const atan2 = tgpu['~unstable']
 }`);
 
 // TODO: Contribute back to `typegpu`
-const matMul3x3 = tgpu['~unstable']
-  .fn([mat3x3f, vec3f], vec3f)
-  .does(`(mat: mat3x3f, vec: vec3f) -> vec3f {
-    return mat * vec;
-  }`);
+const discard = tgpu['~unstable'].fn([]).does(`() {
+  discard;
+}`);
 
 export const AirParticlesMaterial = createMaterial<
   WgslStruct<{ cameraPosition: Vec3f; yOffset: F32 }>
@@ -99,8 +97,14 @@ export const AirParticlesMaterial = createMaterial<
           vec3f(-sin(angle), 0, cos(angle)), // k
         );
 
-        return add(matMul3x3(rot_mat, pos), cameraRelToCamera);
+        return add(mul(rot_mat, pos), cameraRelToCamera);
       });
+
+    const Varying = {
+      normal: vec3f,
+      uv: vec2f,
+      originRelToCamera: vec3f,
+    } as const;
 
     const vertexFn = tgpu['~unstable']
       .vertexFn({
@@ -112,16 +116,15 @@ export const AirParticlesMaterial = createMaterial<
         },
         out: {
           pos: builtin.position,
-          normal: vec3f,
-          uv: vec2f,
-          originRelToCamera: vec3f,
+          ...Varying,
         },
       })
       .does(`(input: VertexIn) -> Output {
         var out: Output;
 
         let originRelToCamera = getTransformedOrigin(input.origin);
-        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(computePosition(input.pos, originRelToCamera), 1.0);
+        let posRelToCamera = computePosition(input.pos, originRelToCamera);
+        out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(posRelToCamera, 1.0);
         out.normal = (uniforms.normalModelMat * vec4f(input.normal, 0.0)).xyz;
         out.uv = input.uv;
         out.originRelToCamera = originRelToCamera;
@@ -138,20 +141,15 @@ export const AirParticlesMaterial = createMaterial<
         computePosition,
       });
 
-    const computeColor = tgpu['~unstable'].fn([], vec4f).does(() => {
-      return vec4f(1, 1, 1, 1.0);
-    });
-
     const fragmentFn = tgpu['~unstable']
-      .fragmentFn({ in: { originRelToCamera: vec3f }, out: vec4f })
-      .does(`(input: Input) -> @location(0) vec4f {
-        let xz_dist = length(input.originRelToCamera.xz);
+      .fragmentFn({ in: Varying, out: vec4f })
+      .does((input) => {
+        const xz_dist = length(input.originRelToCamera.xz);
         if (xz_dist < 1) {
-          discard;
+          discard();
         }
-        return computeColor();
-      }`)
-      .$uses({ computeColor });
+        return vec4f(1, 1, 1, 1.0);
+      });
 
     return {
       pipeline: root['~unstable']
