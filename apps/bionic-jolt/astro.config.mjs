@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import typegpu from 'rollup-plugin-typegpu';
+import typegpu from 'unplugin-typegpu/rollup';
 
 import tailwind from '@astrojs/tailwind';
 

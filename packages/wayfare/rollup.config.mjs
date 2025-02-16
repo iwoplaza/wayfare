@@ -2,7 +2,7 @@
 
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
-import typegpu from 'rollup-plugin-typegpu';
+import typegpu from 'unplugin-typegpu/rollup';
 
 /**
  * @type {import('rollup').RollupOptions}

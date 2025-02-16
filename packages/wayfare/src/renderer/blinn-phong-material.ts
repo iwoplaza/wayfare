@@ -19,24 +19,30 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
 
     createPipeline({ root, format, getPOV, getUniforms, getParams }) {
       const vertexFn = tgpu['~unstable']
-        .vertexFn(
-          { idx: builtin.vertexIndex, pos: vec3f, normal: vec3f, uv: vec2f },
-          { pos: builtin.position, normal: vec3f, uv: vec2f },
-        )
-        .does(`(input: VertexInput) -> Output {
-          var out: Output;
-          out.pos = pov.viewProjMat * uniforms.modelMat * vec4f(input.pos, 1.0);
-          out.normal = (uniforms.normalModelMat * vec4f(input.normal, 0.0)).xyz;
-          out.uv = input.uv;
-          return out;
-        }`)
-        .$uses({
-          get uniforms() {
-            return getUniforms();
+        .vertexFn({
+          in: {
+            idx: builtin.vertexIndex,
+            pos: vec3f,
+            normal: vec3f,
+            uv: vec2f,
           },
-          get pov() {
-            return getPOV();
-          },
+          out: { pos: builtin.position, normal: vec3f, uv: vec2f },
+        })
+        .does((input) => {
+          const uniforms = getUniforms().value;
+          const pov = getPOV().value;
+
+          return {
+            pos: mul(
+              mul(pov.viewProjMat, uniforms.modelMat),
+              vec4f(input.pos.x, input.pos.y, input.pos.z, 1.0),
+            ),
+            normal: mul(
+              uniforms.normalModelMat,
+              vec4f(input.normal.x, input.normal.y, input.normal.z, 0.0),
+            ).xyz,
+            uv: input.uv,
+          };
         });
 
       const sunDir = normalize(vec3f(-0.5, 2, -0.5));
@@ -54,7 +60,7 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
         });
 
       const fragmentFn = tgpu['~unstable']
-        .fragmentFn({ normal: vec3f }, vec4f)
+        .fragmentFn({ in: { normal: vec3f }, out: vec4f })
         .does(`(input: Input) -> @location(0) vec4f {
           return computeColor(input.normal);
         }`)
