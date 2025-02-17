@@ -98,21 +98,21 @@ export const AirParticlesMaterial = createMaterial({
       });
 
     const vertexFn = tgpu['~unstable']
-      .vertexFn(
-        {
+      .vertexFn({
+        in: {
           idx: builtin.vertexIndex,
           pos: vec3f,
           normal: vec3f,
           uv: vec2f,
           origin: vec3f,
         },
-        {
+        out: {
           pos: builtin.position,
           normal: vec3f,
           uv: vec2f,
           originRelToCamera: vec3f,
         },
-      )
+      })
       .does(/* wgsl */ `(input: VertexIn) -> Output {
         var out: Output;
 
@@ -139,7 +139,7 @@ export const AirParticlesMaterial = createMaterial({
     });
 
     const fragmentFn = tgpu['~unstable']
-      .fragmentFn({ originRelToCamera: vec3f }, vec4f)
+      .fragmentFn({ in: { originRelToCamera: vec3f }, out: vec4f })
       .does(/* wgsl */ `(input: Input) -> @location(0) vec4f {
         let xz_dist = length(input.originRelToCamera.xz);
         if (xz_dist < 1) {

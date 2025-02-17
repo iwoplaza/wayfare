@@ -29,7 +29,7 @@ import {
 const particleAmount = 1000;
 const span = 10;
 
-const AirParticleSystem = trait({});
+const AirParticleSystem = trait();
 
 export const InstanceLayout = tgpu.vertexLayout(
   (count: number) => disarrayOf(vec3f, count),
@@ -45,8 +45,8 @@ const particleMesh = createRectangle({
 const atan2 = tgpu['~unstable']
   .fn([f32, f32], f32)
   .does(`(y: f32, x: f32) -> f32 {
-  return atan2(y, x);
-}`);
+    return atan2(y, x);
+  }`);
 
 // TODO: Contribute back to `typegpu`
 const discard = tgpu['~unstable'].fn([]).does(`() {
