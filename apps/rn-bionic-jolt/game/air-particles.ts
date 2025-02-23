@@ -10,7 +10,17 @@ import {
   vec4f,
 } from 'typegpu/data';
 import tgpu, { type TgpuRoot } from 'typegpu';
-import { add, cos, fract, sin, sub } from 'typegpu/std';
+import {
+  add,
+  cos,
+  fract,
+  sin,
+  sub,
+  mul,
+  atan2,
+  discard,
+  length,
+} from 'typegpu/std';
 import {
   ActiveCameraTag,
   InstanceBufferTrait,
@@ -28,7 +38,7 @@ const span = 10;
 
 const AirParticleSystem = trait({});
 
-export const InstanceLayout = tgpu['~unstable'].vertexLayout(
+export const InstanceLayout = tgpu.vertexLayout(
   (count) => disarrayOf(vec3f, count),
   'instance',
 );
@@ -37,20 +47,6 @@ const particleMesh = createRectangle({
   width: vec3f(0.02, 0, 0),
   height: vec3f(0, 0.5, 0),
 });
-
-// TODO: Contribute back to `typegpu`
-const atan2 = tgpu['~unstable']
-  .fn([f32, f32], f32)
-  .does(`(y: f32, x: f32) -> f32 {
-    return atan2(y, x);
-  }`);
-
-// TODO: Contribute back to `typegpu`
-const matMul3x3 = tgpu['~unstable']
-  .fn([mat3x3f, vec3f], vec3f)
-  .does(`(mat: mat3x3f, vec: vec3f) -> vec3f {
-    return mat * vec;
-  }`);
 
 export const AirParticlesMaterial = createMaterial({
   paramsSchema: struct({
@@ -94,7 +90,7 @@ export const AirParticlesMaterial = createMaterial({
           vec3f(-sin(angle), 0, cos(angle)), // k
         );
 
-        return add(matMul3x3(rot_mat, pos), originRelToCamera);
+        return add(mul(rot_mat, pos), originRelToCamera);
       });
 
     const vertexFn = tgpu['~unstable']
@@ -134,20 +130,15 @@ export const AirParticlesMaterial = createMaterial({
         computePosition,
       });
 
-    const computeColor = tgpu['~unstable'].fn([], vec4f).does(() => {
-      return vec4f(1, 1, 1, 1.0);
-    });
-
     const fragmentFn = tgpu['~unstable']
       .fragmentFn({ in: { originRelToCamera: vec3f }, out: vec4f })
-      .does(/* wgsl */ `(input: Input) -> @location(0) vec4f {
-        let xz_dist = length(input.originRelToCamera.xz);
+      .does((input) => {
+        const xz_dist = length(input.originRelToCamera.xz);
         if (xz_dist < 1) {
-          discard;
+          discard();
         }
-        return computeColor();
-      }`)
-      .$uses({ computeColor });
+        return vec4f(1);
+      });
 
     return {
       pipeline: root['~unstable']
