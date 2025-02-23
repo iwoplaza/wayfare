@@ -32,6 +32,9 @@ import {
   createRectangle,
   getOrThrow,
 } from 'wayfare';
+import { bruh } from 'bionic-jolt-common';
+
+console.log(bruh());
 
 const particleAmount = 1000;
 const span = 10;

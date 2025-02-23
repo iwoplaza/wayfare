@@ -45,6 +45,7 @@
     "react-native-wgpu": "^0.1.22",
     "typegpu": "catalog:",
     "wayfare": "workspace:*",
+    "bionic-jolt-common": "workspace:*",
     "wgpu-matrix": "^3.3.0"
   },
   "devDependencies": {

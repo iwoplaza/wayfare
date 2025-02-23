@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": true,
+    "lib": ["DOM", "ESNext"],
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmitHelpers": true,
+    "noEmitOnError": true,
+    "typeRoots": [
+      "${configDir}/node_modules/@types",
+      "${configDir}/node_modules/@webgpu/types"
+    ]
+  },
+  "exclude": ["${configDir}/dist", "${configDir}/node_modules"],
+  "include": [
+    "${configDir}/**/*.ts",
+    "${configDir}/**/*.tsx",
+    "${configDir}/.expo/types/**/*.ts",
+    "${configDir}/expo-env.d.ts"
+  ]
+}
