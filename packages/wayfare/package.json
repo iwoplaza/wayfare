@@ -2,21 +2,30 @@
   "name": "wayfare",
   "type": "module",
   "version": "0.0.0-alpha.5",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "module": "./dist/index.js",
-      "import": "./dist/index.js",
-      "default": "./dist/index.cjs"
+    "./package.json": "./package.json",
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "directory": "dist",
+    "linkDirectory": false,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "module": "./dist/index.js",
+        "import": "./dist/index.js",
+        "default": "./dist/index.cjs"
+      }
     }
   },
   "files": ["README.md", "package.json", "dist/**/*"],
   "sideEffects": false,
   "scripts": {
-    "dev:build": "rollup -c",
-    "dev:watch": "rollup -c --watch",
     "build": "rm -rf dist && rollup -c"
   },
   "keywords": [],
@@ -36,7 +45,8 @@
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
-    "@webgpu/types": "^0.1.52",
+    "keyboardevent-codes": "1.0.0",
+    "@webgpu/types": "catalog:",
     "koota": "^0.1.12",
     "rollup": "^4.28.1",
     "unplugin-typegpu": "catalog:",
