@@ -1,6 +1,7 @@
-import type * as d from 'typegpu/data';
+import * as d from 'typegpu/data';
 import type { KeyCode } from 'keyboardevent-codes';
 import type { Default, Prettify } from './utility-types.js';
+import * as std from 'typegpu/std';
 
 interface KeyBinding {
   key: KeyCode;
@@ -15,18 +16,16 @@ interface DirectionalKeyBinding {
   dir: readonly [number, number];
 }
 
-type BindingCatalog = {
-  linear: KeyBinding;
-  xy: DirectionalKeyBinding | TouchJoystickBinding;
+type ControlDefCatalog = {
+  linear: { type: 'linear'; bindings: KeyBinding[] };
+  xy: {
+    type: 'xy';
+    bindings: (DirectionalKeyBinding | TouchJoystickBinding)[];
+  };
 };
 
-type ControlType = keyof BindingCatalog;
-
-interface ControlDef<TControlType extends ControlType = ControlType> {
-  type?: ControlType | undefined;
-  bindings: BindingCatalog[TControlType][];
-}
-
+type ControlType = keyof ControlDefCatalog;
+type ControlDef = ControlDefCatalog[ControlType];
 type ControlDefs = Record<string, ControlDef>;
 
 interface CreateInputOptions<TControlDefs extends ControlDefs> {
@@ -107,7 +106,52 @@ function createMap<TControlDefs extends ControlDefs>(
   options: CreateInputOptions<TControlDefs>,
 ): Prettify<InputMap<TControlDefs>> {
   // ...
-  return null as unknown as InputMap<TControlDefs>;
+
+  return Object.fromEntries(
+    Object.entries(options.controls).map(([key, def]) => {
+      if (def.type === 'linear') {
+        const state = {
+          get value() {
+            return def.bindings.reduce((acc, binding) => {
+              if ('key' in binding) {
+                return Math.max(acc, pressedKeyCodes.has(binding.key) ? 1 : 0);
+              }
+
+              throw new Error('Invalid input binding');
+            }, 0);
+          },
+          get isActive() {
+            return this.value > 0;
+          },
+        } satisfies LinearState;
+
+        return [key, state] as const;
+      }
+
+      if (def.type === 'xy') {
+        const state = {
+          get value(): d.v2f {
+            return def.bindings.reduce((acc, binding) => {
+              if ('key' in binding) {
+                if (pressedKeyCodes.has(binding.key)) {
+                  return std.add(acc, d.vec2f(...binding.dir));
+                }
+
+                return acc;
+              }
+
+              throw new Error('Invalid input binding');
+            }, d.vec2f());
+          },
+        } satisfies XYState;
+
+        return [key, state] as const;
+      }
+
+      def satisfies never;
+      throw new Error('Invalid input map definition.');
+    }),
+  ) as InputMap<TControlDefs>;
 }
 
 /**

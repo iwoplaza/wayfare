@@ -4,13 +4,15 @@ import { Engine, Renderer } from 'wayfare';
 // These imports are preloading the necessary assets
 // TODO: Hopefully the VM is smart enough to parallelize these, but
 //       better to test this anyway.
-import { createAirParticles } from './air-particles.js';
-import { createDudes } from './dude.js';
-import { createGameCamera } from './game-camera.js';
-import { createMap } from './map.js';
-import { createPlayers } from './player.js';
+import {
+  createDudes,
+  createAudio,
+  createMap,
+  createGameCamera,
+  createPlayers,
+  createAirParticles,
+} from 'bionic-jolt-common';
 import { createJoystick } from './joystick.js';
-import { createAudio } from './audio.js';
 
 const loadingScreen = document.getElementById('loading-screen') as HTMLElement;
 const mainMenu = document.getElementById('main-menu') as HTMLElement;

@@ -16,7 +16,7 @@ export const Player = trait({
 
 function controlPlayerSystem(world: World) {
   world.query(Player, Dude).updateEach(([player, dude]) => {
-    let dir = vec3f(inputMap.movement.value.x, -inputMap.movement.value.y, 0);
+    let dir = vec3f(inputMap.movement.value.x, 0, -inputMap.movement.value.y);
 
     if (length(dir) > 1) {
       dir = normalize(dir);
@@ -46,11 +46,13 @@ export function createPlayers(world: World) {
         Velocity(vec3f(0, -5, 0)),
       );
     },
+
     cleanup() {
       world.query(Player).updateEach((_, entity) => {
         entity.destroy();
       });
     },
+
     update() {
       controlPlayerSystem(world);
     },
