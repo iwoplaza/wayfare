@@ -39,11 +39,11 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
       const fragmentFn = tgpu['~unstable']
         .fragmentFn({ in: { normal: vec3f }, out: vec4f })
         .does((input) => {
-          const normal = input.normal;
+          const normal = normalize(input.normal);
 
           const diffuse = vec3f(1.0, 0.9, 0.7);
           const ambient = vec3f(0.1, 0.15, 0.2);
-          const att = max(0, dot(normalize(normal), sunDir));
+          const att = max(0, dot(normal, sunDir));
 
           const finalColor = mul(
             add(ambient, mul(att, diffuse)),

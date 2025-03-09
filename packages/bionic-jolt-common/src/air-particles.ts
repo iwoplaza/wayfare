@@ -114,22 +114,22 @@ export const AirParticlesMaterial = createMaterial<
           ...Varying,
         },
       })
-      .does(($) => {
-        const originRelToCamera = getTransformedOrigin($.origin);
-        const posRelToCamera = computePosition($.pos, originRelToCamera);
+      .does((input) => {
+        const originRelToCamera = getTransformedOrigin(input.origin);
+        const posRelToCamera = computePosition(input.pos, originRelToCamera);
 
         return {
           pos: mul(mul($$.viewProjMat, $$.modelMat), vec4f(posRelToCamera, 1)),
-          normal: mul($$.normalModelMat, vec4f($.normal, 0)).xyz,
-          uv: $.uv,
+          normal: mul($$.normalModelMat, vec4f(input.normal, 0)).xyz,
+          uv: input.uv,
           originRelToCamera: originRelToCamera,
         };
       });
 
     const fragmentFn = tgpu['~unstable']
       .fragmentFn({ in: Varying, out: vec4f })
-      .does(($) => {
-        const xz_dist = length($.originRelToCamera.xz);
+      .does((input) => {
+        const xz_dist = length(input.originRelToCamera.xz);
         if (xz_dist < 1) {
           discard();
         }
