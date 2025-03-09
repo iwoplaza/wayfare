@@ -13,7 +13,17 @@ import {
   type WgslStruct,
 } from 'typegpu/data';
 import tgpu, { type TgpuRoot } from 'typegpu';
-import { add, cos, fract, length, mul, sin, sub } from 'typegpu/std';
+import {
+  add,
+  cos,
+  fract,
+  length,
+  mul,
+  sin,
+  sub,
+  atan2,
+  discard,
+} from 'typegpu/std';
 import {
   ActiveCameraTag,
   InstanceBufferTrait,
@@ -40,18 +50,6 @@ const particleMesh = createRectangle({
   width: vec3f(0.02, 0, 0),
   height: vec3f(0, 0.5, 0),
 });
-
-// TODO: Contribute back to `typegpu`
-const atan2 = tgpu['~unstable']
-  .fn([f32, f32], f32)
-  .does(`(y: f32, x: f32) -> f32 {
-    return atan2(y, x);
-  }`);
-
-// TODO: Contribute back to `typegpu`
-const discard = tgpu['~unstable'].fn([]).does(`() {
-  discard;
-}`);
 
 export const AirParticlesMaterial = createMaterial<
   WgslStruct<{ cameraPosition: Vec3f; yOffset: F32 }>
@@ -116,38 +114,26 @@ export const AirParticlesMaterial = createMaterial<
           ...Varying,
         },
       })
-      .does((input) => {
-        const originRelToCamera = getTransformedOrigin(input.origin);
-        const posRelToCamera = computePosition(input.pos, originRelToCamera);
-        const posRelToCamera4 = vec4f(
-          posRelToCamera.x,
-          posRelToCamera.y,
-          posRelToCamera.z,
-          1,
-        );
-        const normal4 = vec4f(
-          input.normal.x,
-          input.normal.y,
-          input.normal.z,
-          0,
-        );
+      .does(($) => {
+        const originRelToCamera = getTransformedOrigin($.origin);
+        const posRelToCamera = computePosition($.pos, originRelToCamera);
 
         return {
-          pos: mul(mul($$.viewProjMat, $$.modelMat), posRelToCamera4),
-          normal: mul($$.normalModelMat, normal4).xyz,
-          uv: input.uv,
+          pos: mul(mul($$.viewProjMat, $$.modelMat), vec4f(posRelToCamera, 1)),
+          normal: mul($$.normalModelMat, vec4f($.normal, 0)).xyz,
+          uv: $.uv,
           originRelToCamera: originRelToCamera,
         };
       });
 
     const fragmentFn = tgpu['~unstable']
       .fragmentFn({ in: Varying, out: vec4f })
-      .does((input) => {
-        const xz_dist = length(input.originRelToCamera.xz);
+      .does(($) => {
+        const xz_dist = length($.originRelToCamera.xz);
         if (xz_dist < 1) {
           discard();
         }
-        return vec4f(1, 1, 1, 1.0);
+        return vec4f(1);
       });
 
     return {

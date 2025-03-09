@@ -27,17 +27,9 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
           out: { pos: builtin.position, normal: vec3f, uv: vec2f },
         })
         .does((input) => {
-          const pos4 = vec4f(input.pos.x, input.pos.y, input.pos.z, 1.0);
-          const normal4 = vec4f(
-            input.normal.x,
-            input.normal.y,
-            input.normal.z,
-            0.0,
-          );
-
           return {
-            pos: mul(mul($$.viewProjMat, $$.modelMat), pos4),
-            normal: mul($$.normalModelMat, normal4).xyz,
+            pos: mul(mul($$.viewProjMat, $$.modelMat), vec4f(input.pos, 1)),
+            normal: mul($$.normalModelMat, vec4f(input.normal, 0)).xyz,
             uv: input.uv,
           };
         });
@@ -52,10 +44,12 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
           const diffuse = vec3f(1.0, 0.9, 0.7);
           const ambient = vec3f(0.1, 0.15, 0.2);
           const att = max(0, dot(normalize(normal), sunDir));
-          const albedo = $$.params.albedo;
 
-          const finalColor = mul(add(ambient, mul(att, diffuse)), albedo);
-          return vec4f(finalColor.x, finalColor.y, finalColor.z, 1.0);
+          const finalColor = mul(
+            add(ambient, mul(att, diffuse)),
+            $$.params.albedo,
+          );
+          return vec4f(finalColor, 1.0);
         });
 
       return {
