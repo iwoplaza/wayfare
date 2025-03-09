@@ -15,7 +15,7 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
     paramsDefaults: { albedo: vec3f(1, 0, 1) },
     vertexLayout: POS_NORMAL_UV,
 
-    createPipeline({ root, format, getPOV, getUniforms, getParams }) {
+    createPipeline({ root, format, $$ }) {
       const vertexFn = tgpu['~unstable']
         .vertexFn({
           in: {
@@ -27,9 +27,6 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
           out: { pos: builtin.position, normal: vec3f, uv: vec2f },
         })
         .does((input) => {
-          const uniforms = getUniforms().value;
-          const pov = getPOV().value;
-
           const pos4 = vec4f(input.pos.x, input.pos.y, input.pos.z, 1.0);
           const normal4 = vec4f(
             input.normal.x,
@@ -39,8 +36,8 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
           );
 
           return {
-            pos: mul(mul(pov.viewProjMat, uniforms.modelMat), pos4),
-            normal: mul(uniforms.normalModelMat, normal4).xyz,
+            pos: mul(mul($$.viewProjMat, $$.modelMat), pos4),
+            normal: mul($$.normalModelMat, normal4).xyz,
             uv: input.uv,
           };
         });
@@ -55,7 +52,7 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
           const diffuse = vec3f(1.0, 0.9, 0.7);
           const ambient = vec3f(0.1, 0.15, 0.2);
           const att = max(0, dot(normalize(normal), sunDir));
-          const albedo = getParams().value.albedo;
+          const albedo = $$.params.albedo;
 
           const finalColor = mul(add(ambient, mul(att, diffuse)), albedo);
           return vec4f(finalColor.x, finalColor.y, finalColor.z, 1.0);

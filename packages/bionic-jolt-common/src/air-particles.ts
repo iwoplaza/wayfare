@@ -66,15 +66,12 @@ export const AirParticlesMaterial = createMaterial<
   },
   vertexLayout: POS_NORMAL_UV,
   instanceLayout: InstanceLayout,
-  createPipeline({ root, format, getPOV, getUniforms, getParams }) {
+  createPipeline({ root, format, $$ }) {
     const getTransformedOrigin = tgpu['~unstable']
       .fn([vec3f], vec3f)
       .does((localOrigin) => {
-        const wrappedOrigin = sub(
-          localOrigin,
-          getParams().value.cameraPosition,
-        );
-        wrappedOrigin.y -= getParams().value.yOffset;
+        const wrappedOrigin = sub(localOrigin, $$.params.cameraPosition);
+        wrappedOrigin.y -= $$.params.yOffset;
 
         // wrapping the space.
         wrappedOrigin.y = -fract(-wrappedOrigin.y / span) * span;
@@ -120,8 +117,6 @@ export const AirParticlesMaterial = createMaterial<
         },
       })
       .does((input) => {
-        const pov = getPOV().value;
-        const uniforms = getUniforms().value;
         const originRelToCamera = getTransformedOrigin(input.origin);
         const posRelToCamera = computePosition(input.pos, originRelToCamera);
         const posRelToCamera4 = vec4f(
@@ -138,8 +133,8 @@ export const AirParticlesMaterial = createMaterial<
         );
 
         return {
-          pos: mul(mul(pov.viewProjMat, uniforms.modelMat), posRelToCamera4),
-          normal: mul(uniforms.normalModelMat, normal4).xyz,
+          pos: mul(mul($$.viewProjMat, $$.modelMat), posRelToCamera4),
+          normal: mul($$.normalModelMat, normal4).xyz,
           uv: input.uv,
           originRelToCamera: originRelToCamera,
         };

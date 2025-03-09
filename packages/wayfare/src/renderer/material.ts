@@ -22,18 +22,12 @@ import {
 export interface MaterialContext<TParams> {
   readonly root: TgpuRoot;
   readonly format: GPUTextureFormat;
-  getPOV(): {
-    value: {
-      viewProjMat: m4x4f;
-    };
+  readonly $$: {
+    readonly viewProjMat: m4x4f;
+    readonly modelMat: m4x4f;
+    readonly normalModelMat: m4x4f;
+    readonly params: Infer<TParams>;
   };
-  getUniforms(): {
-    value: {
-      modelMat: m4x4f;
-      normalModelMat: m4x4f;
-    };
-  };
-  getParams(): { value: Infer<TParams> };
 }
 
 export interface MaterialOptions {
@@ -161,18 +155,19 @@ export function createMaterial<TParams extends AnyWgslData>(options: {
         root,
         format,
 
-        getParams(): { value: Infer<TParams> } {
-          return paramsLayout?.bound.params as {
-            value: Infer<TParams>;
-          };
-        },
-
-        getPOV() {
-          return pov;
-        },
-
-        getUniforms() {
-          return uniforms;
+        $$: {
+          get viewProjMat() {
+            return pov.value.viewProjMat;
+          },
+          get modelMat() {
+            return uniforms.value.modelMat;
+          },
+          get normalModelMat() {
+            return uniforms.value.normalModelMat;
+          },
+          get params(): Infer<TParams> {
+            return paramsLayout?.bound.params.value as Infer<TParams>;
+          },
         },
       });
 

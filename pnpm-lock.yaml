@@ -10,8 +10,8 @@ catalogs:
       specifier: ^0.1.54
       version: 0.1.54
     typegpu:
-      specifier: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@06b88154f8ebfacd0d82b72e92f0cf191840b57f
-      version: 0.4.1
+      specifier: ^0.4.5
+      version: 0.4.5
     unplugin-typegpu:
       specifier: ^0.1.0-alpha.1
       version: 0.1.0-alpha.2
@@ -61,7 +61,7 @@ importers:
         version: 3.4.17
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@06b88154f8ebfacd0d82b72e92f0cf191840b57f
+        version: 0.4.5
       unplugin-typegpu:
         specifier: 'catalog:'
         version: 0.1.0-alpha.2
@@ -167,7 +167,7 @@ importers:
         version: 0.1.23(react-native@0.76.6(@babel/core@7.26.8)(@babel/preset-env@7.26.8(@babel/core@7.26.8))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@06b88154f8ebfacd0d82b72e92f0cf191840b57f
+        version: 0.4.5
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -253,7 +253,7 @@ importers:
         version: 2.8.1
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@06b88154f8ebfacd0d82b72e92f0cf191840b57f
+        version: 0.4.5
       unplugin-typegpu:
         specifier: 'catalog:'
         version: 0.1.0-alpha.2
@@ -5741,9 +5741,8 @@ packages:
   typed-binary@4.3.2:
     resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
 
-  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@06b88154f8ebfacd0d82b72e92f0cf191840b57f:
-    resolution: {tarball: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@06b88154f8ebfacd0d82b72e92f0cf191840b57f}
-    version: 0.4.1
+  typegpu@0.4.5:
+    resolution: {integrity: sha512-KYIwOGoGTdr4qPjALJSpX+4Y0LDrlOLyk2qNryLejuYH+sMVcqDHUIotL5XvD9EWNMGJzr2tzyVdRPs2tLzv+g==}
     engines: {node: '>=12.20.0'}
 
   typescript@5.7.3:
@@ -13202,7 +13201,7 @@ snapshots:
 
   typed-binary@4.3.2: {}
 
-  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@06b88154f8ebfacd0d82b72e92f0cf191840b57f:
+  typegpu@0.4.5:
     dependencies:
       tinyest: 0.1.0-alpha.3
       typed-binary: 4.3.2
