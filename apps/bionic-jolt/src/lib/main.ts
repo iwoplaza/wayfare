@@ -1,17 +1,9 @@
 import tgpu from 'typegpu';
-import { Engine, Renderer } from 'wayfare';
 
 // These imports are preloading the necessary assets
 // TODO: Hopefully the VM is smart enough to parallelize these, but
 //       better to test this anyway.
-import {
-  createDudes,
-  createAudio,
-  createMap,
-  createGameCamera,
-  createPlayers,
-  createAirParticles,
-} from 'bionic-jolt-common';
+import { BionicJolt } from 'bionic-jolt-common';
 import { createJoystick } from './joystick.js';
 
 const loadingScreen = document.getElementById('loading-screen') as HTMLElement;
@@ -25,13 +17,11 @@ if (loadingScreen) {
 
 export async function main(canvas: HTMLCanvasElement) {
   const root = await tgpu.init();
-  const renderer = new Renderer(
+  const bj = BionicJolt(
     root,
     canvas,
     canvas.getContext('webgpu') as GPUCanvasContext,
   );
-  const engine = new Engine(root, renderer);
-  const world = engine.world;
 
   // Listen to changes in window size and resize the canvas
   const handleResize = () => {
@@ -43,33 +33,18 @@ export async function main(canvas: HTMLCanvasElement) {
     const height = window.innerHeight * devicePixelRatio;
     canvas.width = width;
     canvas.height = height;
-    renderer.updateViewport(width, height);
+    bj.renderer.updateViewport(width, height);
   };
   handleResize();
   window.addEventListener('resize', handleResize);
 
   createJoystick();
 
-  const Audio = createAudio(world);
-  const MapStuff = createMap(world);
-  const AirParticles = createAirParticles(world, root);
-  const Dudes = createDudes(world);
-  const Players = createPlayers(world);
-  const GameCamera = createGameCamera(world);
-
   fallBtn.addEventListener('click', () => {
     mainMenu.style.display = 'none';
 
-    Audio.tryResume();
-    Players.init();
+    bj.start();
   });
 
-  engine.run(() => {
-    Audio.update();
-    Dudes.update();
-    Players.update();
-    MapStuff.update();
-    AirParticles.update();
-    GameCamera.update();
-  });
+  bj.loop();
 }
