@@ -7,15 +7,10 @@ import { Dude, DudeBundle } from './dude.js';
 import { MapProgressMarker, WindListener } from './map.js';
 import { inputMap } from './input.js';
 
-export const Player = trait({
-  upKey: 'KeyW',
-  downKey: 'KeyS',
-  leftKey: 'KeyA',
-  rightKey: 'KeyD',
-});
+export const Player = trait();
 
 function controlPlayerSystem(world: World) {
-  world.query(Player, Dude).updateEach(([player, dude]) => {
+  world.query(Dude, Player).updateEach(([dude]) => {
     let dir = vec3f(inputMap.movement.value.x, 0, -inputMap.movement.value.y);
 
     if (length(dir) > 1) {

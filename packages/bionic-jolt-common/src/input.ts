@@ -6,5 +6,9 @@ export const inputMap = Input.createMap({
       type: 'xy',
       bindings: [...Input.ArrowKeysPreset, ...Input.WASDPreset],
     },
+    shoot: {
+      type: 'linear',
+      bindings: [{ key: 'Space' }],
+    },
   },
 });
