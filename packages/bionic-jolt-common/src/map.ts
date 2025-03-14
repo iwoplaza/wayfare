@@ -1,20 +1,12 @@
 import { type ExtractSchema, Not, type World, trait } from 'koota';
-import { vec3f, vec4f } from 'typegpu/data';
-import {
-  BlinnPhongMaterial,
-  MaterialTrait,
-  MeshTrait,
-  TransformTrait,
-  getOrAdd,
-  getOrThrow,
-  meshAsset,
-} from 'wayfare';
+import * as d from 'typegpu/data';
+import * as wayfare from 'wayfare';
 import { quat } from 'wgpu-matrix';
 
 import pentagonFile from './assets/pentagon.js';
 import { WindAudio } from './audio.js';
 
-const pentagonMesh = meshAsset({ src: pentagonFile });
+const pentagonMesh = wayfare.meshAsset({ src: pentagonFile });
 
 /**
  * Settings given to a world.
@@ -51,14 +43,16 @@ function clamp01(x: number) {
 
 export function createMap(world: World) {
   function updateMapSystem() {
-    const settings = getOrAdd(world, MapSettings);
+    const settings = wayfare.getOrAdd(world, MapSettings);
     const progressMarker = world.queryFirst(MapProgressMarker);
-    const progressMarkerPos = progressMarker?.get(TransformTrait)?.position;
+    const progressMarkerPos = progressMarker?.get(
+      wayfare.TransformTrait,
+    )?.position;
 
     if (!progressMarkerPos) return;
 
     world
-      .query(MapChunk, TransformTrait, Not(MapTail))
+      .query(MapChunk, wayfare.TransformTrait, Not(MapTail))
       .updateEach(([chunk, transform], entity) => {
         // Is well above the marker?
         if (
@@ -71,13 +65,18 @@ export function createMap(world: World) {
 
     // Handle highlighting when new the marker
     world
-      .query(TransformTrait, BlinnPhongMaterial.Params, MaterialTrait, MapChunk)
+      .query(
+        wayfare.TransformTrait,
+        wayfare.BlinnPhongMaterial.Params,
+        wayfare.MaterialTrait,
+        MapChunk,
+      )
       .updateEach(([transform, material]) => {
         const distance = Math.abs(progressMarkerPos.y - transform.position.y);
         if (distance < 0.2) {
-          material.albedo = vec3f(1, 1, 0);
+          material.albedo = d.vec3f(1, 1, 0);
         } else {
-          material.albedo = vec3f(1, 0.5, 0);
+          material.albedo = d.vec3f(1, 0.5, 0);
         }
       });
 
@@ -85,7 +84,7 @@ export function createMap(world: World) {
     let limit = 10;
     do {
       const tail = world.queryFirst(MapTail);
-      const tailPosition = tail?.get(TransformTrait)?.position;
+      const tailPosition = tail?.get(wayfare.TransformTrait)?.position;
       const tailChunk = tail?.get(MapChunk);
 
       if (
@@ -99,19 +98,19 @@ export function createMap(world: World) {
 
         world.spawn(
           MapChunk({ length: 1 + Math.random() * 5 }),
-          TransformTrait({
-            position: vec3f(xPos, yPos, zPos),
+          wayfare.TransformTrait({
+            position: d.vec3f(xPos, yPos, zPos),
             rotation: quat.fromEuler(
               0,
               Math.random() * Math.PI,
               0,
               'xyz',
-              vec4f(),
+              d.vec4f(),
             ),
           }),
-          MeshTrait(pentagonMesh),
+          wayfare.MeshTrait(pentagonMesh),
           MapTail,
-          ...BlinnPhongMaterial.Bundle(),
+          ...wayfare.BlinnPhongMaterial.Bundle(),
         );
         tail?.remove(MapTail);
       } else {
@@ -127,7 +126,9 @@ export function createMap(world: World) {
       world.spawn(WindAudioSource, ...WindAudio.Bundle());
     }
 
-    const windListener = world.queryFirst(WindListener)?.get(TransformTrait);
+    const windListener = world
+      .queryFirst(WindListener)
+      ?.get(wayfare.TransformTrait);
 
     if (!windListener) {
       return;
@@ -136,7 +137,8 @@ export function createMap(world: World) {
     const listenerY = windListener.position.y;
 
     const minDist = world.query(MapChunk).reduce((acc, chunk) => {
-      const chunkY = getOrThrow(chunk, TransformTrait).position.y;
+      const chunkY = wayfare.getOrThrow(chunk, wayfare.TransformTrait).position
+        .y;
       return Math.min(acc, Math.abs(chunkY - listenerY));
     }, Number.POSITIVE_INFINITY);
 

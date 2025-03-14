@@ -1,6 +1,6 @@
 import { type World, trait } from 'koota';
-import * as d from 'typegpu/data';
 import tgpu, { type TgpuRoot } from 'typegpu';
+import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
 import * as wayfare from 'wayfare';
 

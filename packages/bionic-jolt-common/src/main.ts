@@ -1,5 +1,5 @@
 import tgpu from 'typegpu';
-import { Engine, Renderer } from 'wayfare';
+import * as wayfare from 'wayfare';
 
 // These imports are preloading the necessary assets
 // TODO: Hopefully the VM is smart enough to parallelize these, but
@@ -23,12 +23,12 @@ if (loadingScreen) {
 
 export async function main(canvas: HTMLCanvasElement) {
   const root = await tgpu.init();
-  const renderer = new Renderer(
+  const renderer = new wayfare.Renderer(
     root,
     canvas,
     canvas.getContext('webgpu') as GPUCanvasContext,
   );
-  const engine = new Engine(root, renderer);
+  const engine = new wayfare.Engine(root, renderer);
   const world = engine.world;
 
   // Listen to changes in window size and resize the canvas
