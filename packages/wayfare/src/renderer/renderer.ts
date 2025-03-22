@@ -10,8 +10,8 @@ import type {
   TgpuRoot,
   TgpuBindGroup,
   TgpuBuffer,
-  Uniform,
-  Vertex,
+  UniformFlag,
+  VertexFlag,
 } from 'typegpu';
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
@@ -33,7 +33,7 @@ import { Viewport } from './viewport.js';
 export type GameObject = {
   id: number;
   meshAsset: MeshAsset;
-  instanceBuffer?: (TgpuBuffer<WgslArray | Disarray> & Vertex) | undefined;
+  instanceBuffer?: (TgpuBuffer<WgslArray | Disarray> & VertexFlag) | undefined;
   worldMatrix: m4x4f;
   material: Material;
   materialParams: unknown;
@@ -41,10 +41,10 @@ export type GameObject = {
 
 type ObjectResources = {
   uniformsBindGroup: UniformsBindGroup;
-  uniformsBuffer: TgpuBuffer<typeof UniformsStruct> & Uniform;
+  uniformsBuffer: TgpuBuffer<typeof UniformsStruct> & UniformFlag;
 
   instanceParamsBindGroup: TgpuBindGroup | undefined;
-  instanceParamsBuffer: (TgpuBuffer<AnyWgslData> & Uniform) | undefined;
+  instanceParamsBuffer: (TgpuBuffer<AnyWgslData> & UniformFlag) | undefined;
 };
 
 export class Renderer {
@@ -56,7 +56,7 @@ export class Renderer {
     normalModel: m4x4f;
   };
   private readonly _viewport: Viewport;
-  private readonly _povBuffer: TgpuBuffer<typeof POVStruct> & Uniform;
+  private readonly _povBuffer: TgpuBuffer<typeof POVStruct> & UniformFlag;
   private readonly _sharedBindGroup: SharedBindGroup;
   private readonly _presentationFormat: GPUTextureFormat;
   private readonly _cachedResources = new Map<number, ObjectResources>();
