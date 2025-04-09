@@ -10,11 +10,11 @@ catalogs:
       specifier: ^0.1.54
       version: 0.1.54
     typegpu:
-      specifier: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@21bc1f4e8d6aacaf8f9be5ac009c99829b124980
-      version: 0.5.0
+      specifier: ^0.5.4
+      version: 0.5.4
     unplugin-typegpu:
-      specifier: ^0.1.0-alpha.1
-      version: 0.1.0-alpha.2
+      specifier: ^0.1.0-alpha.7
+      version: 0.1.0-alpha.7
 
 overrides:
   tinyest-for-wgsl: 0.1.0-alpha.2
@@ -61,10 +61,10 @@ importers:
         version: 3.4.17
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@21bc1f4e8d6aacaf8f9be5ac009c99829b124980
+        version: 0.5.4
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.1.0-alpha.2
+        version: 0.1.0-alpha.7
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -167,7 +167,7 @@ importers:
         version: 0.1.23(react-native@0.76.6(@babel/core@7.26.8)(@babel/preset-env@7.26.8(@babel/core@7.26.8))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@21bc1f4e8d6aacaf8f9be5ac009c99829b124980
+        version: 0.5.4
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -207,7 +207,7 @@ importers:
         version: 5.7.3
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.1.0-alpha.2
+        version: 0.1.0-alpha.7
 
   packages/bionic-jolt-common:
     devDependencies:
@@ -253,10 +253,10 @@ importers:
         version: 2.8.1
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@21bc1f4e8d6aacaf8f9be5ac009c99829b124980
+        version: 0.5.4
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.1.0-alpha.2
+        version: 0.1.0-alpha.7
       wgpu-matrix:
         specifier: ^3.3.0
         version: 3.3.0
@@ -2204,6 +2204,11 @@ packages:
 
   acorn@8.14.0:
     resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.14.1:
+    resolution: {integrity: sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -5660,12 +5665,12 @@ packages:
     resolution: {integrity: sha512-VJjfqDjXES4tsnqZ6NbF5i1XCdtMS5Vihm2WUqrSwhEjXZ7pBmMoP7MXrUfbEEK7l1b4lW4X7WyysrHEpBymaw==}
     engines: {node: '>=12.20.0'}
 
-  tinyest@0.1.0-alpha.3:
-    resolution: {integrity: sha512-QLtpj8McYtcYT9g4dNW/b8vPsWkPdrIdqNugvyD47Y7yDx9AWEh6ZojsWDwqk3kvChCK2BYOE2MIMJabwgzEPw==}
-    engines: {node: '>=12.20.0'}
-
   tinyest@0.1.0-alpha.4:
     resolution: {integrity: sha512-s+cndC8E+icfzHMq/exGIMCHcNlu7ULGSLQUCIWb4ZrRilEDKdkYnUhgChqQSSVXCT36VY9k6H9CGbcyi2Aa6g==}
+    engines: {node: '>=12.20.0'}
+
+  tinyest@0.1.0-alpha.7:
+    resolution: {integrity: sha512-4R4Ysjh0UyX/s16XTEhRu6aAiXA7VAZ+LH/fNwK2o7MsSCHwmFIoRKOPL0/HE24MCZTW2sjAL7qEKugstb3wjw==}
     engines: {node: '>=12.20.0'}
 
   tinyexec@0.3.2:
@@ -5745,9 +5750,8 @@ packages:
   typed-binary@4.3.2:
     resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
 
-  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@21bc1f4e8d6aacaf8f9be5ac009c99829b124980:
-    resolution: {tarball: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@21bc1f4e8d6aacaf8f9be5ac009c99829b124980}
-    version: 0.5.0
+  typegpu@0.5.4:
+    resolution: {integrity: sha512-H9C4NnEPNwDVcvceqoUsCmOm9M8YfRuYA3Go2zIGyQdI4G16/Ebh8SF1DgfJ1rPfoeYMsZ9HsD+4kWPM6J2Xog==}
     engines: {node: '>=12.20.0'}
 
   typescript@5.7.3:
@@ -5853,8 +5857,12 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-typegpu@0.1.0-alpha.2:
-    resolution: {integrity: sha512-fu1P50yiSkptRgcd0wRoVuEqtdrBsvj5onICM+fMSJLoGUMZY7t3hsSDdiR5Cu9mBQFXgVS9wNMMNzQGOOhEdA==}
+  unplugin-typegpu@0.1.0-alpha.7:
+    resolution: {integrity: sha512-/l8FLGBsjqnrBOLC+dNM4JpCMJlYXtHNdIyIyh5xVVbubfi5wemFPwnM2dsWe+wLt/FDTsbGu6qSKeg0sr2YdA==}
+
+  unplugin@2.2.2:
+    resolution: {integrity: sha512-Qp+iiD+qCRnUek+nDoYvtWX7tfnYyXsrOnJ452FRTgOyKmTM7TUJ3l+PLPJOOWPTUyKISKp4isC5JJPSXUjGgw==}
+    engines: {node: '>=18.12.0'}
 
   unstorage@1.14.4:
     resolution: {integrity: sha512-1SYeamwuYeQJtJ/USE1x4l17LkmQBzg7deBJ+U9qOBoHo15d1cDxG4jM31zKRgF7pG0kirZy4wVMX6WL6Zoscg==}
@@ -6068,6 +6076,9 @@ packages:
   webpack-sources@3.2.3:
     resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
     engines: {node: '>=10.13.0'}
+
+  webpack-virtual-modules@0.6.2:
+    resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
   webpack@5.97.1:
     resolution: {integrity: sha512-EksG6gFY3L1eFMROS/7Wzgrii5mBAFe4rIr3r2BTfo7bcc+DWwFZ4OJ/miOuHJO/A85HwyI4eQ0F6IKXesO7Fg==}
@@ -8850,6 +8861,8 @@ snapshots:
       acorn: 8.14.0
 
   acorn@8.14.0: {}
+
+  acorn@8.14.1: {}
 
   agent-base@6.0.2:
     dependencies:
@@ -13149,11 +13162,11 @@ snapshots:
 
   tinyest-for-wgsl@0.1.0-alpha.2:
     dependencies:
-      tinyest: 0.1.0-alpha.3
-
-  tinyest@0.1.0-alpha.3: {}
+      tinyest: 0.1.0-alpha.4
 
   tinyest@0.1.0-alpha.4: {}
+
+  tinyest@0.1.0-alpha.7: {}
 
   tinyexec@0.3.2: {}
 
@@ -13208,9 +13221,9 @@ snapshots:
 
   typed-binary@4.3.2: {}
 
-  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@21bc1f4e8d6aacaf8f9be5ac009c99829b124980:
+  typegpu@0.5.4:
     dependencies:
-      tinyest: 0.1.0-alpha.4
+      tinyest: 0.1.0-alpha.7
       typed-binary: 4.3.2
 
   typescript@5.7.3: {}
@@ -13312,12 +13325,18 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-typegpu@0.1.0-alpha.2:
+  unplugin-typegpu@0.1.0-alpha.7:
     dependencies:
       '@babel/standalone': 7.26.8
       estree-walker: 3.0.3
       magic-string: 0.30.17
       tinyest-for-wgsl: 0.1.0-alpha.2
+      unplugin: 2.2.2
+
+  unplugin@2.2.2:
+    dependencies:
+      acorn: 8.14.1
+      webpack-virtual-modules: 0.6.2
 
   unstorage@1.14.4:
     dependencies:
@@ -13449,6 +13468,8 @@ snapshots:
   webidl-conversions@7.0.0: {}
 
   webpack-sources@3.2.3: {}
+
+  webpack-virtual-modules@0.6.2: {}
 
   webpack@5.97.1:
     dependencies:

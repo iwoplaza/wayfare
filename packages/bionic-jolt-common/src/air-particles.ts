@@ -31,35 +31,38 @@ export const AirParticlesMaterial = wayfare.createMaterial({
   vertexLayout: wayfare.POS_NORMAL_UV,
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, $$ }) {
-    const getTransformedOrigin = tgpu['~unstable']
-      .fn([d.vec3f], d.vec3f)
-      .does((localOrigin) => {
-        const wrappedOrigin = std.sub(localOrigin, $$.params.cameraPosition);
-        wrappedOrigin.y -= $$.params.yOffset;
+    const getTransformedOrigin = tgpu['~unstable'].fn(
+      { localOrigin: d.vec3f },
+      d.vec3f,
+    )((args) => {
+      const wrappedOrigin = std.sub(args.localOrigin, $$.params.cameraPosition);
+      wrappedOrigin.y -= $$.params.yOffset;
 
-        // wrapping the space.
-        wrappedOrigin.y = -std.fract(-wrappedOrigin.y / span) * span;
-        wrappedOrigin.x =
-          (std.fract(wrappedOrigin.x / span / 2 + 0.5) - 0.5) * span * 2;
-        wrappedOrigin.z =
-          (std.fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
+      // wrapping the space.
+      wrappedOrigin.y = -std.fract(-wrappedOrigin.y / span) * span;
+      wrappedOrigin.x =
+        (std.fract(wrappedOrigin.x / span / 2 + 0.5) - 0.5) * span * 2;
+      wrappedOrigin.z =
+        (std.fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
 
-        return wrappedOrigin;
-      });
+      return wrappedOrigin;
+    });
 
-    const computePosition = tgpu['~unstable']
-      .fn([d.vec3f, d.vec3f], d.vec3f)
-      .does((pos, cameraRelToCamera) => {
-        const angle =
-          -std.atan2(cameraRelToCamera.x, cameraRelToCamera.z) + Math.PI;
-        const rot_mat = d.mat3x3f(
-          d.vec3f(std.cos(angle), 0, std.sin(angle)), // i
-          d.vec3f(0, 1, 0), // j
-          d.vec3f(-std.sin(angle), 0, std.cos(angle)), // k
-        );
+    const computePosition = tgpu['~unstable'].fn(
+      { pos: d.vec3f, originRelToCamera: d.vec3f },
+      d.vec3f,
+    )((args) => {
+      const angle =
+        -std.atan2(args.originRelToCamera.x, args.originRelToCamera.z) +
+        Math.PI;
+      const rot_mat = d.mat3x3f(
+        d.vec3f(std.cos(angle), 0, std.sin(angle)), // i
+        d.vec3f(0, 1, 0), // j
+        d.vec3f(-std.sin(angle), 0, std.cos(angle)), // k
+      );
 
-        return std.add(std.mul(rot_mat, pos), cameraRelToCamera);
-      });
+      return std.add(std.mul(rot_mat, args.pos), args.originRelToCamera);
+    });
 
     const Varying = {
       normal: d.vec3f,
@@ -67,43 +70,47 @@ export const AirParticlesMaterial = wayfare.createMaterial({
       originRelToCamera: d.vec3f,
     } as const;
 
-    const vertexFn = tgpu['~unstable']
-      .vertexFn({
-        in: {
-          pos: d.vec3f,
-          normal: d.vec3f,
-          uv: d.vec2f,
-          origin: d.vec3f,
-        },
-        out: {
-          pos: d.builtin.position,
-          ...Varying,
-        },
-      })
-      .does((input) => {
-        const originRelToCamera = getTransformedOrigin(input.origin);
-        const posRelToCamera = computePosition(input.pos, originRelToCamera);
-
-        return {
-          pos: std.mul(
-            std.mul($$.viewProjMat, $$.modelMat),
-            d.vec4f(posRelToCamera, 1),
-          ),
-          normal: std.mul($$.normalModelMat, d.vec4f(input.normal, 0)).xyz,
-          uv: input.uv,
-          originRelToCamera: originRelToCamera,
-        };
+    const vertexFn = tgpu['~unstable'].vertexFn({
+      in: {
+        pos: d.vec3f,
+        normal: d.vec3f,
+        uv: d.vec2f,
+        origin: d.vec3f,
+      },
+      out: {
+        pos: d.builtin.position,
+        ...Varying,
+      },
+    })((input) => {
+      const originRelToCamera = getTransformedOrigin({
+        localOrigin: input.origin,
+      });
+      const posRelToCamera = computePosition({
+        pos: input.pos,
+        originRelToCamera,
       });
 
-    const fragmentFn = tgpu['~unstable']
-      .fragmentFn({ in: Varying, out: d.vec4f })
-      .does((input) => {
-        const xz_dist = std.length(input.originRelToCamera.xz);
-        if (xz_dist < 1) {
-          std.discard();
-        }
-        return d.vec4f(1);
-      });
+      return {
+        pos: std.mul(
+          std.mul($$.viewProjMat, $$.modelMat),
+          d.vec4f(posRelToCamera, 1),
+        ),
+        normal: std.mul($$.normalModelMat, d.vec4f(input.normal, 0)).xyz,
+        uv: input.uv,
+        originRelToCamera: originRelToCamera,
+      };
+    });
+
+    const fragmentFn = tgpu['~unstable'].fragmentFn({
+      in: Varying,
+      out: d.vec4f,
+    })((input) => {
+      const xz_dist = std.length(input.originRelToCamera.xz);
+      if (xz_dist < 1) {
+        std.discard();
+      }
+      return d.vec4f(1);
+    });
 
     return {
       pipeline: root['~unstable']

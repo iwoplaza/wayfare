@@ -47,10 +47,6 @@ export function createDudes(world: World) {
     });
   }
 
-  function updateSmoothTurnSystem() {
-    world.query(Dude).updateEach(() => {});
-  }
-
   function animateDudeSystem() {
     const deltaSeconds = getOrThrow(world, Time).deltaSeconds;
 
