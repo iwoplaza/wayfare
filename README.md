@@ -1,6 +1,9 @@
 <div align="center">
 
-# ⛵️ wayfare
+<picture>
+<source srcset="./media/wayfare-logo-dark.svg" media="(prefers-color-scheme: dark)" />
+<img src="./media/wayfare-logo-light.svg" />
+</picture>
 
 🚧 **Under Construction** 🚧
 
@@ -8,11 +11,14 @@
 
 A modular game engine built on top of [TypeGPU](https://typegpu.com) & [Koota](https://github.com/pmndrs/koota), pushing the capabilities of JavaScript/TypeScript in graphics and general-purpose GPU compute for game development.
 
-## Apps
-- [Bionic Jolt](/apps/bionic-jolt) - a game project that drives the initial set of features that *wayfare* should have (3D primitives, collision detection, cameras, etc...).
-
 ## Packages
 - [wayfare](/packages/wayfare) - the engine itself.
+- [Bionic Jolt (common)](/packages/bionic-jolt-common) - a game project that drives the initial set of features that *wayfare* should have (3D primitives, collision detection, cameras, etc...).
+
+## Apps
+- [Bionic Jolt (web)](/apps/bionic-jolt) - a web embedding of the Bionic Jolt game.
+- [Bionic Jolt (react native)](/apps/rn-bionic-jolt) - a mobile embedding of the Bionic Jolt game.
+
 
 ## Quotes
 
