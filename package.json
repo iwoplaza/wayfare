@@ -12,10 +12,5 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@webgpu/types": "catalog:"
-  },
-  "pnpm": {
-    "overrides": {
-      "tinyest-for-wgsl": "0.1.0-alpha.2"
-    }
   }
 }

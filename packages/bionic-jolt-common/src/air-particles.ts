@@ -32,10 +32,10 @@ export const AirParticlesMaterial = wayfare.createMaterial({
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, $$ }) {
     const getTransformedOrigin = tgpu['~unstable'].fn(
-      { localOrigin: d.vec3f },
+      [d.vec3f],
       d.vec3f,
-    )((args) => {
-      const wrappedOrigin = std.sub(args.localOrigin, $$.params.cameraPosition);
+    )((localOrigin) => {
+      const wrappedOrigin = std.sub(localOrigin, $$.params.cameraPosition);
       wrappedOrigin.y -= $$.params.yOffset;
 
       // wrapping the space.
@@ -49,19 +49,18 @@ export const AirParticlesMaterial = wayfare.createMaterial({
     });
 
     const computePosition = tgpu['~unstable'].fn(
-      { pos: d.vec3f, originRelToCamera: d.vec3f },
+      [d.vec3f, d.vec3f],
       d.vec3f,
-    )((args) => {
+    )((pos, originRelToCamera) => {
       const angle =
-        -std.atan2(args.originRelToCamera.x, args.originRelToCamera.z) +
-        Math.PI;
+        -std.atan2(originRelToCamera.x, originRelToCamera.z) + Math.PI;
       const rot_mat = d.mat3x3f(
         d.vec3f(std.cos(angle), 0, std.sin(angle)), // i
         d.vec3f(0, 1, 0), // j
         d.vec3f(-std.sin(angle), 0, std.cos(angle)), // k
       );
 
-      return std.add(std.mul(rot_mat, args.pos), args.originRelToCamera);
+      return std.add(std.mul(rot_mat, pos), originRelToCamera);
     });
 
     const Varying = {
@@ -82,13 +81,8 @@ export const AirParticlesMaterial = wayfare.createMaterial({
         ...Varying,
       },
     })((input) => {
-      const originRelToCamera = getTransformedOrigin({
-        localOrigin: input.origin,
-      });
-      const posRelToCamera = computePosition({
-        pos: input.pos,
-        originRelToCamera,
-      });
+      const originRelToCamera = getTransformedOrigin(input.origin);
+      const posRelToCamera = computePosition(input.pos, originRelToCamera);
 
       return {
         pos: std.mul(
