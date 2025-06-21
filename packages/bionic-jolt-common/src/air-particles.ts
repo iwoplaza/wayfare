@@ -1,4 +1,4 @@
-import { type World, trait } from 'koota';
+import { trait, type World } from 'koota';
 import tgpu, { type TgpuRoot } from 'typegpu';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
@@ -10,7 +10,7 @@ const span = 10;
 const AirParticleSystem = trait();
 
 export const InstanceLayout = tgpu.vertexLayout(
-  (count: number) => d.disarrayOf(d.vec3f, count),
+  (count) => d.disarrayOf(d.vec3f, count),
   'instance',
 );
 
