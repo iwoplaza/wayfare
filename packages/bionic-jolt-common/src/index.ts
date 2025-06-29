@@ -5,7 +5,7 @@ import { createAudio } from './audio.js';
 import { createDudes } from './dude.js';
 import { createGameCamera } from './game-camera.js';
 import { createMap } from './map.js';
-import { createPlayers, GameState } from './player.js';
+import { GameState, createPlayers } from './player.js';
 
 export { createAirParticles } from './air-particles.js';
 export { createAudio } from './audio.js';

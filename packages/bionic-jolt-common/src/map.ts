@@ -47,9 +47,7 @@ export function createMap(world: World) {
   function updateMapSystem() {
     const settings = wf.getOrAdd(world, MapSettings);
     const progressMarker = world.queryFirst(MapProgressMarker);
-    const progressMarkerPos = progressMarker?.get(
-      wf.TransformTrait,
-    )?.position;
+    const progressMarkerPos = progressMarker?.get(wf.TransformTrait)?.position;
 
     if (!progressMarkerPos) return;
 
@@ -136,9 +134,7 @@ export function createMap(world: World) {
       world.spawn(WindAudioSource, ...WindAudio.Bundle());
     }
 
-    const windListener = world
-      .queryFirst(WindListener)
-      ?.get(wf.TransformTrait);
+    const windListener = world.queryFirst(WindListener)?.get(wf.TransformTrait);
 
     if (!windListener) {
       return;
@@ -147,8 +143,7 @@ export function createMap(world: World) {
     const listenerY = windListener.position.y;
 
     const minDist = world.query(MapChunk).reduce((acc, chunk) => {
-      const chunkY = wf.getOrThrow(chunk, wf.TransformTrait).position
-        .y;
+      const chunkY = wf.getOrThrow(chunk, wf.TransformTrait).position.y;
       return Math.min(acc, Math.abs(chunkY - listenerY));
     }, Number.POSITIVE_INFINITY);
 

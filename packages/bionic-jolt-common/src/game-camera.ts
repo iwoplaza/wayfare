@@ -22,10 +22,7 @@ export function createGameCamera(world: World) {
 
     if (!player) return;
 
-    const playerPos = wf.getOrThrow(
-      player,
-      wf.TransformTrait,
-    ).position;
+    const playerPos = wf.getOrThrow(player, wf.TransformTrait).position;
 
     world
       .query(wf.TransformTrait, GameCameraTag)
