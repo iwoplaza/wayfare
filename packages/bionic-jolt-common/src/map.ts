@@ -1,13 +1,13 @@
 import { type ExtractSchema, Not, type World, trait } from 'koota';
 import * as d from 'typegpu/data';
-import * as wayfare from 'wayfare';
+import * as wf from 'wayfare';
 import { quat } from 'wgpu-matrix';
 
 import pentagonFile from './assets/pentagon.js';
 import { WindAudio } from './audio.js';
 import { GameState } from './player.js';
 
-const pentagonMesh = wayfare.meshAsset({ src: pentagonFile });
+const pentagonMesh = wf.meshAsset({ src: pentagonFile });
 
 /**
  * Settings given to a world.
@@ -45,16 +45,16 @@ function clamp01(x: number) {
 
 export function createMap(world: World) {
   function updateMapSystem() {
-    const settings = wayfare.getOrAdd(world, MapSettings);
+    const settings = wf.getOrAdd(world, MapSettings);
     const progressMarker = world.queryFirst(MapProgressMarker);
     const progressMarkerPos = progressMarker?.get(
-      wayfare.TransformTrait,
+      wf.TransformTrait,
     )?.position;
 
     if (!progressMarkerPos) return;
 
     world
-      .query(MapChunk, wayfare.TransformTrait, Not(MapTail))
+      .query(MapChunk, wf.TransformTrait, Not(MapTail))
       .updateEach(([chunk, transform], entity) => {
         // Is well above the marker?
         if (
@@ -81,7 +81,7 @@ export function createMap(world: World) {
 
     // Handle highlighting when new the marker
     world
-      .query(MapChunk, wayfare.BlinnPhongMaterial.Params)
+      .query(MapChunk, wf.BlinnPhongMaterial.Params)
       .updateEach(([chunk, material]) => {
         if (chunk.passed) {
           material.albedo = d.vec3f(1, 1, 0);
@@ -94,7 +94,7 @@ export function createMap(world: World) {
     let limit = 10;
     do {
       const tail = world.queryFirst(MapTail);
-      const tailPosition = tail?.get(wayfare.TransformTrait)?.position;
+      const tailPosition = tail?.get(wf.TransformTrait)?.position;
       const tailChunk = tail?.get(MapChunk);
 
       if (
@@ -108,7 +108,7 @@ export function createMap(world: World) {
 
         world.spawn(
           MapChunk({ length: 1 + Math.random() * 5, passed: false }),
-          wayfare.TransformTrait({
+          wf.TransformTrait({
             position: d.vec3f(xPos, yPos, zPos),
             rotation: quat.fromEuler(
               0,
@@ -118,9 +118,9 @@ export function createMap(world: World) {
               d.vec4f(),
             ),
           }),
-          wayfare.MeshTrait(pentagonMesh),
+          wf.MeshTrait(pentagonMesh),
           MapTail,
-          ...wayfare.BlinnPhongMaterial.Bundle(),
+          ...wf.BlinnPhongMaterial.Bundle(),
         );
         tail?.remove(MapTail);
       } else {
@@ -138,7 +138,7 @@ export function createMap(world: World) {
 
     const windListener = world
       .queryFirst(WindListener)
-      ?.get(wayfare.TransformTrait);
+      ?.get(wf.TransformTrait);
 
     if (!windListener) {
       return;
@@ -147,7 +147,7 @@ export function createMap(world: World) {
     const listenerY = windListener.position.y;
 
     const minDist = world.query(MapChunk).reduce((acc, chunk) => {
-      const chunkY = wayfare.getOrThrow(chunk, wayfare.TransformTrait).position
+      const chunkY = wf.getOrThrow(chunk, wf.TransformTrait).position
         .y;
       return Math.min(acc, Math.abs(chunkY - listenerY));
     }, Number.POSITIVE_INFINITY);

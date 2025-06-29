@@ -1,5 +1,5 @@
 import type { TgpuRoot } from 'typegpu';
-import * as wayfare from 'wayfare';
+import * as wf from 'wayfare';
 import { createAirParticles } from './air-particles.js';
 import { createAudio } from './audio.js';
 import { createDudes } from './dude.js';
@@ -19,8 +19,8 @@ export function BionicJolt(
   canvas: HTMLCanvasElement,
   context: GPUCanvasContext,
 ) {
-  const renderer = new wayfare.Renderer(root, canvas, context);
-  const engine = new wayfare.Engine(root, renderer);
+  const renderer = new wf.Renderer(root, canvas, context);
+  const engine = new wf.Engine(root, renderer);
   const world = engine.world;
 
   const Audio = createAudio(world);
@@ -41,7 +41,7 @@ export function BionicJolt(
 
     loop() {
       engine.run(() => {
-        const gameState = wayfare.getOrAdd(world, GameState);
+        const gameState = wf.getOrAdd(world, GameState);
 
         Audio.update();
         Players.update();

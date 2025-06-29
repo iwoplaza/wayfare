@@ -1,7 +1,7 @@
 import { type World, trait } from 'koota';
 import { vec3f } from 'typegpu/data';
 import { length, normalize } from 'typegpu/std';
-import * as wayfare from 'wayfare';
+import * as wf from 'wayfare';
 
 export const GameState = trait({
   isGameOver: false,
@@ -14,7 +14,7 @@ import { MapProgressMarker, WindListener } from './map.js';
 export const Player = trait();
 
 function controlPlayerSystem(world: World) {
-  const gameState = wayfare.getOrAdd(world, GameState);
+  const gameState = wf.getOrAdd(world, GameState);
 
   if (gameState.isGameOver) {
     if (inputMap.shoot.isActive) {
@@ -47,11 +47,11 @@ export function createPlayers(world: World) {
         ...DudeBundle(),
         MapProgressMarker,
         WindListener,
-        wayfare.TransformTrait({
+        wf.TransformTrait({
           position: vec3f(0, 0, 0),
           scale: vec3f(0.1),
         }),
-        wayfare.Velocity(vec3f(0, -5, 0)),
+        wf.Velocity(vec3f(0, -5, 0)),
       );
     },
 

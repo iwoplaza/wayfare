@@ -2,7 +2,7 @@ import { type World, trait } from 'koota';
 import tgpu, { type TgpuRoot } from 'typegpu';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
-import * as wayfare from 'wayfare';
+import * as wf from 'wayfare';
 
 const particleAmount = 1000;
 const span = 10;
@@ -14,12 +14,12 @@ export const InstanceLayout = tgpu.vertexLayout(
   'instance',
 );
 
-const particleMesh = wayfare.createRectangle({
+const particleMesh = wf.createRectangle({
   width: d.vec3f(0.02, 0, 0),
   height: d.vec3f(0, 0.5, 0),
 });
 
-export const AirParticlesMaterial = wayfare.createMaterial({
+export const AirParticlesMaterial = wf.createMaterial({
   paramsSchema: d.struct({
     cameraPosition: d.vec3f,
     yOffset: d.f32,
@@ -28,7 +28,7 @@ export const AirParticlesMaterial = wayfare.createMaterial({
     cameraPosition: d.vec3f(),
     yOffset: 0,
   },
-  vertexLayout: wayfare.POS_NORMAL_UV,
+  vertexLayout: wf.POS_NORMAL_UV,
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, $$ }) {
     const getTransformedOrigin = tgpu['~unstable'].fn(
@@ -109,7 +109,7 @@ export const AirParticlesMaterial = wayfare.createMaterial({
     return {
       pipeline: root['~unstable']
         .withVertex(vertexFn, {
-          ...wayfare.POS_NORMAL_UV.attrib,
+          ...wf.POS_NORMAL_UV.attrib,
           origin: InstanceLayout.attrib,
         })
         .withFragment(fragmentFn, { format })
@@ -140,17 +140,17 @@ export function createAirParticles(world: World, root: TgpuRoot) {
 
   world.spawn(
     AirParticleSystem,
-    wayfare.MeshTrait(particleMesh),
-    wayfare.TransformTrait,
-    wayfare.InstanceBufferTrait(particlesBuffer),
+    wf.MeshTrait(particleMesh),
+    wf.TransformTrait,
+    wf.InstanceBufferTrait(particlesBuffer),
     ...AirParticlesMaterial.Bundle(),
   );
 
   return {
     update() {
-      const time = wayfare.getOrThrow(world, wayfare.Time);
-      const activeCamera = world.queryFirst(wayfare.ActiveCameraTag);
-      const cameraTransform = activeCamera?.get(wayfare.TransformTrait);
+      const time = wf.getOrThrow(world, wf.Time);
+      const activeCamera = world.queryFirst(wf.ActiveCameraTag);
+      const cameraTransform = activeCamera?.get(wf.TransformTrait);
 
       if (!cameraTransform) {
         console.warn('Using air particles with no active camera.');
@@ -159,7 +159,7 @@ export function createAirParticles(world: World, root: TgpuRoot) {
 
       world
         .query(
-          wayfare.TransformTrait,
+          wf.TransformTrait,
           AirParticlesMaterial.Params,
           AirParticleSystem,
         )

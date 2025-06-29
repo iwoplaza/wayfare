@@ -1,10 +1,10 @@
-import { Input } from 'wayfare';
+import * as wf from 'wayfare';
 
-export const inputMap = Input.createMap({
+export const inputMap = wf.Input.createMap({
   controls: {
     movement: {
       type: 'xy',
-      bindings: [...Input.ArrowKeysPreset, ...Input.WASDPreset],
+      bindings: [...wf.Input.ArrowKeysPreset, ...wf.Input.WASDPreset],
     },
     shoot: {
       type: 'linear',

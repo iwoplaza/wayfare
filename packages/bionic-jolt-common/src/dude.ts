@@ -4,21 +4,12 @@
 
 import { type ConfigurableTrait, type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
-import {
-  BlinnPhongMaterial,
-  MeshTrait,
-  Time,
-  TransformTrait,
-  Velocity,
-  encroach,
-  getOrThrow,
-  meshAsset,
-} from 'wayfare';
+import * as wf from 'wayfare';
 import { quat } from 'wgpu-matrix';
 
 import dudeFile from './assets/dude.js';
 
-const dudeMesh = meshAsset({ src: dudeFile });
+const dudeMesh = wf.meshAsset({ src: dudeFile });
 
 export const Dude = trait({
   freeFallHorizontalSpeed: 2,
@@ -29,37 +20,37 @@ export const Dude = trait({
 export function DudeBundle(): ConfigurableTrait[] {
   return [
     Dude,
-    MeshTrait(dudeMesh),
-    ...BlinnPhongMaterial.Bundle({ albedo: vec3f(1, 1, 1) }),
+    wf.MeshTrait(dudeMesh),
+    ...wf.BlinnPhongMaterial.Bundle({ albedo: vec3f(1, 1, 1) }),
   ];
 }
 
 export function createDudes(world: World) {
   function updateDudeVelocitySystem() {
-    const deltaSeconds = getOrThrow(world, Time).deltaSeconds;
+    const deltaSeconds = wf.getOrThrow(world, wf.Time).deltaSeconds;
 
-    world.query(Dude, Velocity).updateEach(([dude, velocity]) => {
+    world.query(Dude, wf.Velocity).updateEach(([dude, velocity]) => {
       const dir = dude.movementDir;
       const speed = dude.freeFallHorizontalSpeed;
       // Smoothly encroaching the velocity
-      velocity.x = encroach(velocity.x, dir.x * speed, 0.1, deltaSeconds);
-      velocity.z = encroach(velocity.z, dir.z * speed, 0.1, deltaSeconds);
+      velocity.x = wf.encroach(velocity.x, dir.x * speed, 0.1, deltaSeconds);
+      velocity.z = wf.encroach(velocity.z, dir.z * speed, 0.1, deltaSeconds);
     });
   }
 
   function animateDudeSystem() {
-    const deltaSeconds = getOrThrow(world, Time).deltaSeconds;
+    const deltaSeconds = wf.getOrThrow(world, wf.Time).deltaSeconds;
 
-    world.query(TransformTrait, Dude).updateEach(([transform, dude]) => {
+    world.query(wf.TransformTrait, Dude).updateEach(([transform, dude]) => {
       const dir = dude.movementDir;
       // Smoothly encroaching the turn direction
-      dude.smoothTurnDir.x = encroach(
+      dude.smoothTurnDir.x = wf.encroach(
         dude.smoothTurnDir.x,
         dir.x,
         0.01,
         deltaSeconds,
       );
-      dude.smoothTurnDir.z = encroach(
+      dude.smoothTurnDir.z = wf.encroach(
         dude.smoothTurnDir.z,
         dir.z,
         0.01,
