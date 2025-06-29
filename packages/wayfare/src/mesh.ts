@@ -1,3 +1,4 @@
+import { type TgpuBuffer, type Vertex, tgpu } from 'typegpu';
 import {
   type Disarray,
   type WgslArray,
@@ -6,7 +7,6 @@ import {
   vec2f,
   vec3f,
 } from 'typegpu/data';
-import { type TgpuBuffer, type Vertex, tgpu } from 'typegpu';
 
 export interface Mesh {
   vertexCount: number;

@@ -16,7 +16,7 @@ export default function HomeScreen() {
 
     const destroy = setupGame(
       context.canvas as unknown as HTMLCanvasElement,
-      context
+      context,
     );
 
     return () => {

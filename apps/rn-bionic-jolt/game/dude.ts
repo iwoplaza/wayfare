@@ -2,6 +2,7 @@
  * All code related to the character that the players embody.
  */
 
+import dudeFile from '@/constants/models/dude';
 import { type ConfigurableTrait, type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import {
@@ -15,7 +16,6 @@ import {
   meshAsset,
 } from 'wayfare';
 import { quat } from 'wgpu-matrix';
-import dudeFile from '@/constants/models/dude';
 
 const dudeMesh = meshAsset({ src: dudeFile });
 

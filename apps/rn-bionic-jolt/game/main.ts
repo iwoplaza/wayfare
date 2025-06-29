@@ -1,11 +1,11 @@
-import { Engine, Renderer } from 'wayfare';
-import { createDudes } from './dude';
-import tgpu from 'typegpu';
 import { PixelRatio } from 'react-native';
-import { createMap } from './map';
+import tgpu from 'typegpu';
+import { Engine, Renderer } from 'wayfare';
 import { createAirParticles } from './air-particles';
-import { createPlayers } from './player';
+import { createDudes } from './dude';
 import { createGameCamera } from './game-camera';
+import { createMap } from './map';
+import { createPlayers } from './player';
 
 export function setupGame(
   canvas: HTMLCanvasElement,

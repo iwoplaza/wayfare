@@ -1,4 +1,4 @@
-import { trait, type World } from 'koota';
+import { type World, trait } from 'koota';
 import tgpu, { type TgpuRoot } from 'typegpu';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';

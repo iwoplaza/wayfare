@@ -1,3 +1,10 @@
+import type {
+  TgpuBindGroup,
+  TgpuBuffer,
+  TgpuRoot,
+  UniformFlag,
+  VertexFlag,
+} from 'typegpu';
 import {
   type AnyWgslData,
   type Disarray,
@@ -6,13 +13,6 @@ import {
   mat4x4f,
   vec4f,
 } from 'typegpu/data';
-import type {
-  TgpuRoot,
-  TgpuBindGroup,
-  TgpuBuffer,
-  UniformFlag,
-  VertexFlag,
-} from 'typegpu';
 import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 

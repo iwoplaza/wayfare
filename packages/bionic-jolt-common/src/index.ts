@@ -1,11 +1,11 @@
 import type { TgpuRoot } from 'typegpu';
 import * as wayfare from 'wayfare';
-import { createAudio } from './audio.js';
-import { createMap } from './map.js';
 import { createAirParticles } from './air-particles.js';
+import { createAudio } from './audio.js';
 import { createDudes } from './dude.js';
-import { createPlayers } from './player.js';
 import { createGameCamera } from './game-camera.js';
+import { createMap } from './map.js';
+import { createPlayers } from './player.js';
 
 export { createAirParticles } from './air-particles.js';
 export { createAudio } from './audio.js';

@@ -8,6 +8,7 @@ import {
   createWorld,
   trait,
 } from 'koota';
+import type { TgpuBuffer, TgpuRoot, Vertex } from 'typegpu';
 import {
   type Disarray,
   type WgslArray,
@@ -15,7 +16,6 @@ import {
   vec3f,
   vec4f,
 } from 'typegpu/data';
-import type { TgpuRoot, TgpuBuffer, Vertex } from 'typegpu';
 import { mat4, quat } from 'wgpu-matrix';
 
 import type { MeshAsset } from './asset/mesh-asset.js';

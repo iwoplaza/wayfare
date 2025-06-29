@@ -1,4 +1,4 @@
-import type { TgpuRoot, Render, TgpuTexture } from 'typegpu';
+import type { Render, TgpuRoot, TgpuTexture } from 'typegpu';
 
 export class Viewport {
   private _depthTexture: (TgpuTexture & Render) | undefined;

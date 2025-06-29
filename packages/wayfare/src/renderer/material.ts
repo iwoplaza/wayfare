@@ -1,5 +1,13 @@
 import { type ConfigurableTrait, type Schema, type Trait, trait } from 'koota';
 import {
+  type TgpuBindGroup,
+  type TgpuBindGroupLayout,
+  type TgpuRenderPipeline,
+  type TgpuRoot,
+  type TgpuVertexLayout,
+  tgpu,
+} from 'typegpu';
+import {
   type AnyWgslData,
   type BaseWgslData,
   type Infer,
@@ -10,14 +18,6 @@ import {
   mat4x4f,
   struct,
 } from 'typegpu/data';
-import {
-  type TgpuBindGroup,
-  type TgpuBindGroupLayout,
-  type TgpuRenderPipeline,
-  type TgpuRoot,
-  type TgpuVertexLayout,
-  tgpu,
-} from 'typegpu';
 
 export interface MaterialContext<TParams> {
   readonly root: TgpuRoot;

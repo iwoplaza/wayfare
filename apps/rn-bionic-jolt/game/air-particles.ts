@@ -1,4 +1,5 @@
 import { type World, trait } from 'koota';
+import tgpu, { type TgpuRoot } from 'typegpu';
 import {
   builtin,
   disarrayOf,
@@ -9,17 +10,16 @@ import {
   vec3f,
   vec4f,
 } from 'typegpu/data';
-import tgpu, { type TgpuRoot } from 'typegpu';
 import {
   add,
+  atan2,
   cos,
+  discard,
   fract,
+  length,
+  mul,
   sin,
   sub,
-  mul,
-  atan2,
-  discard,
-  length,
 } from 'typegpu/std';
 import {
   ActiveCameraTag,
@@ -32,9 +32,6 @@ import {
   createRectangle,
   getOrThrow,
 } from 'wayfare';
-import { bruh } from 'bionic-jolt-common';
-
-console.log(bruh());
 
 const particleAmount = 1000;
 const span = 10;

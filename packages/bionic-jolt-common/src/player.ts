@@ -4,8 +4,8 @@ import { length, normalize } from 'typegpu/std';
 import { TransformTrait, Velocity } from 'wayfare';
 
 import { Dude, DudeBundle } from './dude.js';
-import { MapProgressMarker, WindListener } from './map.js';
 import { inputMap } from './input.js';
+import { MapProgressMarker, WindListener } from './map.js';
 
 export const Player = trait();
 

@@ -1,9 +1,9 @@
 import {
-  trait,
+  type ConfigurableTrait,
   type World,
   createAdded,
   createRemoved,
-  type ConfigurableTrait,
+  trait,
 } from 'koota';
 
 const Added = createAdded();

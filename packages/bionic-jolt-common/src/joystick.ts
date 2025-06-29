@@ -1,7 +1,7 @@
 import {
+  type Joystick,
   getJoysticks,
   mountJoystickArea,
-  type Joystick,
 } from '@manapotion/vanilla';
 
 export function createJoystick() {

@@ -5,12 +5,12 @@ import * as wayfare from 'wayfare';
 // TODO: Hopefully the VM is smart enough to parallelize these, but
 //       better to test this anyway.
 import { createAirParticles } from './air-particles.js';
+import { createAudio } from './audio.js';
 import { createDudes } from './dude.js';
 import { createGameCamera } from './game-camera.js';
+import { createJoystick } from './joystick.js';
 import { createMap } from './map.js';
 import { createPlayers } from './player.js';
-import { createJoystick } from './joystick.js';
-import { createAudio } from './audio.js';
 
 const loadingScreen = document.getElementById('loading-screen') as HTMLElement;
 const mainMenu = document.getElementById('main-menu') as HTMLElement;
