@@ -1,18 +1,18 @@
 import type { TgpuRoot } from 'typegpu';
 import * as wf from 'wayfare';
-import { createAirParticles } from './air-particles.js';
-import { createAudio } from './audio.js';
-import { createDudes } from './dude.js';
-import { createGameCamera } from './game-camera.js';
-import { createMap } from './map.js';
-import { GameState, createPlayers } from './player.js';
+import { createAirParticles } from './air-particles.ts';
+import { createAudio } from './audio.ts';
+import { createDudes } from './dude.ts';
+import { createGameCamera } from './game-camera.ts';
+import { createMap } from './map.ts';
+import { GameState, createPlayers } from './player.ts';
 
-export { createAirParticles } from './air-particles.js';
-export { createAudio } from './audio.js';
-export { Dude, DudeBundle, createDudes } from './dude.js';
-export { createGameCamera } from './game-camera.js';
-export { Player, createPlayers } from './player.js';
-export { createMap } from './map.js';
+export { createAirParticles } from './air-particles.ts';
+export { createAudio } from './audio.ts';
+export { Dude, DudeBundle, createDudes } from './dude.ts';
+export { createGameCamera } from './game-camera.ts';
+export { Player, createPlayers } from './player.ts';
+export { createMap } from './map.ts';
 
 export function BionicJolt(
   root: TgpuRoot,

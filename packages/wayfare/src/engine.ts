@@ -18,14 +18,14 @@ import {
 } from 'typegpu/data';
 import { mat4, quat } from 'wgpu-matrix';
 
-import type { MeshAsset } from './asset/mesh-asset.js';
-import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.js';
-import { getOrAdd, getOrThrow } from './get-or-add.js';
-import { ChildOf, ParentOf } from './node-tree.js';
-import { BlinnPhongMaterial } from './renderer/blinn-phong-material.js';
-import { type Material, MaterialTrait } from './renderer/material.js';
-import type { Renderer } from './renderer/renderer.js';
-import { Time } from './time.js';
+import type { MeshAsset } from './asset/mesh-asset.ts';
+import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
+import { getOrAdd, getOrThrow } from './get-or-add.ts';
+import { ChildOf, ParentOf } from './node-tree.ts';
+import { BlinnPhongMaterial } from './renderer/blinn-phong-material.ts';
+import { type Material, MaterialTrait } from './renderer/material.ts';
+import type { Renderer } from './renderer/renderer.ts';
+import { Time } from './time.ts';
 
 const Added = createAdded();
 const Removed = createRemoved();

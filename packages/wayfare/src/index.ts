@@ -6,15 +6,15 @@ export {
   InstanceBufferTrait,
   Velocity,
   ScheduleSystem,
-} from './engine.js';
-export { ActiveCameraTag, PerspectiveCamera } from './camera-traits.js';
-export type { PerspectiveConfig } from './camera-traits.js';
-export { ChildOf, ParentOf, connectAsChild } from './node-tree.js';
-export { getOrAdd, getOrThrow } from './get-or-add.js';
-export { Time } from './time.js';
-export { encroach } from './easing.js';
-export { Input } from './input-map.js';
-export { POS_NORMAL_UV } from './mesh.js';
+} from './engine.ts';
+export { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
+export type { PerspectiveConfig } from './camera-traits.ts';
+export { ChildOf, ParentOf, connectAsChild } from './node-tree.ts';
+export { getOrAdd, getOrThrow } from './get-or-add.ts';
+export { Time } from './time.ts';
+export { encroach } from './easing.ts';
+export { Input } from './input-map.ts';
+export { POS_NORMAL_UV } from './mesh.ts';
 
-export * from './asset/index.js';
-export * from './renderer/index.js';
+export * from './asset/index.ts';
+export * from './renderer/index.ts';

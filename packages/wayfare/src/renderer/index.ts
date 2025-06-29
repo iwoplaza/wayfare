@@ -1,5 +1,5 @@
-export { Renderer } from './renderer.js';
-export type { GameObject } from './renderer.js';
-export { createRectangle } from './rectangle.js';
-export { MaterialTrait, createMaterial } from './material.js';
-export { BlinnPhongMaterial } from './blinn-phong-material.js';
+export { Renderer } from './renderer.ts';
+export type { GameObject } from './renderer.ts';
+export { createRectangle } from './rectangle.ts';
+export { MaterialTrait, createMaterial } from './material.ts';
+export { BlinnPhongMaterial } from './blinn-phong-material.ts';

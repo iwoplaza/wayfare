@@ -7,7 +7,7 @@ import { vec3f, vec4f } from 'typegpu/data';
 import * as wf from 'wayfare';
 import { quat } from 'wgpu-matrix';
 
-import dudeFile from './assets/dude.js';
+import dudeFile from './assets/dude.ts';
 
 const dudeMesh = wf.meshAsset({ src: dudeFile });
 

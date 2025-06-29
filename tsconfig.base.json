@@ -5,6 +5,7 @@
     "allowJs": true,
     "lib": ["DOM", "ESNext"],
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "ESNext",

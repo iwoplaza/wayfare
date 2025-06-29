@@ -2,14 +2,13 @@ import { type World, trait } from 'koota';
 import { vec3f } from 'typegpu/data';
 import { length, normalize } from 'typegpu/std';
 import * as wf from 'wayfare';
+import { Dude, DudeBundle } from './dude.ts';
+import { inputMap } from './input.ts';
+import { MapProgressMarker, WindListener } from './map.ts';
 
 export const GameState = trait({
   isGameOver: false,
 });
-
-import { Dude, DudeBundle } from './dude.js';
-import { inputMap } from './input.js';
-import { MapProgressMarker, WindListener } from './map.js';
 
 export const Player = trait();
 

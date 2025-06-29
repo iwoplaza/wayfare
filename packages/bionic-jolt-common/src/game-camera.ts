@@ -2,7 +2,7 @@ import { type World, trait } from 'koota';
 import * as d from 'typegpu/data';
 import * as wf from 'wayfare';
 import { quat } from 'wgpu-matrix';
-import { Player } from './player.js';
+import { Player } from './player.ts';
 
 const GameCameraTag = trait();
 

@@ -3,9 +3,9 @@ import * as d from 'typegpu/data';
 import * as wf from 'wayfare';
 import { quat } from 'wgpu-matrix';
 
-import pentagonFile from './assets/pentagon.js';
-import { WindAudio } from './audio.js';
-import { GameState } from './player.js';
+import pentagonFile from './assets/pentagon.ts';
+import { WindAudio } from './audio.ts';
+import { GameState } from './player.ts';
 
 const pentagonMesh = wf.meshAsset({ src: pentagonFile });
 

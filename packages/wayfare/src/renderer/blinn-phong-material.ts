@@ -2,8 +2,8 @@ import tgpu from 'typegpu';
 import { builtin, struct, vec2f, vec3f, vec4f } from 'typegpu/data';
 import { add, dot, max, mul, normalize } from 'typegpu/std';
 
-import { POS_NORMAL_UV } from '../mesh.js';
-import { type CreateMaterialResult, createMaterial } from './material.js';
+import { POS_NORMAL_UV } from '../mesh.ts';
+import { type CreateMaterialResult, createMaterial } from './material.ts';
 
 const ParamsSchema = struct({
   albedo: vec3f,

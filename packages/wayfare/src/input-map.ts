@@ -1,7 +1,7 @@
 import type { KeyCode } from 'keyboardevent-codes';
 import * as d from 'typegpu/data';
 import * as std from 'typegpu/std';
-import type { Default, Prettify } from './utility-types.js';
+import type { Default, Prettify } from './utility-types.ts';
 
 interface KeyBinding {
   key: KeyCode;
