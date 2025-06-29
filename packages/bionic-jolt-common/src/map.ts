@@ -5,6 +5,7 @@ import { quat } from 'wgpu-matrix';
 
 import pentagonFile from './assets/pentagon.js';
 import { WindAudio } from './audio.js';
+import { GameState } from './player.js';
 
 const pentagonMesh = wayfare.meshAsset({ src: pentagonFile });
 
@@ -27,6 +28,7 @@ export const WindListener = trait();
 export type MapChunk = ExtractSchema<typeof MapChunk>;
 export const MapChunk = trait({
   length: 1,
+  passed: false,
 });
 
 /**
@@ -61,19 +63,27 @@ export function createMap(world: World) {
         ) {
           entity.destroy();
         }
+
+        // Check if player is passing this chunk for the first time
+        if (!chunk.passed && progressMarkerPos.y <= transform.position.y) {
+          chunk.passed = true;
+
+          // Check if player missed the chunk when passing it
+          const sqDistanceXZ =
+            (transform.position.x - progressMarkerPos.x) ** 2 +
+            (transform.position.z - progressMarkerPos.z) ** 2;
+
+          if (sqDistanceXZ > 1.5) {
+            world.set(GameState, { isGameOver: true });
+          }
+        }
       });
 
     // Handle highlighting when new the marker
     world
-      .query(
-        wayfare.TransformTrait,
-        wayfare.BlinnPhongMaterial.Params,
-        wayfare.MaterialTrait,
-        MapChunk,
-      )
-      .updateEach(([transform, material]) => {
-        const distance = Math.abs(progressMarkerPos.y - transform.position.y);
-        if (distance < 0.2) {
+      .query(MapChunk, wayfare.BlinnPhongMaterial.Params)
+      .updateEach(([chunk, material]) => {
+        if (chunk.passed) {
           material.albedo = d.vec3f(1, 1, 0);
         } else {
           material.albedo = d.vec3f(1, 0.5, 0);
@@ -97,7 +107,7 @@ export function createMap(world: World) {
         const zPos = (tailPosition?.z ?? 0) + (Math.random() * 2 - 1) * 0.4;
 
         world.spawn(
-          MapChunk({ length: 1 + Math.random() * 5 }),
+          MapChunk({ length: 1 + Math.random() * 5, passed: false }),
           wayfare.TransformTrait({
             position: d.vec3f(xPos, yPos, zPos),
             rotation: quat.fromEuler(

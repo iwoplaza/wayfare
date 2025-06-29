@@ -1,7 +1,11 @@
 import { type World, trait } from 'koota';
 import { vec3f } from 'typegpu/data';
 import { length, normalize } from 'typegpu/std';
-import { TransformTrait, Velocity } from 'wayfare';
+import * as wayfare from 'wayfare';
+
+export const GameState = trait({
+  isGameOver: false,
+});
 
 import { Dude, DudeBundle } from './dude.js';
 import { inputMap } from './input.js';
@@ -10,18 +14,27 @@ import { MapProgressMarker, WindListener } from './map.js';
 export const Player = trait();
 
 function controlPlayerSystem(world: World) {
-  world.query(Dude, Player).updateEach(([dude]) => {
-    let dir = vec3f(inputMap.movement.value.x, 0, -inputMap.movement.value.y);
+  const gameState = wayfare.getOrAdd(world, GameState);
 
-    if (length(dir) > 1) {
-      dir = normalize(dir);
+  if (gameState.isGameOver) {
+    if (inputMap.shoot.isActive) {
+      world.set(GameState, { isGameOver: false });
+      return;
     }
+  } else {
+    world.query(Dude, Player).updateEach(([dude]) => {
+      let dir = vec3f(inputMap.movement.value.x, 0, -inputMap.movement.value.y);
 
-    // Encroaching the movement direction
-    dude.movementDir.x = dir.x;
-    dude.movementDir.y = dir.y;
-    dude.movementDir.z = dir.z;
-  });
+      if (length(dir) > 1) {
+        dir = normalize(dir);
+      }
+
+      // Encroaching the movement direction
+      dude.movementDir.x = dir.x;
+      dude.movementDir.y = dir.y;
+      dude.movementDir.z = dir.z;
+    });
+  }
 }
 
 export function createPlayers(world: World) {
@@ -34,11 +47,11 @@ export function createPlayers(world: World) {
         ...DudeBundle(),
         MapProgressMarker,
         WindListener,
-        TransformTrait({
+        wayfare.TransformTrait({
           position: vec3f(0, 0, 0),
           scale: vec3f(0.1),
         }),
-        Velocity(vec3f(0, -5, 0)),
+        wayfare.Velocity(vec3f(0, -5, 0)),
       );
     },
 

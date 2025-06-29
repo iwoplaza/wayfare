@@ -5,7 +5,7 @@ import { createAudio } from './audio.js';
 import { createDudes } from './dude.js';
 import { createGameCamera } from './game-camera.js';
 import { createMap } from './map.js';
-import { createPlayers } from './player.js';
+import { createPlayers, GameState } from './player.js';
 
 export { createAirParticles } from './air-particles.js';
 export { createAudio } from './audio.js';
@@ -41,12 +41,17 @@ export function BionicJolt(
 
     loop() {
       engine.run(() => {
+        const gameState = wayfare.getOrAdd(world, GameState);
+
         Audio.update();
-        Dudes.update();
         Players.update();
         MapStuff.update();
-        AirParticles.update();
-        GameCamera.update();
+
+        if (!gameState.isGameOver) {
+          Dudes.update();
+          AirParticles.update();
+          GameCamera.update();
+        }
       });
     },
   };
