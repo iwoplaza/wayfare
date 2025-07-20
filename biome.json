@@ -10,7 +10,8 @@
       "**/*.d.ts",
       "packages/tgpu-wgsl-parser/src/grammar.ts",
       "**/*.astro"
-    ]
+    ],
+    "maxSize": 2000000
   },
   "linter": {
     "enabled": true,
