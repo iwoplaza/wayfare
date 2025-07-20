@@ -7,14 +7,14 @@ settings:
 catalogs:
   default:
     '@webgpu/types':
-      specifier: ^0.1.54
-      version: 0.1.54
+      specifier: ^0.1.64
+      version: 0.1.64
     typegpu:
-      specifier: ^0.5.9
-      version: 0.5.9
+      specifier: ^0.6.0
+      version: 0.6.0
     unplugin-typegpu:
-      specifier: ^0.1.4
-      version: 0.1.4
+      specifier: ^0.2.0
+      version: 0.2.0
 
 importers:
 
@@ -25,7 +25,7 @@ importers:
         version: 1.9.4
       '@webgpu/types':
         specifier: 'catalog:'
-        version: 0.1.54
+        version: 0.1.64
 
   apps/bionic-jolt:
     dependencies:
@@ -58,10 +58,10 @@ importers:
         version: 3.4.17
       typegpu:
         specifier: 'catalog:'
-        version: 0.5.9
+        version: 0.6.0
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.1.4(typegpu@0.5.9)
+        version: 0.2.0(typegpu@0.6.0)
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -74,7 +74,7 @@ importers:
         version: 1.9.4
       '@webgpu/types':
         specifier: 'catalog:'
-        version: 0.1.54
+        version: 0.1.64
 
   apps/rn-bionic-jolt:
     dependencies:
@@ -164,7 +164,7 @@ importers:
         version: 0.1.23(react-native@0.76.6(@babel/core@7.26.8)(@babel/preset-env@7.26.8(@babel/core@7.26.8))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       typegpu:
         specifier: 'catalog:'
-        version: 0.5.9
+        version: 0.6.0
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -189,7 +189,7 @@ importers:
         version: 1.2.0
       '@webgpu/types':
         specifier: 'catalog:'
-        version: 0.1.54
+        version: 0.1.64
       jest:
         specifier: ^29.2.1
         version: 29.7.0(@types/node@22.13.1)
@@ -204,13 +204,13 @@ importers:
         version: 5.7.3
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.1.4(typegpu@0.5.9)
+        version: 0.2.0(typegpu@0.6.0)
 
   packages/bionic-jolt-common:
     devDependencies:
       '@webgpu/types':
         specifier: 'catalog:'
-        version: 0.1.54
+        version: 0.1.64
 
   packages/wayfare:
     dependencies:
@@ -235,7 +235,7 @@ importers:
         version: 12.1.2(rollup@4.34.6)(tslib@2.8.1)(typescript@5.7.3)
       '@webgpu/types':
         specifier: 'catalog:'
-        version: 0.1.54
+        version: 0.1.64
       keyboardevent-codes:
         specifier: 1.0.0
         version: 1.0.0
@@ -250,10 +250,10 @@ importers:
         version: 2.8.1
       typegpu:
         specifier: 'catalog:'
-        version: 0.5.9
+        version: 0.6.0
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.1.4(typegpu@0.5.9)
+        version: 0.2.0(typegpu@0.6.0)
       wgpu-matrix:
         specifier: ^3.3.0
         version: 3.3.0
@@ -2155,8 +2155,8 @@ packages:
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
 
-  '@webgpu/types@0.1.54':
-    resolution: {integrity: sha512-81oaalC8LFrXjhsczomEQ0u3jG+TqE6V9QHLA8GNZq/Rnot0KDugu3LhSYSlie8tSdooAN1Hov05asrUUp9qgg==}
+  '@webgpu/types@0.1.64':
+    resolution: {integrity: sha512-84kRIAGV46LJTlJZWxShiOrNL30A+9KokD7RB3dRCIqODFjodS5tCD5yyiZ8kIReGVZSDfA3XkkwyyOIF6K62A==}
 
   '@xmldom/xmldom@0.7.13':
     resolution: {integrity: sha512-lm2GW5PkosIzccsaZIz7tp8cPADSIlIHWDFTR1N0SzfinhhYgeIQjFMz4rYzanCScr3DqQLeomUDArp6MWKm+g==}
@@ -5747,8 +5747,8 @@ packages:
   typed-binary@4.3.2:
     resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
 
-  typegpu@0.5.9:
-    resolution: {integrity: sha512-nDNLd58UjottLj7NF7MVrbuAd7nSZSSifkR7lmdhnNU+1TvveN+cgunve7IRZQEO5LKKeEFsGbwLBCiGqfyTZA==}
+  typegpu@0.6.0:
+    resolution: {integrity: sha512-ESfD+u5z7yDuQq6C4JeKszKmh+8IU6pgAXXPMp+rWnDNjz+UlGiLzMuFHtvSfUoTIedsg5bH18merMmzyLWeZg==}
     engines: {node: '>=12.20.0'}
 
   typescript@5.7.3:
@@ -5854,10 +5854,10 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-typegpu@0.1.4:
-    resolution: {integrity: sha512-ehLUJ3YHYRQOP9zkIpTIqECiwa2DAuWdqhFicv6jN5ZapRBYr4ViS8rlPl5/z2K6t/N7pacXD0kbgAJvmfDGhA==}
+  unplugin-typegpu@0.2.0:
+    resolution: {integrity: sha512-MqyoNR2sS5cYUg3pw75FCR/0UW/8p4GPpCMGu+8ufB554llbYKZxJzNVvHQDzIf8zE01mH43SXt7y75G8+jwbQ==}
     peerDependencies:
-      typegpu: ^0.5.9
+      typegpu: ^0.6.0
 
   unplugin@2.3.4:
     resolution: {integrity: sha512-m4PjxTurwpWfpMomp8AptjD5yj8qEZN5uQjjGM3TAs9MWWD2tXSSNNj6jGR2FoVGod4293ytyV6SwBbertfyJg==}
@@ -8822,7 +8822,7 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@webgpu/types@0.1.54': {}
+  '@webgpu/types@0.1.64': {}
 
   '@xmldom/xmldom@0.7.13': {}
 
@@ -13222,7 +13222,7 @@ snapshots:
 
   typed-binary@4.3.2: {}
 
-  typegpu@0.5.9:
+  typegpu@0.6.0:
     dependencies:
       tinyest: 0.1.1
       typed-binary: 4.3.2
@@ -13326,7 +13326,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-typegpu@0.1.4(typegpu@0.5.9):
+  unplugin-typegpu@0.2.0(typegpu@0.6.0):
     dependencies:
       '@babel/standalone': 7.27.2
       defu: 6.1.4
@@ -13335,7 +13335,7 @@ snapshots:
       picomatch: 4.0.2
       tinyest: 0.1.1
       tinyest-for-wgsl: 0.1.2
-      typegpu: 0.5.9
+      typegpu: 0.6.0
       unplugin: 2.3.4
 
   unplugin@2.3.4:

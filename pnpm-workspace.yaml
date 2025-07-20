@@ -3,6 +3,6 @@ packages:
   - "packages/**"
 
 catalog:
-  typegpu: ^0.5.9
-  unplugin-typegpu: ^0.1.4
-  "@webgpu/types": ^0.1.54
+  typegpu: ^0.6.0
+  unplugin-typegpu: ^0.2.0
+  "@webgpu/types": ^0.1.64
