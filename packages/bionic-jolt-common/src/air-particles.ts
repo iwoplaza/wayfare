@@ -31,7 +31,7 @@ export const AirParticlesMaterial = wf.createMaterial({
   vertexLayout: wf.POS_NORMAL_UV,
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, $$ }) {
-    const getTransformedOrigin = tgpu['~unstable'].fn(
+    const getTransformedOrigin = tgpu.fn(
       [d.vec3f],
       d.vec3f,
     )((localOrigin) => {
@@ -48,7 +48,7 @@ export const AirParticlesMaterial = wf.createMaterial({
       return wrappedOrigin;
     });
 
-    const computePosition = tgpu['~unstable'].fn(
+    const computePosition = tgpu.fn(
       [d.vec3f, d.vec3f],
       d.vec3f,
     )((pos, originRelToCamera) => {
