@@ -1,7 +1,7 @@
 {
   "name": "wayfare",
   "type": "module",
-  "version": "0.0.0-alpha.5",
+  "version": "0.1.0",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
@@ -9,8 +9,6 @@
     ".": "./src/index.ts"
   },
   "publishConfig": {
-    "directory": "dist",
-    "linkDirectory": false,
     "main": "./dist/index.mjs",
     "types": "./dist/index.d.mts",
     "exports": {
