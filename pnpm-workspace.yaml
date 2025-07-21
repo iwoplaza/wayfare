@@ -6,3 +6,8 @@ catalog:
   typegpu: ^0.6.0
   unplugin-typegpu: ^0.2.0
   "@webgpu/types": ^0.1.64
+
+catalogs:
+  build:
+    tsdown: ^0.12.9
+    unplugin-auto-import: ^19.3.0

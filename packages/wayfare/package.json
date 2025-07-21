@@ -17,24 +17,27 @@
       "./package.json": "./package.json",
       ".": {
         "types": "./dist/index.d.ts",
-        "module": "./dist/index.js",
-        "import": "./dist/index.js",
-        "default": "./dist/index.cjs"
+        "default": "./dist/index.js"
       }
     }
   },
   "files": ["README.md", "package.json", "dist/**/*"],
   "sideEffects": false,
   "scripts": {
-    "build": "rm -rf dist && rollup -c",
+    "build": "tsdown",
     "test:types": "tsc --noEmit"
   },
   "keywords": [],
   "license": "MIT",
+  "author": {
+    "name": "Iwo Plaza",
+    "email": "iwo@iwoplaza.dev",
+    "url": "https://iwoplaza.dev"
+  },
   "packageManager": "pnpm@10.4.0+sha512.6b849d0787d97f8f4e1f03a9b8ff8f038e79e153d6f11ae539ae7c435ff9e796df6a862c991502695c7f9e8fac8aeafc1ac5a8dab47e36148d183832d886dd52",
   "peerDependencies": {
     "koota": "^0.1.12",
-    "typegpu": "^0.3.4",
+    "typegpu": "catalog:",
     "wgpu-matrix": "^3.3.0"
   },
   "dependencies": {
@@ -44,15 +47,13 @@
     "@loaders.gl/schema": "^4.3.3"
   },
   "devDependencies": {
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.2",
-    "keyboardevent-codes": "1.0.0",
     "@webgpu/types": "catalog:",
+    "keyboardevent-codes": "1.0.0",
     "koota": "^0.1.12",
-    "rollup": "^4.28.1",
-    "unplugin-typegpu": "catalog:",
-    "tslib": "^2.8.1",
+    "tsdown": "catalog:build",
     "typegpu": "catalog:",
-    "wgpu-matrix": "^3.3.0"
+    "unplugin-auto-import": "catalog:build",
+    "unplugin-typegpu": "catalog:",
+    "wgpu-matrix": "^3.4.0"
   }
 }
