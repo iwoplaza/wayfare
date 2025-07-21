@@ -6,3 +6,7 @@ catalog:
   typegpu: ^0.6.0
   unplugin-typegpu: ^0.2.0
   "@webgpu/types": ^0.1.64
+
+catalogs:
+  build:
+    unbuild: ^3.5.0

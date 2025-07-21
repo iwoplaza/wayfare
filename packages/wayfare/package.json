@@ -27,12 +27,12 @@
     "build": "unbuild",
     "test:types": "tsc --noEmit"
   },
-  "keywords": [],
+  "keywords": ["WebGPU", "TypeGPU", "game", "engine", "3d", "graphics", "ecs"],
   "license": "MIT",
   "packageManager": "pnpm@10.4.0+sha512.6b849d0787d97f8f4e1f03a9b8ff8f038e79e153d6f11ae539ae7c435ff9e796df6a862c991502695c7f9e8fac8aeafc1ac5a8dab47e36148d183832d886dd52",
   "peerDependencies": {
     "koota": "^0.1.12",
-    "typegpu": "^0.3.4",
+    "typegpu": "^0.6.0",
     "wgpu-matrix": "^3.3.0"
   },
   "dependencies": {
@@ -42,16 +42,12 @@
     "@loaders.gl/schema": "^4.3.3"
   },
   "devDependencies": {
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.2",
     "@webgpu/types": "catalog:",
     "keyboardevent-codes": "1.0.0",
     "koota": "^0.1.12",
-    "rollup": "^4.28.1",
-    "tslib": "^2.8.1",
     "typegpu": "catalog:",
-    "unbuild": "^3.5.0",
+    "unbuild": "catalog:build",
     "unplugin-typegpu": "catalog:",
-    "wgpu-matrix": "^3.3.0"
+    "wgpu-matrix": "^3.4.0"
   }
 }
