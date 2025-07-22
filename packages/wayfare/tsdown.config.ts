@@ -1,4 +1,4 @@
-// import typegpu from 'unplugin-typegpu/rolldown';
+import typegpu from 'unplugin-typegpu/rolldown';
 import { defineConfig } from 'tsdown';
 import AutoImport from 'unplugin-auto-import/rollup';
 
@@ -33,6 +33,6 @@ export default defineConfig({
         },
       ],
     }),
-    // typegpu({}),
+    typegpu({}),
   ],
 });
