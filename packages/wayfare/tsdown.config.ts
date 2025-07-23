@@ -4,7 +4,6 @@ import AutoImport from 'unplugin-auto-import/rollup';
 
 export default defineConfig({
   platform: 'neutral',
-  dts: true,
   plugins: [
     AutoImport({
       imports: [
