@@ -14,19 +14,24 @@
     "exports": {
       "./package.json": "./package.json",
       ".": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       }
     }
   },
   "files": ["README.md", "package.json", "dist/**/*"],
   "sideEffects": false,
   "scripts": {
-    "build": "unbuild",
+    "build": "tsdown",
     "test:types": "tsc --noEmit"
   },
   "keywords": ["WebGPU", "TypeGPU", "game", "engine", "3d", "graphics", "ecs"],
   "license": "MIT",
+  "author": {
+    "name": "Iwo Plaza",
+    "email": "iwo@iwoplaza.dev",
+    "url": "https://iwoplaza.dev"
+  },
   "peerDependencies": {
     "koota": "^0.5.0",
     "typegpu": "^0.6.0",
@@ -41,9 +46,10 @@
   "devDependencies": {
     "@webgpu/types": "catalog:",
     "keyboardevent-codes": "1.0.0",
+    "tsdown": "catalog:build",
     "koota": "^0.5.0",
     "typegpu": "catalog:",
-    "unbuild": "catalog:build",
+    "unplugin-auto-import": "catalog:build",
     "unplugin-typegpu": "catalog:",
     "wgpu-matrix": "^3.4.0"
   }
