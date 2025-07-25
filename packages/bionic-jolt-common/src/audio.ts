@@ -29,9 +29,7 @@ if (
   });
 }
 
-export const AudioNodeTrait = trait({
-  node: () => undefined as unknown as AudioNode,
-});
+export const AudioNodeTrait = trait(() => undefined as unknown as AudioNode);
 
 interface AudioManager {
   tryResume(): void;
@@ -80,7 +78,7 @@ export const WindAudio = (() => {
       whiteNoiseSource.connect(lowPass).connect(highPass).connect(gainNode);
 
       return [
-        AudioNodeTrait({ node: gainNode }),
+        AudioNodeTrait(gainNode),
         Params({ gainNode, highPass }),
       ];
     },
@@ -94,11 +92,11 @@ export function createAudio(world: World): AudioManager {
     },
     update() {
       world.query(Added(AudioNodeTrait)).updateEach(([audioNode]) => {
-        audioNode.node.connect(masterGainNode);
+        audioNode.connect(masterGainNode);
       });
 
       world.query(Removed(AudioNodeTrait)).updateEach(([audioNode]) => {
-        audioNode.node.disconnect(masterGainNode);
+        audioNode?.disconnect(masterGainNode);
       });
     },
   };
