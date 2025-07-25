@@ -84,11 +84,11 @@ const { uniforms } = uniformsBindGroupLayout.bound;
 type TraitFor<T> = T extends Schema ? Trait<T> : never;
 
 export const MaterialTrait: Trait<{
-  material: Material;
-  paramsTrait: Trait;
+  material: () => Material;
+  paramsTrait: () => Trait;
 }> = trait({
-  material: {} as Material,
-  paramsTrait: {} as Trait,
+  material: () => undefined as unknown as Material,
+  paramsTrait: () => undefined  as unknown as Trait,
 });
 
 export type CreateMaterialResult<TParams extends AnyWgslData> = {
@@ -176,7 +176,7 @@ export function createMaterial<TParams extends AnyWgslData>(options: {
     },
   };
 
-  const paramsTrait = trait(paramsDefaults as Schema) as TraitFor<
+  const paramsTrait = trait(() => paramsDefaults) as TraitFor<
     Infer<TParams>
   >;
 
@@ -184,7 +184,7 @@ export function createMaterial<TParams extends AnyWgslData>(options: {
     material,
     Params: paramsTrait,
     Bundle: (params) => [
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      // biome-ignore lint/suspicious/noExplicitAny: it's complicated
       MaterialTrait({ material, paramsTrait: paramsTrait as any }),
       params ? paramsTrait(params) : paramsTrait,
     ],

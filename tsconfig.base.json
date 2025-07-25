@@ -11,6 +11,8 @@
     "target": "ESNext",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "noEmitHelpers": true,
     "noEmitOnError": true,
     "types": ["@webgpu/types"]

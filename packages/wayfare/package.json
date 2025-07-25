@@ -49,7 +49,6 @@
     "tsdown": "catalog:build",
     "koota": "^0.5.0",
     "typegpu": "catalog:",
-    "unplugin-auto-import": "catalog:build",
     "unplugin-typegpu": "catalog:",
     "wgpu-matrix": "^3.4.0"
   }

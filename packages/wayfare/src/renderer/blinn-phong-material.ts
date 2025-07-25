@@ -1,50 +1,53 @@
+import tgpu from 'typegpu';
+import * as d from 'typegpu/data';
+import * as std from 'typegpu/std';
 import { POS_NORMAL_UV } from '../mesh.ts';
 import { type CreateMaterialResult, createMaterial } from './material.ts';
 
-const ParamsSchema = struct({
-  albedo: vec3f,
+const ParamsSchema = d.struct({
+  albedo: d.vec3f,
 });
 
 export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
   createMaterial({
     paramsSchema: ParamsSchema,
-    paramsDefaults: { albedo: vec3f(1, 0, 1) },
+    paramsDefaults: { albedo: d.vec3f(1, 0, 1) },
     vertexLayout: POS_NORMAL_UV,
 
     createPipeline({ root, format, $$ }) {
       const vertexFn = tgpu['~unstable'].vertexFn({
         in: {
-          idx: builtin.vertexIndex,
-          pos: vec3f,
-          normal: vec3f,
-          uv: vec2f,
+          idx: d.builtin.vertexIndex,
+          pos: d.vec3f,
+          normal: d.vec3f,
+          uv: d.vec2f,
         },
-        out: { pos: builtin.position, normal: vec3f, uv: vec2f },
+        out: { pos: d.builtin.position, normal: d.vec3f, uv: d.vec2f },
       })((input) => {
         return {
-          pos: mul(mul($$.viewProjMat, $$.modelMat), vec4f(input.pos, 1)),
-          normal: mul($$.normalModelMat, vec4f(input.normal, 0)).xyz,
+          pos: std.mul(std.mul($$.viewProjMat, $$.modelMat), d.vec4f(input.pos, 1)),
+          normal: std.mul($$.normalModelMat, d.vec4f(input.normal, 0)).xyz,
           uv: input.uv,
         };
       });
 
-      const sunDir = normalize(vec3f(-0.5, 2, -0.5));
+      const sunDir = std.normalize(d.vec3f(-0.5, 2, -0.5));
 
       const fragmentFn = tgpu['~unstable'].fragmentFn({
-        in: { normal: vec3f },
-        out: vec4f,
+        in: { normal: d.vec3f },
+        out: d.vec4f,
       })((input) => {
-        const normal = normalize(input.normal);
+        const normal = std.normalize(input.normal);
 
-        const diffuse = vec3f(1.0, 0.9, 0.7);
-        const ambient = vec3f(0.1, 0.15, 0.2);
-        const att = max(0, dot(normal, sunDir));
+        const diffuse = d.vec3f(1.0, 0.9, 0.7);
+        const ambient = d.vec3f(0.1, 0.15, 0.2);
+        const att = std.max(0, std.dot(normal, sunDir));
 
-        const finalColor = mul(
-          add(ambient, mul(att, diffuse)),
+        const finalColor = std.mul(
+          std.add(ambient, std.mul(att, diffuse)),
           $$.params.albedo,
         );
-        return vec4f(finalColor, 1.0);
+        return d.vec4f(finalColor, 1.0);
       });
 
       return {
