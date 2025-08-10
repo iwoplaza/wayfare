@@ -7,7 +7,7 @@ export type PerspectiveConfig = {
   clearColor?: [number, number, number, number];
 };
 
-type ActiveCameraTag = Trait<never>;
+type ActiveCameraTag = Trait<Record<string, never>>;
 
 type PerspectiveCamera = Trait<{
   fov: number;
@@ -16,7 +16,8 @@ type PerspectiveCamera = Trait<{
   clearColor: () => [number, number, number, number];
 }>;
 
-export const ActiveCameraTag: ActiveCameraTag = trait({});
+// TODO: Remove assertion when new version of Koota comes out
+export const ActiveCameraTag = trait() as unknown as ActiveCameraTag;
 export const PerspectiveCamera: PerspectiveCamera = trait({
   fov: 45,
   near: 0.02,
