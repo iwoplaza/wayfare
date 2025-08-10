@@ -1,9 +1,7 @@
-import typegpu from 'unplugin-typegpu/rolldown';
 import { defineConfig } from 'tsdown';
+import typegpu from 'unplugin-typegpu/rolldown';
 
 export default defineConfig({
   platform: 'neutral',
-  plugins: [
-    typegpu({}),
-  ],
+  plugins: [typegpu({})],
 });

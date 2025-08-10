@@ -88,12 +88,12 @@ export const MaterialTrait: Trait<{
   paramsTrait: () => Trait;
 }> = trait({
   material: () => undefined as unknown as Material,
-  paramsTrait: () => undefined  as unknown as Trait,
+  paramsTrait: () => undefined as unknown as Trait,
 });
 
 export type CreateMaterialResult<TParams extends AnyWgslData> = {
   material: Material<TParams>;
-  Params: TraitFor<Infer<TParams>>;
+  Params: TraitFor<() => Infer<TParams>>;
   Bundle(params?: Infer<TParams>): ConfigurableTrait[];
 };
 
@@ -177,7 +177,7 @@ export function createMaterial<TParams extends AnyWgslData>(options: {
   };
 
   const paramsTrait = trait(() => paramsDefaults) as TraitFor<
-    Infer<TParams>
+    () => Infer<TParams>
   >;
 
   return {

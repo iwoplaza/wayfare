@@ -35,7 +35,7 @@ export const AirParticlesMaterial = wf.createMaterial({
       [d.vec3f],
       d.vec3f,
     )((localOrigin) => {
-      const wrappedOrigin = std.sub(localOrigin, $$.params.cameraPosition);
+      const wrappedOrigin = localOrigin.sub($$.params.cameraPosition);
       wrappedOrigin.y -= $$.params.yOffset;
 
       // wrapping the space.
@@ -60,7 +60,7 @@ export const AirParticlesMaterial = wf.createMaterial({
         d.vec3f(-std.sin(angle), 0, std.cos(angle)), // k
       );
 
-      return std.add(std.mul(rot_mat, pos), originRelToCamera);
+      return std.add(rot_mat.mul(pos), originRelToCamera);
     });
 
     const Varying = {
@@ -85,10 +85,9 @@ export const AirParticlesMaterial = wf.createMaterial({
       const posRelToCamera = computePosition(input.pos, originRelToCamera);
 
       return {
-        pos: std.mul(
-          std.mul($$.viewProjMat, $$.modelMat),
-          d.vec4f(posRelToCamera, 1),
-        ),
+        pos: std
+          .mul($$.viewProjMat, $$.modelMat)
+          .mul(d.vec4f(posRelToCamera, 1)),
         normal: std.mul($$.normalModelMat, d.vec4f(input.normal, 0)).xyz,
         uv: input.uv,
         originRelToCamera: originRelToCamera,

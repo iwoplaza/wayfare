@@ -6,9 +6,6 @@ import {
   trait,
 } from 'koota';
 
-const Added = createAdded();
-const Removed = createRemoved();
-
 const audioCtx = new AudioContext();
 const masterGainNode = audioCtx.createGain();
 masterGainNode.gain.value = 0.2;
@@ -77,25 +74,25 @@ export const WindAudio = (() => {
 
       whiteNoiseSource.connect(lowPass).connect(highPass).connect(gainNode);
 
-      return [
-        AudioNodeTrait(gainNode),
-        Params({ gainNode, highPass }),
-      ];
+      return [AudioNodeTrait(gainNode), Params({ gainNode, highPass })];
     },
   };
 })();
 
 export function createAudio(world: World): AudioManager {
+  const Added = createAdded();
+  const Removed = createRemoved();
+
   return {
     tryResume() {
       audioCtx.resume();
     },
     update() {
-      world.query(Added(AudioNodeTrait)).updateEach(([audioNode]) => {
+      world.query(Added(AudioNodeTrait)).updateEach(([audioNode], entity) => {
         audioNode.connect(masterGainNode);
       });
 
-      world.query(Removed(AudioNodeTrait)).updateEach(([audioNode]) => {
+      world.query(Removed(AudioNodeTrait)).updateEach(([audioNode], entity) => {
         audioNode?.disconnect(masterGainNode);
       });
     },

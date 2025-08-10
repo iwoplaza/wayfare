@@ -27,6 +27,7 @@
   },
   "javascript": {
     "formatter": {
+      "enabled": true,
       "indentStyle": "space",
       "quoteStyle": "single"
     }

@@ -25,7 +25,10 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
         out: { pos: d.builtin.position, normal: d.vec3f, uv: d.vec2f },
       })((input) => {
         return {
-          pos: std.mul(std.mul($$.viewProjMat, $$.modelMat), d.vec4f(input.pos, 1)),
+          pos: std.mul(
+            std.mul($$.viewProjMat, $$.modelMat),
+            d.vec4f(input.pos, 1),
+          ),
           normal: std.mul($$.normalModelMat, d.vec4f(input.normal, 0)).xyz,
           uv: input.uv,
         };

@@ -19,13 +19,25 @@
       }
     }
   },
-  "files": ["README.md", "package.json", "dist/**/*"],
+  "files": [
+    "README.md",
+    "package.json",
+    "dist/**/*"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
     "test:types": "tsc --noEmit"
   },
-  "keywords": ["WebGPU", "TypeGPU", "game", "engine", "3d", "graphics", "ecs"],
+  "keywords": [
+    "WebGPU",
+    "TypeGPU",
+    "game",
+    "engine",
+    "3d",
+    "graphics",
+    "ecs"
+  ],
   "license": "MIT",
   "author": {
     "name": "Iwo Plaza",
@@ -34,7 +46,7 @@
   },
   "peerDependencies": {
     "koota": "^0.5.0",
-    "typegpu": "^0.6.0",
+    "typegpu": "^0.7.0",
     "wgpu-matrix": "^3.4.0"
   },
   "dependencies": {
