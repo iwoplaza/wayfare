@@ -1,7 +1,7 @@
 import { type v3f, vec2f } from 'typegpu/data';
-import { add, cross, mul, normalize } from 'typegpu/std';
+import { cross, normalize } from 'typegpu/std';
 
-import { type MeshAsset, meshAsset } from '../asset/mesh-asset';
+import { type MeshAsset, meshAsset } from '../asset/mesh-asset.ts';
 
 export interface RectangleProps {
   width: v3f;
@@ -13,12 +13,14 @@ export interface RectangleProps {
  * The width of the rectangle equals the magnitude of `wSpan`, and the height of the rectangle
  * equals the magnitude of `height`.
  */
-export function createRectangle({ width, height }: RectangleProps): MeshAsset {
-  const halfWidth = mul(0.5, width);
-  const halfHeight = mul(0.5, height);
-
-  const negHalfWidth = mul(-0.5, width);
-  const negHalfHeight = mul(-0.5, height);
+export function createRectangleMesh({
+  width,
+  height,
+}: RectangleProps): MeshAsset {
+  const halfWidth = width.mul(0.5);
+  const halfHeight = height.mul(0.5);
+  const negHalfWidth = width.mul(-0.5);
+  const negHalfHeight = height.mul(-0.5);
 
   const normal = normalize(cross(width, height));
 
@@ -27,38 +29,38 @@ export function createRectangle({ width, height }: RectangleProps): MeshAsset {
       vertices: [
         {
           // (-1, -1, 0)
-          pos: add(negHalfWidth, negHalfHeight),
+          pos: negHalfWidth.add(negHalfHeight),
           normal,
           uv: vec2f(0, 0),
         },
         {
           // (1, -1, 0)
-          pos: add(halfWidth, negHalfHeight),
+          pos: halfWidth.add(negHalfHeight),
           normal,
           uv: vec2f(1, 0),
         },
         {
           // (1, 1, 0),
-          pos: add(halfWidth, halfHeight),
+          pos: halfWidth.add(halfHeight),
           normal,
           uv: vec2f(1, 1),
         },
         // Second triangle
         {
           // (-1, -1, 0)
-          pos: add(negHalfWidth, negHalfHeight),
+          pos: negHalfWidth.add(negHalfHeight),
           normal,
           uv: vec2f(0, 0),
         },
         {
           // (1, 1, 0),
-          pos: add(halfWidth, halfHeight),
+          pos: halfWidth.add(halfHeight),
           normal,
           uv: vec2f(1, 1),
         },
         {
           // (-1, 1, 0),
-          pos: add(negHalfWidth, halfHeight),
+          pos: negHalfWidth.add(halfHeight),
           normal,
           uv: vec2f(0, 1),
         },

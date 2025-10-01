@@ -14,8 +14,8 @@ catalogs:
       specifier: ^0.1.64
       version: 0.1.64
     typegpu:
-      specifier: ^0.7.0
-      version: 0.7.0
+      specifier: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d
+      version: 0.8.0
     unplugin-typegpu:
       specifier: 0.2.2
       version: 0.2.2
@@ -62,10 +62,10 @@ importers:
         version: 3.4.17
       typegpu:
         specifier: 'catalog:'
-        version: 0.7.0
+        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.2.2(typegpu@0.7.0)
+        version: 0.2.2(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d)
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -168,7 +168,7 @@ importers:
         version: 0.1.23(react-native@0.76.6(@babel/core@7.26.8)(@babel/preset-env@7.26.8(@babel/core@7.26.8))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       typegpu:
         specifier: 'catalog:'
-        version: 0.7.0
+        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -208,7 +208,7 @@ importers:
         version: 5.7.3
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.2.2(typegpu@0.7.0)
+        version: 0.2.2(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d)
 
   packages/bionic-jolt-common:
     dependencies:
@@ -217,7 +217,7 @@ importers:
         version: 0.5.0(@types/react@18.3.18)(react@18.3.1)
       typegpu:
         specifier: 'catalog:'
-        version: 0.7.0
+        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d
       wayfare:
         specifier: 'workspace:'
         version: link:../wayfare
@@ -255,10 +255,10 @@ importers:
         version: 0.12.9(typescript@5.7.3)
       typegpu:
         specifier: 'catalog:'
-        version: 0.7.0
+        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.2.2(typegpu@0.7.0)
+        version: 0.2.2(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d)
       wgpu-matrix:
         specifier: ^3.4.0
         version: 3.4.0
@@ -6103,8 +6103,9 @@ packages:
   typed-binary@4.3.2:
     resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
 
-  typegpu@0.7.0:
-    resolution: {integrity: sha512-BueQ/74zgUCwqg/nmSxZ2aL7NFnv3jzANlUmgyKbGtKg0jkCu9kUAVtPjwdjWDmlah5WlzAAXi7qD5URlU6wtA==}
+  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d:
+    resolution: {tarball: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d}
+    version: 0.8.0
     engines: {node: '>=12.20.0'}
 
   typescript@5.7.3:
@@ -6215,6 +6216,7 @@ packages:
 
   unplugin-typegpu@0.2.2:
     resolution: {integrity: sha512-5pbwv0cTMRMxRCQXEPAMUsUoAKMQsz2B4zlhpRRHNy3qtMk+rP3Uxe/5zZUtr2yAASCVO2iciblH5HqcUoijjQ==}
+    version: 0.2.2
     peerDependencies:
       typegpu: ^0.7.0
 
@@ -13890,7 +13892,7 @@ snapshots:
 
   typed-binary@4.3.2: {}
 
-  typegpu@0.7.0:
+  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d:
     dependencies:
       tinyest: 0.1.1
       typed-binary: 4.3.2
@@ -14001,7 +14003,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-typegpu@0.2.2(typegpu@0.7.0):
+  unplugin-typegpu@0.2.2(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d):
     dependencies:
       '@babel/standalone': 7.27.2
       defu: 6.1.4
@@ -14011,7 +14013,7 @@ snapshots:
       picomatch: 4.0.3
       tinyest: 0.1.1
       tinyest-for-wgsl: 0.1.2
-      typegpu: 0.7.0
+      typegpu: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d
       unplugin: 2.3.5
 
   unplugin@2.3.5:

@@ -14,7 +14,7 @@ export const InstanceLayout = tgpu.vertexLayout(
   'instance',
 );
 
-const particleMesh = wf.createRectangle({
+const particleMesh = wf.createRectangleMesh({
   width: d.vec3f(0.02, 0, 0),
   height: d.vec3f(0, 0.5, 0),
 });
@@ -31,10 +31,8 @@ export const AirParticlesMaterial = wf.createMaterial({
   vertexLayout: wf.POS_NORMAL_UV,
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, $$ }) {
-    const getTransformedOrigin = tgpu.fn(
-      [d.vec3f],
-      d.vec3f,
-    )((localOrigin) => {
+    const getTransformedOrigin = (localOrigin: d.v3f) => {
+      'kernel';
       const wrappedOrigin = localOrigin.sub($$.params.cameraPosition);
       wrappedOrigin.y -= $$.params.yOffset;
 
@@ -46,12 +44,10 @@ export const AirParticlesMaterial = wf.createMaterial({
         (std.fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
 
       return wrappedOrigin;
-    });
+    };
 
-    const computePosition = tgpu.fn(
-      [d.vec3f, d.vec3f],
-      d.vec3f,
-    )((pos, originRelToCamera) => {
+    const computePosition = (pos: d.v3f, originRelToCamera: d.v3f) => {
+      'kernel';
       const angle =
         -std.atan2(originRelToCamera.x, originRelToCamera.z) + Math.PI;
       const rot_mat = d.mat3x3f(
@@ -60,8 +56,8 @@ export const AirParticlesMaterial = wf.createMaterial({
         d.vec3f(-std.sin(angle), 0, std.cos(angle)), // k
       );
 
-      return std.add(rot_mat.mul(pos), originRelToCamera);
-    });
+      return rot_mat.mul(pos).add(originRelToCamera);
+    };
 
     const Varying = {
       normal: d.vec3f,
@@ -85,10 +81,8 @@ export const AirParticlesMaterial = wf.createMaterial({
       const posRelToCamera = computePosition(input.pos, originRelToCamera);
 
       return {
-        pos: std
-          .mul($$.viewProjMat, $$.modelMat)
-          .mul(d.vec4f(posRelToCamera, 1)),
-        normal: std.mul($$.normalModelMat, d.vec4f(input.normal, 0)).xyz,
+        pos: $$.viewProjMat.mul($$.modelMat).mul(d.vec4f(posRelToCamera, 1)),
+        normal: $$.normalModelMat.mul(d.vec4f(input.normal, 0)).xyz,
         uv: input.uv,
         originRelToCamera: originRelToCamera,
       };
