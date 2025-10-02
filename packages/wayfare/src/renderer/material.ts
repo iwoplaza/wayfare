@@ -26,6 +26,7 @@ export interface MaterialContext<TParams> {
     readonly viewProjMat: m4x4f;
     readonly invViewProjMat: m4x4f;
     readonly modelMat: m4x4f;
+    readonly invModelMat: m4x4f;
     readonly normalModelMat: m4x4f;
     readonly params: Infer<TParams>;
   };
@@ -49,9 +50,11 @@ export interface Material<TParams extends BaseWgslData = BaseWgslData> {
 
 export const UniformsStruct: WgslStruct<{
   modelMat: Mat4x4f;
+  invModelMat: Mat4x4f;
   normalModelMat: Mat4x4f;
 }> = struct({
   modelMat: mat4x4f,
+  invModelMat: mat4x4f,
   normalModelMat: mat4x4f,
 });
 
@@ -175,6 +178,9 @@ export function createMaterial<TParams extends AnyWgslData>(options: {
           },
           get modelMat() {
             return uniforms.value.modelMat;
+          },
+          get invModelMat() {
+            return uniforms.value.invModelMat;
           },
           get normalModelMat() {
             return uniforms.value.normalModelMat;

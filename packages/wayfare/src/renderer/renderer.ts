@@ -54,6 +54,7 @@ export class Renderer {
     proj: m4x4f;
     view: m4x4f;
     model: m4x4f;
+    invModel: m4x4f;
     normalModel: m4x4f;
   };
   private readonly _viewport: Viewport;
@@ -84,6 +85,7 @@ export class Renderer {
       proj: mat4.identity(mat4x4f()),
       view: mat4.identity(mat4x4f()),
       model: mat4.identity(mat4x4f()),
+      invModel: mat4.identity(mat4x4f()),
       normalModel: mat4.identity(mat4x4f()),
     };
 
@@ -126,6 +128,7 @@ export class Renderer {
       const uniformsBuffer = this.root
         .createBuffer(UniformsStruct, {
           modelMat: mat4.identity(mat4x4f()),
+          invModelMat: mat4.identity(mat4x4f()),
           normalModelMat: mat4.identity(mat4x4f()),
         })
         .$usage('uniform');
@@ -173,11 +176,12 @@ export class Renderer {
       material,
     );
 
-    mat4.invert(worldMatrix, this._matrices.normalModel);
-    mat4.transpose(this._matrices.normalModel, this._matrices.normalModel);
+    mat4.invert(worldMatrix, this._matrices.invModel);
+    mat4.transpose(this._matrices.invModel, this._matrices.normalModel);
 
     uniformsBuffer.write({
       modelMat: worldMatrix,
+      invModelMat: this._matrices.invModel,
       normalModelMat: this._matrices.normalModel,
     });
 
