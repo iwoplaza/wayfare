@@ -1,7 +1,7 @@
 {
   "name": "wayfare",
   "type": "module",
-  "version": "0.3.0-alpha.1",
+  "version": "0.3.0-alpha.2",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
@@ -27,6 +27,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
+    "prepublishOnly": "pnpm build",
     "test:types": "tsc --noEmit"
   },
   "keywords": [
