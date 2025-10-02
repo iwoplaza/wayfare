@@ -88,6 +88,10 @@ const { uniforms } = uniformsBindGroupLayout.bound;
 
 type TraitFor<T> = T extends Schema ? Trait<T> : never;
 
+export const ExtraBindingTrait: Trait<() => TgpuBindGroup | undefined> = trait(
+  () => undefined as unknown as TgpuBindGroup | undefined,
+);
+
 export const MaterialTrait: Trait<{
   material: () => Material;
   paramsTrait: () => Trait;
@@ -188,12 +192,19 @@ export function createMaterial<TParams extends AnyWgslData>(options: {
     () => Infer<TParams>
   >;
 
+  const extraBindingTrait = trait(() => undefined) as TraitFor<
+    () => TgpuBindGroup | undefined
+  >;
+
   return {
     material,
     Params: paramsTrait,
     Bundle: (params) => [
-      // biome-ignore lint/suspicious/noExplicitAny: it's complicated
-      MaterialTrait({ material, paramsTrait: paramsTrait as any }),
+      MaterialTrait({
+        material,
+        // biome-ignore lint/suspicious/noExplicitAny: it's complicated
+        paramsTrait: paramsTrait as any,
+      }),
       params ? paramsTrait(params) : paramsTrait,
     ],
   };

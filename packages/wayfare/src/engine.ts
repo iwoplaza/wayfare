@@ -23,7 +23,11 @@ import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
 import { getOrAdd, getOrThrow } from './get-or-add.ts';
 import { ChildOf, ParentOf } from './node-tree.ts';
 import { BlinnPhongMaterial } from './renderer/blinn-phong-material.ts';
-import { type Material, MaterialTrait } from './renderer/material.ts';
+import {
+  ExtraBindingTrait,
+  type Material,
+  MaterialTrait,
+} from './renderer/material.ts';
 import type { Renderer } from './renderer/renderer.ts';
 import { Time } from './time.ts';
 
@@ -158,6 +162,9 @@ export class Engine {
             return materialTrait
               ? entity.get(materialTrait.paramsTrait as unknown as Trait)
               : DefaultMaterial.paramsDefaults;
+          },
+          get extraBinding() {
+            return entity.get(ExtraBindingTrait as unknown as Trait);
           },
         });
       });

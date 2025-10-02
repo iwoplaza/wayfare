@@ -37,6 +37,7 @@ export type GameObject = {
   worldMatrix: m4x4f;
   material: Material;
   materialParams: unknown;
+  readonly extraBinding: TgpuBindGroup | undefined;
 };
 
 type ObjectResources = {
@@ -215,8 +216,13 @@ export class Renderer {
         },
       },
       (pass) => {
-        for (const { id, meshAsset, instanceBuffer, material } of this
-          ._objects) {
+        for (const {
+          id,
+          meshAsset,
+          instanceBuffer,
+          material,
+          extraBinding,
+        } of this._objects) {
           const mesh = meshAsset.peek(this.root);
           if (!mesh) {
             // Mesh is not loaded yet...
@@ -242,6 +248,10 @@ export class Renderer {
 
           if (material.instanceLayout && instanceBuffer) {
             pass.setVertexBuffer(material.instanceLayout, instanceBuffer);
+          }
+
+          if (extraBinding) {
+            pass.setBindGroup(extraBinding.layout, extraBinding);
           }
 
           pass.draw(
