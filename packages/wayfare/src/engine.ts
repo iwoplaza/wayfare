@@ -164,7 +164,7 @@ export class Engine {
               : DefaultMaterial.paramsDefaults;
           },
           get extraBinding() {
-            return entity.get(ExtraBindingTrait as unknown as Trait);
+            return entity.get(ExtraBindingTrait)?.group;
           },
         });
       });

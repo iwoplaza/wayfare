@@ -88,9 +88,11 @@ const { uniforms } = uniformsBindGroupLayout.bound;
 
 type TraitFor<T> = T extends Schema ? Trait<T> : never;
 
-export const ExtraBindingTrait: Trait<() => TgpuBindGroup | undefined> = trait(
-  () => undefined as unknown as TgpuBindGroup | undefined,
-);
+export const ExtraBindingTrait: Trait<{
+  group: () => TgpuBindGroup | undefined;
+}> = trait({
+  group: () => undefined as TgpuBindGroup | undefined,
+});
 
 export const MaterialTrait: Trait<{
   material: () => Material;
