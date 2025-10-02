@@ -24,6 +24,7 @@ export interface MaterialContext<TParams> {
   readonly format: GPUTextureFormat;
   readonly $$: {
     readonly viewProjMat: m4x4f;
+    readonly invViewProjMat: m4x4f;
     readonly modelMat: m4x4f;
     readonly normalModelMat: m4x4f;
     readonly params: Infer<TParams>;
@@ -54,8 +55,12 @@ export const UniformsStruct: WgslStruct<{
   normalModelMat: mat4x4f,
 });
 
-export const POVStruct: WgslStruct<{ viewProjMat: Mat4x4f }> = struct({
+export const POVStruct: WgslStruct<{
+  viewProjMat: Mat4x4f;
+  invViewProjMat: Mat4x4f;
+}> = struct({
   viewProjMat: mat4x4f,
+  invViewProjMat: mat4x4f,
 });
 
 export const sharedBindGroupLayout: TgpuBindGroupLayout<{
@@ -158,6 +163,9 @@ export function createMaterial<TParams extends AnyWgslData>(options: {
         $$: {
           get viewProjMat() {
             return pov.value.viewProjMat;
+          },
+          get invViewProjMat() {
+            return pov.value.invViewProjMat;
           },
           get modelMat() {
             return uniforms.value.modelMat;

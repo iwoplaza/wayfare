@@ -89,6 +89,7 @@ export class Renderer {
     this._povBuffer = root
       .createBuffer(POVStruct, {
         viewProjMat: mat4.identity(mat4x4f()),
+        invViewProjMat: mat4.identity(mat4x4f()),
       })
       .$usage('uniform');
 
@@ -113,7 +114,8 @@ export class Renderer {
       this._matrices.view,
       mat4x4f(),
     );
-    this._povBuffer.write({ viewProjMat });
+    const invViewProjMat = mat4.invert(viewProjMat, mat4x4f());
+    this._povBuffer.write({ viewProjMat, invViewProjMat });
   }
 
   private _resourcesFor(id: number, material: Material): ObjectResources {
