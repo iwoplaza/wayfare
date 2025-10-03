@@ -7,7 +7,10 @@ import type {
 } from 'typegpu';
 import {
   type AnyWgslData,
+  BaseWgslData,
   type Disarray,
+  Infer,
+  InferGPU,
   type WgslArray,
   type m4x4f,
   mat4x4f,
@@ -17,7 +20,10 @@ import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 
 import type { MeshAsset } from '../asset/mesh-asset.ts';
-import type { PerspectiveConfig } from '../camera-traits.ts';
+import type {
+  OrthographicConfig,
+  PerspectiveConfig,
+} from '../camera-traits.ts';
 import type { Transform } from '../transform.ts';
 import {
   type Material,
@@ -48,6 +54,11 @@ type ObjectResources = {
   instanceParamsBuffer: (TgpuBuffer<AnyWgslData> & UniformFlag) | undefined;
 };
 
+type RenderWithOverridesOptions<TParams extends BaseWgslData> = {
+  material: Material<TParams>;
+  materialParams: Infer<TParams>;
+};
+
 export class Renderer {
   private _objects: GameObject[] = [];
   private readonly _matrices: {
@@ -62,7 +73,7 @@ export class Renderer {
   private readonly _sharedBindGroup: SharedBindGroup;
   private readonly _presentationFormat: GPUTextureFormat;
   private readonly _cachedResources = new Map<number, ObjectResources>();
-  private _cameraConfig: PerspectiveConfig | null = null;
+  private _cameraConfig: PerspectiveConfig | OrthographicConfig | null = null;
 
   constructor(
     public readonly root: TgpuRoot,
@@ -102,13 +113,27 @@ export class Renderer {
   }
 
   private _updateProjection() {
-    mat4.perspective(
-      ((this._cameraConfig?.fov ?? 45) / 180) * Math.PI, // fov
-      this._viewport.width / this._viewport.height, // aspect
-      this._cameraConfig?.near ?? 0.1, // near
-      this._cameraConfig?.far ?? 1000.0, // far
-      this._matrices.proj,
-    );
+    if (!this._cameraConfig) return;
+
+    if (this._cameraConfig.type === 'perspective') {
+      mat4.perspective(
+        ((this._cameraConfig?.fov ?? 45) / 180) * Math.PI, // fov
+        this._viewport.width / this._viewport.height, // aspect
+        this._cameraConfig?.near ?? 0.1, // near
+        this._cameraConfig?.far ?? 1000.0, // far
+        this._matrices.proj,
+      );
+    } else if (this._cameraConfig.type === 'orthographic') {
+      mat4.ortho(
+        this._cameraConfig.left,
+        this._cameraConfig.right,
+        this._cameraConfig.bottom,
+        this._cameraConfig.top,
+        this._cameraConfig.near,
+        this._cameraConfig.far,
+        this._matrices.proj,
+      );
+    }
   }
 
   private _updatePOV() {
@@ -275,12 +300,99 @@ export class Renderer {
     }
   }
 
+  renderWithOverrides() {
+    this._updatePOV();
+
+    for (const obj of this._objects) {
+      this._recomputeUniformsFor(obj);
+    }
+
+    const targetView = this._context.getCurrentTexture().createView();
+
+    this.root['~unstable'].beginRenderPass(
+      {
+        colorAttachments: [
+          {
+            view: targetView,
+            loadOp: 'clear',
+            storeOp: 'store',
+            clearValue: this._cameraConfig?.clearColor ?? {
+              r: 0.0,
+              g: 0.0,
+              b: 0.0,
+              a: 1.0,
+            },
+          },
+        ],
+        depthStencilAttachment: {
+          view: this._viewport.depthTextureView,
+          depthLoadOp: 'clear',
+          depthStoreOp: 'store',
+          depthClearValue: 1.0,
+        },
+      },
+      (pass) => {
+        for (const {
+          id,
+          meshAsset,
+          instanceBuffer,
+          material,
+          extraBinding,
+        } of this._objects) {
+          const mesh = meshAsset.peek(this.root);
+          if (!mesh) {
+            // Mesh is not loaded yet...
+            continue;
+          }
+
+          const pipeline = material.getPipeline(
+            this.root,
+            this._presentationFormat,
+          );
+
+          const { uniformsBindGroup, instanceParamsBindGroup } =
+            this._resourcesFor(id, material);
+
+          pass.setPipeline(pipeline);
+          pass.setBindGroup(sharedBindGroupLayout, this._sharedBindGroup);
+          pass.setBindGroup(uniformsBindGroupLayout, uniformsBindGroup);
+          pass.setVertexBuffer(material.vertexLayout, mesh.vertexBuffer);
+
+          if (material.paramsLayout && instanceParamsBindGroup) {
+            pass.setBindGroup(material.paramsLayout, instanceParamsBindGroup);
+          }
+
+          if (material.instanceLayout && instanceBuffer) {
+            pass.setVertexBuffer(material.instanceLayout, instanceBuffer);
+          }
+
+          if (extraBinding) {
+            pass.setBindGroup(extraBinding.layout, extraBinding);
+          }
+
+          pass.draw(
+            mesh.vertexCount,
+            instanceBuffer ? instanceBuffer.dataType.elementCount : undefined,
+          );
+        }
+      },
+    );
+
+    this.root['~unstable'].flush();
+
+    // In react-native-wgpu, we have to call `context.present` in order
+    // to show what's been drawn to the canvas.
+    if ('present' in this._context) {
+      (this._context.present as () => void)();
+    }
+  }
+
   updateViewport(width: number, height: number) {
     this._viewport.resize(width, height);
     this._updateProjection();
   }
 
-  setPerspectivePOV(transform: Transform, config: PerspectiveConfig) {
+  setPOV(transform: Transform, config: OrthographicConfig | PerspectiveConfig) {
     const rotation = mat4.fromQuat(transform.rotation);
     const forward = mat4.mul(rotation, vec4f(0, 0, -1, 0), vec4f());
     const up = mat4.mul(rotation, vec4f(0, 1, 0, 0), vec4f());

@@ -8,7 +8,7 @@ import {
   createWorld,
   trait,
 } from 'koota';
-import type { TgpuBuffer, TgpuRoot, Vertex } from 'typegpu';
+import type { TgpuBuffer, TgpuRoot, VertexFlag } from 'typegpu';
 import {
   type Disarray,
   type WgslArray,
@@ -19,7 +19,11 @@ import {
 import { mat4, quat } from 'wgpu-matrix';
 
 import type { MeshAsset } from './asset/mesh-asset.ts';
-import { ActiveCameraTag, PerspectiveCamera } from './camera-traits.ts';
+import {
+  ActiveCameraTag,
+  OrthographicCamera,
+  PerspectiveCamera,
+} from './camera-traits.ts';
 import { getOrAdd, getOrThrow } from './get-or-add.ts';
 import { ChildOf, ParentOf } from './node-tree.ts';
 import { BlinnPhongMaterial } from './renderer/blinn-phong-material.ts';
@@ -42,11 +46,11 @@ export const TransformTrait = trait({
 });
 
 export const InstanceBufferTrait = trait(
-  () => ({}) as TgpuBuffer<WgslArray | Disarray> & Vertex,
+  () => ({}) as TgpuBuffer<WgslArray | Disarray> & VertexFlag,
 );
 
 /**
- * @internal
+ * Used and updated by wayfare for storing matrices per object.
  */
 export const MatricesTrait = trait(() => ({
   local: mat4x4f(),
@@ -85,7 +89,8 @@ export class Engine {
     let lastTime = performance.now();
     const handleFrame = () => {
       const now = performance.now();
-      const deltaSeconds = (now - lastTime) / 1000;
+      // Limiting deltaSeconds to a maximum of 0.5 seconds
+      const deltaSeconds = Math.min((now - lastTime) / 1000, 0.5);
       lastTime = now;
 
       this.world.set(Time, { deltaSeconds });
@@ -179,10 +184,16 @@ export class Engine {
       if (activeCam) {
         const transform = getOrThrow(activeCam, TransformTrait);
         if (activeCam.has(PerspectiveCamera)) {
-          this.renderer.setPerspectivePOV(
-            transform,
-            getOrThrow(activeCam, PerspectiveCamera),
-          );
+          this.renderer.setPOV(transform, {
+            type: 'perspective',
+            ...getOrThrow(activeCam, PerspectiveCamera),
+          });
+        }
+        if (activeCam.has(OrthographicCamera)) {
+          this.renderer.setPOV(transform, {
+            type: 'orthographic',
+            ...getOrThrow(activeCam, OrthographicCamera),
+          });
         }
       }
 
