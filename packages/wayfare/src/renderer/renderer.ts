@@ -265,7 +265,9 @@ export class Renderer {
             continue;
           }
 
-          const pipeline = material.getPipeline(
+          const overrideMaterial = overrides?.material;
+          const realMaterial = overrideMaterial ?? material;
+          const pipeline = realMaterial.getPipeline(
             this.root,
             this._presentationFormat,
           );
@@ -276,7 +278,7 @@ export class Renderer {
           pass.setPipeline(pipeline);
           pass.setBindGroup(sharedBindGroupLayout, this._sharedBindGroup);
           pass.setBindGroup(uniformsBindGroupLayout, uniformsBindGroup);
-          pass.setVertexBuffer(material.vertexLayout, mesh.vertexBuffer);
+          pass.setVertexBuffer(realMaterial.vertexLayout, mesh.vertexBuffer);
 
           if (
             !overrides?.material &&
@@ -286,8 +288,8 @@ export class Renderer {
             pass.setBindGroup(material.paramsLayout, instanceParamsBindGroup);
           }
 
-          if (material.instanceLayout && instanceBuffer) {
-            pass.setVertexBuffer(material.instanceLayout, instanceBuffer);
+          if (realMaterial.instanceLayout && instanceBuffer) {
+            pass.setVertexBuffer(realMaterial.instanceLayout, instanceBuffer);
           }
 
           if (extraBinding) {
