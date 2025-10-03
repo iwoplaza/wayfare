@@ -68,15 +68,19 @@ export const POVStruct: WgslStruct<{
 
 export const sharedBindGroupLayout: TgpuBindGroupLayout<{
   pov: { uniform: typeof POVStruct };
-}> = tgpu.bindGroupLayout({
-  pov: { uniform: POVStruct },
-});
+}> = tgpu
+  .bindGroupLayout({
+    pov: { uniform: POVStruct },
+  })
+  .$name('wayfare-sharedBindGroupLayout');
 
 export const uniformsBindGroupLayout: TgpuBindGroupLayout<{
   uniforms: { uniform: typeof UniformsStruct };
-}> = tgpu.bindGroupLayout({
-  uniforms: { uniform: UniformsStruct },
-});
+}> = tgpu
+  .bindGroupLayout({
+    uniforms: { uniform: UniformsStruct },
+  })
+  .$name('wayfare-uniformsBindGroupLayout');
 
 export type SharedBindGroup = TgpuBindGroup<
   (typeof sharedBindGroupLayout)['entries']
@@ -144,9 +148,11 @@ export function createMaterial<TParams extends AnyWgslData>(options: {
   const pipelineStore = new WeakMap<TgpuRoot, TgpuRenderPipeline<Vec4f>>();
 
   const paramsLayout = paramsSchema
-    ? tgpu.bindGroupLayout({
-        params: { uniform: paramsSchema },
-      })
+    ? tgpu
+        .bindGroupLayout({
+          params: { uniform: paramsSchema },
+        })
+        .$name('wayfare-materialParamsLayout')
     : undefined;
 
   const material: Material<TParams> = {

@@ -3,7 +3,7 @@ packages:
   - "packages/**"
 
 catalog:
-  typegpu: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@7320da746159cbb45eede15be0188cd2a3a3af6d
+  typegpu: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62
   unplugin-typegpu: 0.2.2
   "@webgpu/types": ^0.1.64
 
