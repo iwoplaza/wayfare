@@ -7,10 +7,7 @@ import type {
 } from 'typegpu';
 import {
   type AnyWgslData,
-  BaseWgslData,
   type Disarray,
-  Infer,
-  InferGPU,
   type WgslArray,
   type m4x4f,
   mat4x4f,
@@ -54,9 +51,11 @@ type ObjectResources = {
   instanceParamsBuffer: (TgpuBuffer<AnyWgslData> & UniformFlag) | undefined;
 };
 
-type RenderWithOverridesOptions<TParams extends BaseWgslData> = {
-  material: Material<TParams>;
-  materialParams: Infer<TParams>;
+type RenderOverrides = {
+  material?: Material;
+  colorAttachments?: GPURenderPassColorAttachment[];
+  depthStencilAttachment?: GPURenderPassDepthStencilAttachment | undefined;
+  filterObjects?: ((entityId: number) => boolean) | undefined;
 };
 
 export class Renderer {
@@ -213,7 +212,11 @@ export class Renderer {
     instanceParamsBuffer?.write(materialParams);
   }
 
-  render() {
+  render(overrides?: RenderOverrides | undefined) {
+    if (overrides?.material && overrides.material.paramsSchema !== undefined) {
+      throw new Error('Material override cannot have parameters');
+    }
+
     this._updatePOV();
 
     for (const obj of this._objects) {
@@ -224,7 +227,7 @@ export class Renderer {
 
     this.root['~unstable'].beginRenderPass(
       {
-        colorAttachments: [
+        colorAttachments: overrides?.colorAttachments ?? [
           {
             view: targetView,
             loadOp: 'clear',
@@ -237,7 +240,7 @@ export class Renderer {
             },
           },
         ],
-        depthStencilAttachment: {
+        depthStencilAttachment: overrides?.depthStencilAttachment ?? {
           view: this._viewport.depthTextureView,
           depthLoadOp: 'clear',
           depthStoreOp: 'store',
@@ -252,6 +255,10 @@ export class Renderer {
           material,
           extraBinding,
         } of this._objects) {
+          if (overrides?.filterObjects && !overrides?.filterObjects(id)) {
+            continue;
+          }
+
           const mesh = meshAsset.peek(this.root);
           if (!mesh) {
             // Mesh is not loaded yet...
@@ -271,94 +278,11 @@ export class Renderer {
           pass.setBindGroup(uniformsBindGroupLayout, uniformsBindGroup);
           pass.setVertexBuffer(material.vertexLayout, mesh.vertexBuffer);
 
-          if (material.paramsLayout && instanceParamsBindGroup) {
-            pass.setBindGroup(material.paramsLayout, instanceParamsBindGroup);
-          }
-
-          if (material.instanceLayout && instanceBuffer) {
-            pass.setVertexBuffer(material.instanceLayout, instanceBuffer);
-          }
-
-          if (extraBinding) {
-            pass.setBindGroup(extraBinding.layout, extraBinding);
-          }
-
-          pass.draw(
-            mesh.vertexCount,
-            instanceBuffer ? instanceBuffer.dataType.elementCount : undefined,
-          );
-        }
-      },
-    );
-
-    this.root['~unstable'].flush();
-
-    // In react-native-wgpu, we have to call `context.present` in order
-    // to show what's been drawn to the canvas.
-    if ('present' in this._context) {
-      (this._context.present as () => void)();
-    }
-  }
-
-  renderWithOverrides() {
-    this._updatePOV();
-
-    for (const obj of this._objects) {
-      this._recomputeUniformsFor(obj);
-    }
-
-    const targetView = this._context.getCurrentTexture().createView();
-
-    this.root['~unstable'].beginRenderPass(
-      {
-        colorAttachments: [
-          {
-            view: targetView,
-            loadOp: 'clear',
-            storeOp: 'store',
-            clearValue: this._cameraConfig?.clearColor ?? {
-              r: 0.0,
-              g: 0.0,
-              b: 0.0,
-              a: 1.0,
-            },
-          },
-        ],
-        depthStencilAttachment: {
-          view: this._viewport.depthTextureView,
-          depthLoadOp: 'clear',
-          depthStoreOp: 'store',
-          depthClearValue: 1.0,
-        },
-      },
-      (pass) => {
-        for (const {
-          id,
-          meshAsset,
-          instanceBuffer,
-          material,
-          extraBinding,
-        } of this._objects) {
-          const mesh = meshAsset.peek(this.root);
-          if (!mesh) {
-            // Mesh is not loaded yet...
-            continue;
-          }
-
-          const pipeline = material.getPipeline(
-            this.root,
-            this._presentationFormat,
-          );
-
-          const { uniformsBindGroup, instanceParamsBindGroup } =
-            this._resourcesFor(id, material);
-
-          pass.setPipeline(pipeline);
-          pass.setBindGroup(sharedBindGroupLayout, this._sharedBindGroup);
-          pass.setBindGroup(uniformsBindGroupLayout, uniformsBindGroup);
-          pass.setVertexBuffer(material.vertexLayout, mesh.vertexBuffer);
-
-          if (material.paramsLayout && instanceParamsBindGroup) {
+          if (
+            !overrides?.material &&
+            material.paramsLayout &&
+            instanceParamsBindGroup
+          ) {
             pass.setBindGroup(material.paramsLayout, instanceParamsBindGroup);
           }
 
