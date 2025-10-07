@@ -21,7 +21,10 @@ import {
   struct,
 } from 'typegpu/data';
 
-export interface MaterialContext<TParams> {
+export interface MaterialContext<
+  TParams,
+  TBindings extends Record<string, TgpuLayoutEntry | null>,
+> {
   readonly root: TgpuRoot;
   readonly format: GPUTextureFormat;
   readonly $$: {
@@ -31,6 +34,7 @@ export interface MaterialContext<TParams> {
     readonly invModelMat: m4x4f;
     readonly normalModelMat: m4x4f;
     readonly params: Infer<TParams>;
+    readonly bindings: TgpuBindGroupLayout<TBindings>['$'];
   };
 }
 
@@ -124,32 +128,23 @@ export type CreateMaterialResult<
   Bundle(params?: Infer<TParams>): ConfigurableTrait[];
 };
 
-export function createMaterial(options: {
-  paramsSchema?: undefined;
-  bindings?: undefined;
-  paramsDefaults?: undefined;
-  vertexLayout: TgpuVertexLayout;
-  instanceLayout?: TgpuVertexLayout;
-  createPipeline: (ctx: MaterialContext<AnyWgslData>) => MaterialOptions;
-}): CreateMaterialResult<AnyWgslData, Record<string, never>>;
-export function createMaterial<TParams extends AnyWgslData>(options: {
-  paramsSchema: TParams;
-  bindings?: undefined;
-  vertexLayout: TgpuVertexLayout;
-  instanceLayout?: TgpuVertexLayout;
-  createPipeline: (ctx: MaterialContext<NoInfer<TParams>>) => MaterialOptions;
+function tryCall(cb: unknown) {
+  if (typeof cb !== 'function') {
+    throw new Error('Params schema is not callable');
+  }
+  return cb();
+}
 
-  paramsDefaults: Infer<TParams>;
-}): CreateMaterialResult<TParams, Record<string, never>>;
-export function createMaterial<
-  TBindings extends Record<string, TgpuLayoutEntry | null>,
->(options: {
-  paramsSchema?: undefined;
-  bindings: TBindings;
+export function createMaterial<TParams extends AnyWgslData>(options: {
+  paramsSchema?: TParams | undefined;
+  paramsDefaults?: Infer<TParams> | undefined;
+  bindings?: undefined;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
-  createPipeline: (ctx: MaterialContext<AnyWgslData>) => MaterialOptions;
-}): CreateMaterialResult<AnyWgslData, Record<string, never>>;
+  createPipeline: (
+    ctx: MaterialContext<NoInfer<TParams>, Record<string, never>>,
+  ) => MaterialOptions;
+}): CreateMaterialResult<TParams, Record<string, never>>;
 export function createMaterial<
   TParams extends AnyWgslData,
   TBindings extends Record<string, TgpuLayoutEntry | null>,
@@ -158,7 +153,9 @@ export function createMaterial<
   bindings: TBindings;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
-  createPipeline: (ctx: MaterialContext<NoInfer<TParams>>) => MaterialOptions;
+  createPipeline: (
+    ctx: MaterialContext<NoInfer<TParams>, NoInfer<TBindings>>,
+  ) => MaterialOptions;
 
   paramsDefaults: Infer<TParams>;
 }): CreateMaterialResult<TParams, TBindings>;
@@ -170,14 +167,16 @@ export function createMaterial<
   bindings?: TBindings | undefined;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
-  createPipeline: (ctx: MaterialContext<NoInfer<TParams>>) => MaterialOptions;
+  createPipeline: (
+    ctx: MaterialContext<NoInfer<TParams>, NoInfer<TBindings>>,
+  ) => MaterialOptions;
 
   paramsDefaults?: Infer<TParams> | undefined;
 }): CreateMaterialResult<TParams, TBindings> {
   const {
     paramsSchema,
     bindings,
-    paramsDefaults,
+    paramsDefaults = paramsSchema ? tryCall(paramsSchema) : undefined,
     vertexLayout,
     instanceLayout,
     createPipeline,
@@ -238,6 +237,9 @@ export function createMaterial<
           },
           get params(): Infer<TParams> {
             return paramsLayout?.bound.params?.$ as Infer<TParams>;
+          },
+          get bindings(): TgpuBindGroupLayout<TBindings>['$'] {
+            return paramsLayout?.$ as TgpuBindGroupLayout<TBindings>['$'];
           },
         },
       });
