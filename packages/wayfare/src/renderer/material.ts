@@ -22,7 +22,7 @@ import {
 } from 'typegpu/data';
 
 export interface MaterialContext<
-  TParams,
+  TParams extends BaseWgslData,
   TBindings extends Record<string, TgpuLayoutEntry | null>,
 > {
   readonly root: TgpuRoot;
@@ -135,9 +135,19 @@ function tryCall(cb: unknown) {
   return cb();
 }
 
+export function createMaterial(options: {
+  paramsSchema?: undefined;
+  paramsDefaults?: undefined;
+  bindings?: undefined;
+  vertexLayout: TgpuVertexLayout;
+  instanceLayout?: TgpuVertexLayout;
+  createPipeline: (
+    ctx: MaterialContext<AnyWgslData, Record<string, never>>,
+  ) => MaterialOptions;
+}): CreateMaterialResult<AnyWgslData, Record<string, never>>;
 export function createMaterial<TParams extends AnyWgslData>(options: {
-  paramsSchema?: TParams | undefined;
-  paramsDefaults?: Infer<TParams> | undefined;
+  paramsSchema: TParams;
+  paramsDefaults?: Infer<NoInfer<TParams>> | undefined;
   bindings?: undefined;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
@@ -145,6 +155,18 @@ export function createMaterial<TParams extends AnyWgslData>(options: {
     ctx: MaterialContext<NoInfer<TParams>, Record<string, never>>,
   ) => MaterialOptions;
 }): CreateMaterialResult<TParams, Record<string, never>>;
+export function createMaterial<
+  TBindings extends Record<string, TgpuLayoutEntry | null>,
+>(options: {
+  paramsSchema?: undefined;
+  paramsDefaults?: undefined;
+  bindings: TBindings;
+  vertexLayout: TgpuVertexLayout;
+  instanceLayout?: TgpuVertexLayout;
+  createPipeline: (
+    ctx: MaterialContext<AnyWgslData, NoInfer<TBindings>>,
+  ) => MaterialOptions;
+}): CreateMaterialResult<AnyWgslData, TBindings>;
 export function createMaterial<
   TParams extends AnyWgslData,
   TBindings extends Record<string, TgpuLayoutEntry | null>,
