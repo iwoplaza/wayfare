@@ -127,7 +127,10 @@ export type CreateMaterialResult<
   material: Material<TParams>;
   Params: TraitFor<() => Infer<TParams>>;
   Bindings: TraitFor<() => Partial<ExtractBindGroupInputFromLayout<TBindings>>>;
-  Bundle(params?: Infer<TParams>): ConfigurableTrait[];
+  Bundle(
+    params?: Infer<TParams>,
+    bindings?: Partial<ExtractBindGroupInputFromLayout<TBindings>>,
+  ): ConfigurableTrait[];
 };
 
 function tryCall(cb: unknown) {
