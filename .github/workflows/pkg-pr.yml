@@ -37,7 +37,7 @@ jobs:
         run: pnpm -r build
 
       - name: Publish (pkg.pr.new)
-        run: npx pkg-pr-new publish './packages/wayfare/dist' --json output.json --comment=off
+        run: npx pkg-pr-new publish './packages/wayfare' --json output.json --comment=off
       - name: Post or update comment
         uses: actions/github-script@v6
         with:
