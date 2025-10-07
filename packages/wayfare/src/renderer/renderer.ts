@@ -40,6 +40,7 @@ export type GameObject = {
   worldMatrix: m4x4f;
   material: Material;
   materialParams: unknown;
+  readonly bindings: Record<string, unknown> | undefined;
   readonly extraBinding: TgpuBindGroup | undefined;
 };
 
@@ -145,8 +146,8 @@ export class Renderer {
     this._povBuffer.write({ viewProjMat, invViewProjMat });
   }
 
-  private _resourcesFor(id: number, material: Material): ObjectResources {
-    let resources = this._cachedResources.get(id);
+  private _resourcesFor(obj: GameObject): ObjectResources {
+    let resources = this._cachedResources.get(obj.id);
 
     if (!resources) {
       const uniformsBuffer = this.root
@@ -164,18 +165,18 @@ export class Renderer {
         },
       );
 
-      const instanceParamsBuffer = material.paramsSchema
+      const instanceParamsBuffer = obj.material.paramsSchema
         ? this.root
-            .createBuffer(material.paramsSchema as AnyWgslData)
+            .createBuffer(obj.material.paramsSchema as AnyWgslData)
             .$usage('uniform')
         : undefined;
 
-      const instanceParamsBindGroup =
-        instanceParamsBuffer && material.paramsLayout
-          ? this.root.createBindGroup(material.paramsLayout, {
-              params: instanceParamsBuffer,
-            })
-          : undefined;
+      const instanceParamsBindGroup = obj.material.paramsLayout
+        ? this.root.createBindGroup(obj.material.paramsLayout, {
+            ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
+            ...obj.bindings,
+          })
+        : undefined;
 
       resources = {
         uniformsBindGroup,
@@ -183,33 +184,35 @@ export class Renderer {
         instanceParamsBuffer,
         instanceParamsBindGroup,
       };
-      this._cachedResources.set(id, resources);
+      this._cachedResources.set(obj.id, resources);
+    } else if (obj.bindings) {
+      // Recreating the group on every render
+      resources.instanceParamsBindGroup = obj.material.paramsLayout
+        ? this.root.createBindGroup(obj.material.paramsLayout, {
+            ...(resources.instanceParamsBuffer
+              ? { params: resources.instanceParamsBuffer }
+              : {}),
+            ...obj.bindings,
+          })
+        : undefined;
     }
 
     return resources;
   }
 
-  private _recomputeUniformsFor({
-    id,
-    worldMatrix,
-    material,
-    materialParams,
-  }: GameObject) {
-    const { uniformsBuffer, instanceParamsBuffer } = this._resourcesFor(
-      id,
-      material,
-    );
+  private _recomputeUniformsFor(obj: GameObject) {
+    const { uniformsBuffer, instanceParamsBuffer } = this._resourcesFor(obj);
 
-    mat4.invert(worldMatrix, this._matrices.invModel);
+    mat4.invert(obj.worldMatrix, this._matrices.invModel);
     mat4.transpose(this._matrices.invModel, this._matrices.normalModel);
 
     uniformsBuffer.write({
-      modelMat: worldMatrix,
+      modelMat: obj.worldMatrix,
       invModelMat: this._matrices.invModel,
       normalModelMat: this._matrices.normalModel,
     });
 
-    instanceParamsBuffer?.write(materialParams);
+    instanceParamsBuffer?.write(obj.materialParams);
   }
 
   render(overrides?: RenderOverrides | undefined) {
@@ -248,32 +251,26 @@ export class Renderer {
         },
       },
       (pass) => {
-        for (const {
-          id,
-          meshAsset,
-          instanceBuffer,
-          material,
-          extraBinding,
-        } of this._objects) {
-          if (overrides?.filterObjects && !overrides?.filterObjects(id)) {
+        for (const obj of this._objects) {
+          if (overrides?.filterObjects && !overrides?.filterObjects(obj.id)) {
             continue;
           }
 
-          const mesh = meshAsset.peek(this.root);
+          const mesh = obj.meshAsset.peek(this.root);
           if (!mesh) {
             // Mesh is not loaded yet...
             continue;
           }
 
           const overrideMaterial = overrides?.material;
-          const realMaterial = overrideMaterial ?? material;
+          const realMaterial = overrideMaterial ?? obj.material;
           const pipeline = realMaterial.getPipeline(
             this.root,
             this._presentationFormat,
           );
 
           const { uniformsBindGroup, instanceParamsBindGroup } =
-            this._resourcesFor(id, material);
+            this._resourcesFor(obj);
 
           pass.setPipeline(pipeline);
           pass.setBindGroup(sharedBindGroupLayout, this._sharedBindGroup);
@@ -282,23 +279,31 @@ export class Renderer {
 
           if (
             !overrides?.material &&
-            material.paramsLayout &&
+            obj.material.paramsLayout &&
             instanceParamsBindGroup
           ) {
-            pass.setBindGroup(material.paramsLayout, instanceParamsBindGroup);
+            pass.setBindGroup(
+              obj.material.paramsLayout,
+              instanceParamsBindGroup,
+            );
           }
 
-          if (realMaterial.instanceLayout && instanceBuffer) {
-            pass.setVertexBuffer(realMaterial.instanceLayout, instanceBuffer);
+          if (realMaterial.instanceLayout && obj.instanceBuffer) {
+            pass.setVertexBuffer(
+              realMaterial.instanceLayout,
+              obj.instanceBuffer,
+            );
           }
 
-          if (extraBinding) {
-            pass.setBindGroup(extraBinding.layout, extraBinding);
+          if (obj.extraBinding) {
+            pass.setBindGroup(obj.extraBinding.layout, obj.extraBinding);
           }
 
           pass.draw(
             mesh.vertexCount,
-            instanceBuffer ? instanceBuffer.dataType.elementCount : undefined,
+            obj.instanceBuffer
+              ? obj.instanceBuffer.dataType.elementCount
+              : undefined,
           );
         }
       },
