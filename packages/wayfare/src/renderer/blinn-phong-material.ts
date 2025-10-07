@@ -17,19 +17,16 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
     createPipeline({ root, format, $$ }) {
       const vertexFn = tgpu['~unstable'].vertexFn({
         in: {
-          idx: d.builtin.vertexIndex,
           pos: d.vec3f,
           normal: d.vec3f,
           uv: d.vec2f,
         },
         out: { pos: d.builtin.position, normal: d.vec3f, uv: d.vec2f },
       })((input) => {
+        const worldPos = $$.modelMat.mul(d.vec4f(input.pos, 1));
         return {
-          pos: std.mul(
-            std.mul($$.viewProjMat, $$.modelMat),
-            d.vec4f(input.pos, 1),
-          ),
-          normal: std.mul($$.normalModelMat, d.vec4f(input.normal, 0)).xyz,
+          pos: $$.viewProjMat.mul(worldPos),
+          normal: $$.normalModelMat.mul(d.vec4f(input.normal, 0)).xyz,
           uv: input.uv,
         };
       });
@@ -47,9 +44,10 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> =
         const att = std.max(0, std.dot(normal, sunDir));
 
         const finalColor = std.mul(
-          std.add(ambient, std.mul(att, diffuse)),
+          ambient.add(diffuse.mul(att)),
           $$.params.albedo,
         );
+
         return d.vec4f(finalColor, 1.0);
       });
 
