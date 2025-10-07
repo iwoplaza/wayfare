@@ -22,6 +22,7 @@
   "files": [
     "README.md",
     "package.json",
+    "src/**/*",
     "dist/**/*"
   ],
   "sideEffects": false,
