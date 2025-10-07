@@ -1,7 +1,6 @@
 import {
   type Entity,
   Not,
-  type Trait,
   type World,
   createAdded,
   createRemoved,
@@ -165,11 +164,16 @@ export class Engine {
           instanceBuffer,
           get materialParams() {
             return materialTrait
-              ? entity.get(materialTrait.paramsTrait as unknown as Trait)
+              ? entity.get(materialTrait.paramsTrait)
               : DefaultMaterial.paramsDefaults;
           },
           get extraBinding() {
             return entity.get(ExtraBindingTrait)?.group;
+          },
+          get bindings() {
+            return materialTrait
+              ? entity.get(materialTrait.bindingsTrait)
+              : undefined;
           },
         });
       });

@@ -110,9 +110,11 @@ export const ExtraBindingTrait: Trait<{
 export const MaterialTrait: Trait<{
   material: () => Material;
   paramsTrait: () => Trait;
+  bindingsTrait: () => Trait;
 }> = trait({
   material: () => undefined as unknown as Material,
   paramsTrait: () => undefined as unknown as Trait,
+  bindingsTrait: () => undefined as unknown as Trait,
 });
 
 export type CreateMaterialResult<
@@ -285,13 +287,19 @@ export function createMaterial<
     material,
     Params: paramsTrait,
     Bindings: bindingsTrait,
-    Bundle: (params) => [
+    Bundle: (
+      params,
+      bindings?: Partial<ExtractBindGroupInputFromLayout<TBindings>>,
+    ) => [
       MaterialTrait({
         material,
         // biome-ignore lint/suspicious/noExplicitAny: it's complicated
         paramsTrait: paramsTrait as any,
+        // biome-ignore lint/suspicious/noExplicitAny: it's complicated
+        bindingsTrait: bindingsTrait as any,
       }),
       params ? paramsTrait(params) : paramsTrait,
+      bindings ? bindingsTrait(bindings) : bindingsTrait,
     ],
   };
 }
