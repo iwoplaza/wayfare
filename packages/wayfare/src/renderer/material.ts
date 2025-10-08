@@ -177,28 +177,26 @@ export function createMaterial<
   TBindings extends Record<string, TgpuLayoutEntry | null>,
 >(options: {
   paramsSchema: TParams;
+  paramsDefaults?: Infer<TParams> | undefined;
   bindings: TBindings;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
   createPipeline: (
     ctx: MaterialContext<NoInfer<TParams>, NoInfer<TBindings>>,
   ) => MaterialOptions;
-
-  paramsDefaults: Infer<TParams>;
 }): CreateMaterialResult<TParams, TBindings>;
 export function createMaterial<
   TParams extends AnyWgslData,
   TBindings extends Record<string, TgpuLayoutEntry | null>,
 >(options: {
   paramsSchema?: TParams | undefined;
+  paramsDefaults?: Infer<TParams> | undefined;
   bindings?: TBindings | undefined;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
   createPipeline: (
     ctx: MaterialContext<NoInfer<TParams>, NoInfer<TBindings>>,
   ) => MaterialOptions;
-
-  paramsDefaults?: Infer<TParams> | undefined;
 }): CreateMaterialResult<TParams, TBindings> {
   const {
     paramsSchema,
