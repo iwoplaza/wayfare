@@ -11,7 +11,6 @@ import {
   type WgslArray,
   type m4x4f,
   mat4x4f,
-  vec3f,
   vec4f,
 } from 'typegpu/data';
 import { add } from 'typegpu/std';
@@ -75,8 +74,6 @@ export class Renderer {
   private readonly _presentationFormat: GPUTextureFormat;
   private readonly _cachedResources = new Map<number, ObjectResources>();
   private _cameraConfig: PerspectiveConfig | OrthographicConfig | null = null;
-  private _viewOrigin = vec3f(0, 0, 0);
-  private _viewDir = vec3f(0, 0, -1);
 
   constructor(
     public readonly root: TgpuRoot,
@@ -105,8 +102,7 @@ export class Renderer {
 
     this._povBuffer = root
       .createBuffer(POVStruct, {
-        viewOrigin: this._viewOrigin,
-        viewDir: this._viewDir,
+        viewMat: mat4.identity(mat4x4f()),
         viewProjMat: mat4.identity(mat4x4f()),
         invViewProjMat: mat4.identity(mat4x4f()),
       })
@@ -149,8 +145,7 @@ export class Renderer {
     );
     const invViewProjMat = mat4.invert(viewProjMat, mat4x4f());
     this._povBuffer.write({
-      viewOrigin: this._viewOrigin,
-      viewDir: this._viewDir,
+      viewMat: this._matrices.view,
       viewProjMat,
       invViewProjMat,
     });
@@ -335,9 +330,6 @@ export class Renderer {
     const rotation = mat4.fromQuat(transform.rotation);
     const forward = mat4.mul(rotation, vec4f(0, 0, -1, 0), vec4f());
     const up = mat4.mul(rotation, vec4f(0, 1, 0, 0), vec4f());
-
-    this._viewOrigin = transform.position;
-    this._viewDir = forward.xyz;
 
     mat4.identity(this._matrices.view);
     mat4.lookAt(
