@@ -11,6 +11,7 @@ import {
   type WgslArray,
   type m4x4f,
   mat4x4f,
+  vec3f,
   vec4f,
 } from 'typegpu/data';
 import { add } from 'typegpu/std';
@@ -74,6 +75,8 @@ export class Renderer {
   private readonly _presentationFormat: GPUTextureFormat;
   private readonly _cachedResources = new Map<number, ObjectResources>();
   private _cameraConfig: PerspectiveConfig | OrthographicConfig | null = null;
+  private _viewOrigin = vec3f(0, 0, 0);
+  private _viewDir = vec3f(0, 0, -1);
 
   constructor(
     public readonly root: TgpuRoot,
@@ -102,6 +105,8 @@ export class Renderer {
 
     this._povBuffer = root
       .createBuffer(POVStruct, {
+        viewOrigin: this._viewOrigin,
+        viewDir: this._viewDir,
         viewProjMat: mat4.identity(mat4x4f()),
         invViewProjMat: mat4.identity(mat4x4f()),
       })
@@ -143,7 +148,12 @@ export class Renderer {
       mat4x4f(),
     );
     const invViewProjMat = mat4.invert(viewProjMat, mat4x4f());
-    this._povBuffer.write({ viewProjMat, invViewProjMat });
+    this._povBuffer.write({
+      viewOrigin: this._viewOrigin,
+      viewDir: this._viewDir,
+      viewProjMat,
+      invViewProjMat,
+    });
   }
 
   private _resourcesFor(obj: GameObject): ObjectResources {
@@ -167,15 +177,15 @@ export class Renderer {
 
       const instanceParamsBuffer = obj.material.paramsSchema
         ? this.root
-          .createBuffer(obj.material.paramsSchema as AnyWgslData)
-          .$usage('uniform')
+            .createBuffer(obj.material.paramsSchema as AnyWgslData)
+            .$usage('uniform')
         : undefined;
 
       const instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-          ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
-          ...obj.bindings,
-        })
+            ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
+            ...obj.bindings,
+          })
         : undefined;
 
       resources = {
@@ -189,11 +199,11 @@ export class Renderer {
       // Recreating the group on every render
       resources.instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-          ...(resources.instanceParamsBuffer
-            ? { params: resources.instanceParamsBuffer }
-            : {}),
-          ...obj.bindings,
-        })
+            ...(resources.instanceParamsBuffer
+              ? { params: resources.instanceParamsBuffer }
+              : {}),
+            ...obj.bindings,
+          })
         : undefined;
     }
 
@@ -325,6 +335,9 @@ export class Renderer {
     const rotation = mat4.fromQuat(transform.rotation);
     const forward = mat4.mul(rotation, vec4f(0, 0, -1, 0), vec4f());
     const up = mat4.mul(rotation, vec4f(0, 1, 0, 0), vec4f());
+
+    this._viewOrigin = transform.position;
+    this._viewDir = forward.xyz;
 
     mat4.identity(this._matrices.view);
     mat4.lookAt(
