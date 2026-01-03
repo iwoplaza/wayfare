@@ -3,11 +3,10 @@ packages:
   - "packages/**"
 
 catalog:
-  typegpu: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62
-  unplugin-typegpu: 0.2.2
+  typegpu: 0.9.0
+  unplugin-typegpu: 0.9.0
   "@webgpu/types": ^0.1.64
 
 catalogs:
   build:
     tsdown: ^0.12.9
-    unplugin-auto-import: ^19.3.0

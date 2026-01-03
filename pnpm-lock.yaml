@@ -14,11 +14,11 @@ catalogs:
       specifier: ^0.1.64
       version: 0.1.64
     typegpu:
-      specifier: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62
-      version: 0.8.0
+      specifier: 0.9.0
+      version: 0.9.0
     unplugin-typegpu:
-      specifier: 0.2.2
-      version: 0.2.2
+      specifier: 0.9.0
+      version: 0.9.0
 
 importers:
 
@@ -62,10 +62,10 @@ importers:
         version: 3.4.17
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62
+        version: 0.9.0
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.2.2(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62)
+        version: 0.9.0(typegpu@0.9.0)
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -168,7 +168,7 @@ importers:
         version: 0.1.23(react-native@0.76.6(@babel/core@7.26.8)(@babel/preset-env@7.26.8(@babel/core@7.26.8))(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62
+        version: 0.9.0
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -208,7 +208,7 @@ importers:
         version: 5.7.3
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.2.2(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62)
+        version: 0.9.0(typegpu@0.9.0)
 
   packages/bionic-jolt-common:
     dependencies:
@@ -217,7 +217,7 @@ importers:
         version: 0.5.0(@types/react@18.3.18)(react@18.3.1)
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62
+        version: 0.9.0
       wayfare:
         specifier: 'workspace:'
         version: link:../wayfare
@@ -255,10 +255,10 @@ importers:
         version: 0.12.9(typescript@5.7.3)
       typegpu:
         specifier: 'catalog:'
-        version: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62
+        version: 0.9.0
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.2.2(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62)
+        version: 0.9.0(typegpu@0.9.0)
       wgpu-matrix:
         specifier: ^3.4.0
         version: 3.4.0
@@ -5989,12 +5989,12 @@ packages:
   through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
 
-  tinyest-for-wgsl@0.1.2:
-    resolution: {integrity: sha512-yJ49SoJIpEi4ADsBVNE54GVJ5JZMIAKNkRueeNpYhIiq0z1Nn9THJNMNP1b9HI0VQt7LzCrxT0ZP29muiUtcRg==}
+  tinyest-for-wgsl@0.2.0:
+    resolution: {integrity: sha512-aFKlgGEjQJYcq31+5ykwyd0Cbw5BCb3s/ATje9wlkgyNPwKtSZCSXAPsCswjaQBCiHXub0onzsfgYvy7ez8t0Q==}
     engines: {node: '>=12.20.0'}
 
-  tinyest@0.1.1:
-    resolution: {integrity: sha512-YNHlB8BOXgW6RPzrfqqAkgyY9xj33sjXJcJlOl3MwY0BXXx26m3JUqf5yV8iBdwJPNe51DmxypR9Zbbd266biQ==}
+  tinyest@0.2.0:
+    resolution: {integrity: sha512-k8XL8FipMVboHtNwAJ6PgGVkWk+9hWEROGoxEXJKmO9ZOXehlBgdGY5uCkGRgT60TYJhtfOelvC/ikMpKYAmHA==}
     engines: {node: '>=12.20.0'}
 
   tinyexec@0.3.2:
@@ -6103,9 +6103,8 @@ packages:
   typed-binary@4.3.2:
     resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
 
-  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62:
-    resolution: {tarball: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62}
-    version: 0.8.0
+  typegpu@0.9.0:
+    resolution: {integrity: sha512-1mIUiElaxmwy4RMGvFrifHYmLnXLQjB30eKanAWj1ab3qhJvDq0bUfi9j0JP3jaQPXsGgFcNvLGJvCfvi55Ajg==}
     engines: {node: '>=12.20.0'}
 
   typescript@5.7.3:
@@ -6214,11 +6213,10 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-typegpu@0.2.2:
-    resolution: {integrity: sha512-5pbwv0cTMRMxRCQXEPAMUsUoAKMQsz2B4zlhpRRHNy3qtMk+rP3Uxe/5zZUtr2yAASCVO2iciblH5HqcUoijjQ==}
-    version: 0.2.2
+  unplugin-typegpu@0.9.0:
+    resolution: {integrity: sha512-xEuOgh9u5BXAG+T2kiBKT2Dn5+gTkcBeHFGMMNMjOx5NT6HcKI/uu6XucAnGxaE/hkJzwR6aQxxmMe6lhbcxcg==}
     peerDependencies:
-      typegpu: ^0.7.0
+      typegpu: ^0.9.0
 
   unplugin@2.3.5:
     resolution: {integrity: sha512-RyWSb5AHmGtjjNQ6gIlA67sHOsWpsbWpwDokLwTcejVdOjEkJZh7QKu14J00gDDVSh8kGH4KYC/TNBceXFZhtw==}
@@ -13803,11 +13801,11 @@ snapshots:
 
   through@2.3.8: {}
 
-  tinyest-for-wgsl@0.1.2:
+  tinyest-for-wgsl@0.2.0:
     dependencies:
-      tinyest: 0.1.1
+      tinyest: 0.2.0
 
-  tinyest@0.1.1: {}
+  tinyest@0.2.0: {}
 
   tinyexec@0.3.2: {}
 
@@ -13892,9 +13890,9 @@ snapshots:
 
   typed-binary@4.3.2: {}
 
-  typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62:
+  typegpu@0.9.0:
     dependencies:
-      tinyest: 0.1.1
+      tinyest: 0.2.0
       typed-binary: 4.3.2
 
   typescript@5.7.3: {}
@@ -14003,7 +14001,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-typegpu@0.2.2(typegpu@https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62):
+  unplugin-typegpu@0.9.0(typegpu@0.9.0):
     dependencies:
       '@babel/standalone': 7.27.2
       defu: 6.1.4
@@ -14011,9 +14009,9 @@ snapshots:
       magic-string-ast: 1.0.0
       pathe: 2.0.3
       picomatch: 4.0.3
-      tinyest: 0.1.1
-      tinyest-for-wgsl: 0.1.2
-      typegpu: https://pkg.pr.new/software-mansion/TypeGPU/typegpu@5fb9a434e8c8b0287fce9e03e824a02f6599fb62
+      tinyest: 0.2.0
+      tinyest-for-wgsl: 0.2.0
+      typegpu: 0.9.0
       unplugin: 2.3.5
 
   unplugin@2.3.5:

@@ -167,15 +167,15 @@ export class Renderer {
 
       const instanceParamsBuffer = obj.material.paramsSchema
         ? this.root
-            .createBuffer(obj.material.paramsSchema as AnyWgslData)
-            .$usage('uniform')
+          .createBuffer(obj.material.paramsSchema as AnyWgslData)
+          .$usage('uniform')
         : undefined;
 
       const instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-            ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
-            ...obj.bindings,
-          })
+          ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
+          ...obj.bindings,
+        })
         : undefined;
 
       resources = {
@@ -189,11 +189,11 @@ export class Renderer {
       // Recreating the group on every render
       resources.instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-            ...(resources.instanceParamsBuffer
-              ? { params: resources.instanceParamsBuffer }
-              : {}),
-            ...obj.bindings,
-          })
+          ...(resources.instanceParamsBuffer
+            ? { params: resources.instanceParamsBuffer }
+            : {}),
+          ...obj.bindings,
+        })
         : undefined;
     }
 
@@ -308,8 +308,6 @@ export class Renderer {
         }
       },
     );
-
-    this.root['~unstable'].flush();
 
     // In react-native-wgpu, we have to call `context.present` in order
     // to show what's been drawn to the canvas.

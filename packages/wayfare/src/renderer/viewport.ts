@@ -1,14 +1,14 @@
-import type { Render, TgpuRoot, TgpuTexture } from 'typegpu';
+import type { RenderFlag, TgpuRoot, TgpuTexture } from 'typegpu';
 
 export class Viewport {
-  private _depthTexture: (TgpuTexture & Render) | undefined;
+  private _depthTexture: (TgpuTexture & RenderFlag) | undefined;
   private _depthTextureView: GPUTextureView | undefined;
 
   constructor(
     private readonly _root: TgpuRoot,
     private _width: number,
     private _height: number,
-  ) {}
+  ) { }
 
   get width() {
     return this._width;
@@ -18,7 +18,7 @@ export class Viewport {
     return this._height;
   }
 
-  get depthTexture(): TgpuTexture & Render {
+  get depthTexture(): TgpuTexture & RenderFlag {
     if (!this._depthTexture) {
       this._depthTexture = this._root['~unstable']
         .createTexture({

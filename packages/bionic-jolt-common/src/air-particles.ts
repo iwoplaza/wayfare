@@ -32,7 +32,7 @@ export const AirParticlesMaterial = wf.createMaterial({
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, $$ }) {
     const getTransformedOrigin = (localOrigin: d.v3f) => {
-      'kernel';
+      'use gpu';
       const wrappedOrigin = localOrigin.sub($$.params.cameraPosition);
       wrappedOrigin.y -= $$.params.yOffset;
 
@@ -47,7 +47,7 @@ export const AirParticlesMaterial = wf.createMaterial({
     };
 
     const computePosition = (pos: d.v3f, originRelToCamera: d.v3f) => {
-      'kernel';
+      'use gpu';
       const angle =
         -std.atan2(originRelToCamera.x, originRelToCamera.z) + Math.PI;
       const rot_mat = d.mat3x3f(
