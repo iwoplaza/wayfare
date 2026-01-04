@@ -22,7 +22,7 @@ const DudeBundle = () => [
 ];
 
 const Player = wf.node((world) => {
-  world.spawn(DudeBundle());
+  world.spawn(...DudeBundle());
 
   return {
     onFrame() {
