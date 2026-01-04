@@ -55,13 +55,14 @@
     "@loaders.gl/core": "^4.3.3",
     "@loaders.gl/gltf": "^4.3.3",
     "@loaders.gl/obj": "^4.3.3",
-    "@loaders.gl/schema": "^4.3.3"
+    "@loaders.gl/schema": "^4.3.3",
+    "directed": "^0.1.6"
   },
   "devDependencies": {
     "@webgpu/types": "catalog:",
     "keyboardevent-codes": "1.0.0",
-    "tsdown": "catalog:build",
     "koota": "^0.5.0",
+    "tsdown": "catalog:build",
     "typegpu": "catalog:",
     "unplugin-typegpu": "catalog:",
     "wgpu-matrix": "^3.4.0"

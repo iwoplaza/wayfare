@@ -16,6 +16,7 @@ import {
   vec4f,
 } from 'typegpu/data';
 import { mat4, quat } from 'wgpu-matrix';
+import { Schedule } from 'directed';
 
 import type { MeshAsset } from './asset/mesh-asset.ts';
 import {
@@ -73,8 +74,22 @@ export const ScheduleSystem = trait(() => (world: World): void => {
 //   throw new Error('No system registered.');
 // });
 
+/**
+ * Represents the moment a frame is rendered.
+ * Can be used to schedule work before or after
+ * using `engine.renderSchedule`
+ *
+ * @example
+ * ```ts
+ * engine.renderSchedule.add(customFn, { before: RENDER_TIMESLOT });
+ * engine.renderSchedule.build(); // Rebuild the graph
+ * ```
+ */
+export const RENDER_TIMESLOT = Symbol();
+
 export class Engine {
   public readonly world: World = createWorld();
+  public readonly renderSchedule: Schedule;
   #animationFrame: number | undefined;
 
   constructor(
@@ -82,6 +97,12 @@ export class Engine {
     public readonly renderer: Renderer,
   ) {
     this.world.add(Time);
+    this.renderSchedule = new Schedule();
+    this.renderSchedule.createTag(RENDER_TIMESLOT);
+    this.renderSchedule.add(() => {
+      renderer.render();
+    }, { tag: RENDER_TIMESLOT });
+    this.renderSchedule.build();
   }
 
   run(onFrame: (deltaSeconds: number) => unknown) {
@@ -201,7 +222,7 @@ export class Engine {
         }
       }
 
-      this.renderer.render();
+      this.renderSchedule.run({});
       this.#animationFrame = requestAnimationFrame(handleFrame);
     };
 
