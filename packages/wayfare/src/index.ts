@@ -6,6 +6,7 @@ export {
   InstanceBufferTrait,
   Velocity,
   ScheduleSystem,
+  RENDER_TIMESLOT,
 } from './engine.ts';
 export {
   ActiveCameraTag,
