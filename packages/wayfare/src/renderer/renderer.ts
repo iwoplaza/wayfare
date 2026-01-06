@@ -75,19 +75,25 @@ export class Renderer {
   readonly #presentationFormat: GPUTextureFormat;
   readonly #cachedResources = new Map<number, ObjectResources>();
   #cameraConfig: PerspectiveConfig | OrthographicConfig | null = null;
-  readonly #context: GPUCanvasContext;
+
+  readonly root: TgpuRoot;
+  readonly canvas: HTMLCanvasElement;
+  readonly context: GPUCanvasContext;
 
   constructor(
-    public readonly root: TgpuRoot,
-    public readonly canvas: HTMLCanvasElement,
+    root: TgpuRoot,
+    canvas: HTMLCanvasElement,
     context: GPUCanvasContext,
   ) {
-    this.#context = context;
+    this.root = root;
+    this.canvas = canvas;
+    this.context = context;
+
     const device = root.device;
 
     this.#presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
-    this.#context.configure({
+    this.context.configure({
       device: device,
       format: this.#presentationFormat,
       alphaMode: 'premultiplied',
@@ -170,15 +176,15 @@ export class Renderer {
 
       const instanceParamsBuffer = obj.material.paramsSchema
         ? this.root
-            .createBuffer(obj.material.paramsSchema as AnyWgslData)
-            .$usage('uniform')
+          .createBuffer(obj.material.paramsSchema as AnyWgslData)
+          .$usage('uniform')
         : undefined;
 
       const instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-            ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
-            ...obj.bindings,
-          })
+          ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
+          ...obj.bindings,
+        })
         : undefined;
 
       resources = {
@@ -192,11 +198,11 @@ export class Renderer {
       // Recreating the group on every render
       resources.instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-            ...(resources.instanceParamsBuffer
-              ? { params: resources.instanceParamsBuffer }
-              : {}),
-            ...obj.bindings,
-          })
+          ...(resources.instanceParamsBuffer
+            ? { params: resources.instanceParamsBuffer }
+            : {}),
+          ...obj.bindings,
+        })
         : undefined;
     }
 
@@ -229,7 +235,7 @@ export class Renderer {
       this.#recomputeUniformsFor(obj);
     }
 
-    const targetView = this.#context.getCurrentTexture().createView();
+    const targetView = this.context.getCurrentTexture().createView();
 
     this.root['~unstable'].beginRenderPass(
       {
@@ -314,8 +320,8 @@ export class Renderer {
 
     // In react-native-wgpu, we have to call `context.present` in order
     // to show what's been drawn to the canvas.
-    if ('present' in this.#context) {
-      (this.#context.present as () => void)();
+    if ('present' in this.context) {
+      (this.context.present as () => void)();
     }
   }
 
