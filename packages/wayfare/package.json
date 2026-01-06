@@ -9,8 +9,8 @@
     ".": "./src/index.ts"
   },
   "publishConfig": {
-    "main": "./dist/index.mjs",
-    "types": "./dist/index.d.mts",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "exports": {
       "./package.json": "./package.json",
       ".": {
@@ -19,14 +19,26 @@
       }
     }
   },
-  "files": ["README.md", "package.json", "dist/**/*"],
+  "files": [
+    "README.md",
+    "package.json",
+    "dist/**/*"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
     "prepublishOnly": "pnpm build",
     "test:types": "tsc --noEmit"
   },
-  "keywords": ["WebGPU", "TypeGPU", "game", "engine", "3d", "graphics", "ecs"],
+  "keywords": [
+    "WebGPU",
+    "TypeGPU",
+    "game",
+    "engine",
+    "3d",
+    "graphics",
+    "ecs"
+  ],
   "license": "MIT",
   "author": {
     "name": "Iwo Plaza",
