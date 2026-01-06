@@ -19,7 +19,7 @@
       }
     }
   },
-  "files": ["README.md", "package.json", "src/**/*", "dist/**/*"],
+  "files": ["README.md", "package.json", "dist/**/*"],
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
