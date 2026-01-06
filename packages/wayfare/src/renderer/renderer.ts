@@ -61,39 +61,41 @@ type RenderOverrides = {
 };
 
 export class Renderer {
-  private _objects: GameObject[] = [];
-  private readonly _matrices: {
+  #objects: GameObject[] = [];
+  readonly #matrices: {
     proj: m4x4f;
     view: m4x4f;
     model: m4x4f;
     invModel: m4x4f;
     normalModel: m4x4f;
   };
-  private readonly _viewport: Viewport;
-  private readonly _povBuffer: TgpuBuffer<typeof POVStruct> & UniformFlag;
-  private readonly _sharedBindGroup: SharedBindGroup;
-  private readonly _presentationFormat: GPUTextureFormat;
-  private readonly _cachedResources = new Map<number, ObjectResources>();
-  private _cameraConfig: PerspectiveConfig | OrthographicConfig | null = null;
+  readonly #viewport: Viewport;
+  readonly #povBuffer: TgpuBuffer<typeof POVStruct> & UniformFlag;
+  readonly #sharedBindGroup: SharedBindGroup;
+  readonly #presentationFormat: GPUTextureFormat;
+  readonly #cachedResources = new Map<number, ObjectResources>();
+  #cameraConfig: PerspectiveConfig | OrthographicConfig | null = null;
+  readonly #context: GPUCanvasContext;
 
   constructor(
     public readonly root: TgpuRoot,
     public readonly canvas: HTMLCanvasElement,
-    private readonly _context: GPUCanvasContext,
+    context: GPUCanvasContext,
   ) {
+    this.#context = context;
     const device = root.device;
 
-    this._presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    this.#presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
-    this._context.configure({
+    this.#context.configure({
       device: device,
-      format: this._presentationFormat,
+      format: this.#presentationFormat,
       alphaMode: 'premultiplied',
     });
 
-    this._viewport = new Viewport(root, canvas.width, canvas.height);
+    this.#viewport = new Viewport(root, canvas.width, canvas.height);
 
-    this._matrices = {
+    this.#matrices = {
       proj: mat4.identity(mat4x4f()),
       view: mat4.identity(mat4x4f()),
       model: mat4.identity(mat4x4f()),
@@ -101,54 +103,54 @@ export class Renderer {
       normalModel: mat4.identity(mat4x4f()),
     };
 
-    this._povBuffer = root.createBuffer(POVStruct).$usage('uniform');
+    this.#povBuffer = root.createBuffer(POVStruct).$usage('uniform');
 
-    this._sharedBindGroup = root.createBindGroup(sharedBindGroupLayout, {
-      pov: this._povBuffer,
+    this.#sharedBindGroup = root.createBindGroup(sharedBindGroupLayout, {
+      pov: this.#povBuffer,
     });
   }
 
-  private _updateProjection() {
-    if (!this._cameraConfig) return;
+  #updateProjection() {
+    if (!this.#cameraConfig) return;
 
-    if (this._cameraConfig.type === 'perspective') {
+    if (this.#cameraConfig.type === 'perspective') {
       mat4.perspective(
-        ((this._cameraConfig?.fov ?? 45) / 180) * Math.PI, // fov
-        this._viewport.width / this._viewport.height, // aspect
-        this._cameraConfig?.near ?? 0.1, // near
-        this._cameraConfig?.far ?? 1000.0, // far
-        this._matrices.proj,
+        ((this.#cameraConfig?.fov ?? 45) / 180) * Math.PI, // fov
+        this.#viewport.width / this.#viewport.height, // aspect
+        this.#cameraConfig?.near ?? 0.1, // near
+        this.#cameraConfig?.far ?? 1000.0, // far
+        this.#matrices.proj,
       );
-    } else if (this._cameraConfig.type === 'orthographic') {
+    } else if (this.#cameraConfig.type === 'orthographic') {
       mat4.ortho(
-        this._cameraConfig.left,
-        this._cameraConfig.right,
-        this._cameraConfig.bottom,
-        this._cameraConfig.top,
-        this._cameraConfig.near,
-        this._cameraConfig.far,
-        this._matrices.proj,
+        this.#cameraConfig.left,
+        this.#cameraConfig.right,
+        this.#cameraConfig.bottom,
+        this.#cameraConfig.top,
+        this.#cameraConfig.near,
+        this.#cameraConfig.far,
+        this.#matrices.proj,
       );
     }
   }
 
-  private _updatePOV() {
+  #updatePOV() {
     const viewProjMat = mat4.mul(
-      this._matrices.proj,
-      this._matrices.view,
+      this.#matrices.proj,
+      this.#matrices.view,
       mat4x4f(),
     );
     const invViewProjMat = mat4.invert(viewProjMat, mat4x4f());
-    this._povBuffer.write({
-      viewport: vec2u(this._viewport.width, this._viewport.height),
-      viewMat: this._matrices.view,
+    this.#povBuffer.write({
+      viewport: vec2u(this.#viewport.width, this.#viewport.height),
+      viewMat: this.#matrices.view,
       viewProjMat,
       invViewProjMat,
     });
   }
 
-  private _resourcesFor(obj: GameObject): ObjectResources {
-    let resources = this._cachedResources.get(obj.id);
+  #resourcesFor(obj: GameObject): ObjectResources {
+    let resources = this.#cachedResources.get(obj.id);
 
     if (!resources) {
       const uniformsBuffer = this.root
@@ -185,7 +187,7 @@ export class Renderer {
         instanceParamsBuffer,
         instanceParamsBindGroup,
       };
-      this._cachedResources.set(obj.id, resources);
+      this.#cachedResources.set(obj.id, resources);
     } else if (obj.bindings) {
       // Recreating the group on every render
       resources.instanceParamsBindGroup = obj.material.paramsLayout
@@ -201,16 +203,16 @@ export class Renderer {
     return resources;
   }
 
-  private _recomputeUniformsFor(obj: GameObject) {
-    const { uniformsBuffer, instanceParamsBuffer } = this._resourcesFor(obj);
+  #recomputeUniformsFor(obj: GameObject) {
+    const { uniformsBuffer, instanceParamsBuffer } = this.#resourcesFor(obj);
 
-    mat4.invert(obj.worldMatrix, this._matrices.invModel);
-    mat4.transpose(this._matrices.invModel, this._matrices.normalModel);
+    mat4.invert(obj.worldMatrix, this.#matrices.invModel);
+    mat4.transpose(this.#matrices.invModel, this.#matrices.normalModel);
 
     uniformsBuffer.write({
       modelMat: obj.worldMatrix,
-      invModelMat: this._matrices.invModel,
-      normalModelMat: this._matrices.normalModel,
+      invModelMat: this.#matrices.invModel,
+      normalModelMat: this.#matrices.normalModel,
     });
 
     instanceParamsBuffer?.write(obj.materialParams);
@@ -221,13 +223,13 @@ export class Renderer {
       throw new Error('Material override cannot have parameters');
     }
 
-    this._updatePOV();
+    this.#updatePOV();
 
-    for (const obj of this._objects) {
-      this._recomputeUniformsFor(obj);
+    for (const obj of this.#objects) {
+      this.#recomputeUniformsFor(obj);
     }
 
-    const targetView = this._context.getCurrentTexture().createView();
+    const targetView = this.#context.getCurrentTexture().createView();
 
     this.root['~unstable'].beginRenderPass(
       {
@@ -236,7 +238,7 @@ export class Renderer {
             view: targetView,
             loadOp: 'clear',
             storeOp: 'store',
-            clearValue: this._cameraConfig?.clearColor ?? {
+            clearValue: this.#cameraConfig?.clearColor ?? {
               r: 0.0,
               g: 0.0,
               b: 0.0,
@@ -245,14 +247,14 @@ export class Renderer {
           },
         ],
         depthStencilAttachment: overrides?.depthStencilAttachment ?? {
-          view: this._viewport.depthTextureView,
+          view: this.#viewport.depthTextureView,
           depthLoadOp: 'clear',
           depthStoreOp: 'store',
           depthClearValue: 1.0,
         },
       },
       (pass) => {
-        for (const obj of this._objects) {
+        for (const obj of this.#objects) {
           if (overrides?.filterObjects && !overrides?.filterObjects(obj.id)) {
             continue;
           }
@@ -267,14 +269,14 @@ export class Renderer {
           const realMaterial = overrideMaterial ?? obj.material;
           const pipeline = realMaterial.getPipeline(
             this.root,
-            this._presentationFormat,
+            this.#presentationFormat,
           );
 
           const { uniformsBindGroup, instanceParamsBindGroup } =
-            this._resourcesFor(obj);
+            this.#resourcesFor(obj);
 
           pass.setPipeline(pipeline);
-          pass.setBindGroup(sharedBindGroupLayout, this._sharedBindGroup);
+          pass.setBindGroup(sharedBindGroupLayout, this.#sharedBindGroup);
           pass.setBindGroup(uniformsBindGroupLayout, uniformsBindGroup);
           pass.setVertexBuffer(realMaterial.vertexLayout, mesh.vertexBuffer);
 
@@ -312,14 +314,14 @@ export class Renderer {
 
     // In react-native-wgpu, we have to call `context.present` in order
     // to show what's been drawn to the canvas.
-    if ('present' in this._context) {
-      (this._context.present as () => void)();
+    if ('present' in this.#context) {
+      (this.#context.present as () => void)();
     }
   }
 
   updateViewport(width: number, height: number) {
-    this._viewport.resize(width, height);
-    this._updateProjection();
+    this.#viewport.resize(width, height);
+    this.#updateProjection();
   }
 
   setPOV(transform: Transform, config: OrthographicConfig | PerspectiveConfig) {
@@ -327,23 +329,23 @@ export class Renderer {
     const forward = mat4.mul(rotation, vec4f(0, 0, -1, 0), vec4f());
     const up = mat4.mul(rotation, vec4f(0, 1, 0, 0), vec4f());
 
-    mat4.identity(this._matrices.view);
+    mat4.identity(this.#matrices.view);
     mat4.lookAt(
       transform.position,
       add(transform.position, forward.xyz),
       up.xyz,
-      this._matrices.view,
+      this.#matrices.view,
     );
 
-    this._cameraConfig = config;
-    this._updateProjection();
+    this.#cameraConfig = config;
+    this.#updateProjection();
   }
 
   addObject(object: GameObject) {
-    this._objects.push(object);
+    this.#objects.push(object);
   }
 
   removeObject(id: number) {
-    this._objects = this._objects.filter((obj) => obj.id !== id);
+    this.#objects = this.#objects.filter((obj) => obj.id !== id);
   }
 }

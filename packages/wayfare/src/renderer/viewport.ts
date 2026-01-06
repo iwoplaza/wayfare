@@ -1,48 +1,51 @@
 import type { RenderFlag, TgpuRoot, TgpuTexture } from 'typegpu';
 
 export class Viewport {
-  private _depthTexture: (TgpuTexture & RenderFlag) | undefined;
-  private _depthTextureView: GPUTextureView | undefined;
+  #depthTexture: (TgpuTexture & RenderFlag) | undefined;
+  #depthTextureView: GPUTextureView | undefined;
+  #root: TgpuRoot;
+  #width: number;
+  #height: number;
 
-  constructor(
-    private readonly _root: TgpuRoot,
-    private _width: number,
-    private _height: number,
-  ) {}
+  constructor(root: TgpuRoot, width: number, height: number) {
+    this.#root = root;
+    this.#width = width;
+    this.#height = height;
+  }
 
   get width() {
-    return this._width;
+    return this.#width;
   }
 
   get height() {
-    return this._height;
+    return this.#height;
   }
 
   get depthTexture(): TgpuTexture & RenderFlag {
-    if (!this._depthTexture) {
-      this._depthTexture = this._root['~unstable']
+    if (!this.#depthTexture) {
+      this.#depthTexture = this.#root['~unstable']
         .createTexture({
           format: 'depth24plus',
-          size: [this._width, this._height],
+          size: [this.#width, this.#height],
         })
         .$usage('render');
     }
-    return this._depthTexture;
+    return this.#depthTexture;
   }
 
   get depthTextureView(): GPUTextureView {
-    if (!this._depthTextureView) {
-      this._depthTextureView = this._root
+    if (!this.#depthTextureView) {
+      this.#depthTextureView = this.#root
         .unwrap(this.depthTexture)
         .createView();
     }
-    return this._depthTextureView;
+    return this.#depthTextureView;
   }
 
   resize(width: number, height: number) {
-    this._width = width;
-    this._height = height;
-    this._depthTexture = undefined;
-    this._depthTextureView = undefined;
+    this.#width = width;
+    this.#height = height;
+    this.#depthTexture = undefined;
+    this.#depthTextureView = undefined;
   }
 }
