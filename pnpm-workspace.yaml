@@ -1,11 +1,11 @@
 packages:
-  - "apps/**"
-  - "packages/**"
+  - apps/**
+  - packages/**
 
 catalog:
+  '@webgpu/types': ^0.1.68
   typegpu: 0.9.0
   unplugin-typegpu: 0.9.0
-  "@webgpu/types": ^0.1.64
 
 catalogs:
   build:

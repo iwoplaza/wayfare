@@ -18,6 +18,7 @@ export interface MaterialContext<
   readonly root: TgpuRoot;
   readonly format: GPUTextureFormat;
   readonly $$: {
+    readonly viewport: d.v2u;
     readonly viewMat: d.m4x4f;
     readonly viewProjMat: d.m4x4f;
     readonly invViewProjMat: d.m4x4f;
@@ -56,10 +57,12 @@ export const UniformsStruct: d.WgslStruct<{
 });
 
 export const POVStruct: d.WgslStruct<{
+  viewport: d.Vec2u;
   viewMat: d.Mat4x4f;
   viewProjMat: d.Mat4x4f;
   invViewProjMat: d.Mat4x4f;
 }> = d.struct({
+  viewport: d.vec2u,
   viewMat: d.mat4x4f,
   viewProjMat: d.mat4x4f,
   invViewProjMat: d.mat4x4f,
@@ -238,6 +241,9 @@ export function createMaterial<
         format,
 
         $$: {
+          get viewport() {
+            return pov.$.viewport;
+          },
           get viewMat() {
             return pov.$.viewMat;
           },

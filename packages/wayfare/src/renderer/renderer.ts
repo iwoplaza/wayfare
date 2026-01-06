@@ -11,6 +11,7 @@ import {
   type WgslArray,
   type m4x4f,
   mat4x4f,
+  vec2u,
   vec4f,
 } from 'typegpu/data';
 import { add } from 'typegpu/std';
@@ -100,13 +101,7 @@ export class Renderer {
       normalModel: mat4.identity(mat4x4f()),
     };
 
-    this._povBuffer = root
-      .createBuffer(POVStruct, {
-        viewMat: mat4.identity(mat4x4f()),
-        viewProjMat: mat4.identity(mat4x4f()),
-        invViewProjMat: mat4.identity(mat4x4f()),
-      })
-      .$usage('uniform');
+    this._povBuffer = root.createBuffer(POVStruct).$usage('uniform');
 
     this._sharedBindGroup = root.createBindGroup(sharedBindGroupLayout, {
       pov: this._povBuffer,
@@ -145,6 +140,7 @@ export class Renderer {
     );
     const invViewProjMat = mat4.invert(viewProjMat, mat4x4f());
     this._povBuffer.write({
+      viewport: vec2u(this._viewport.width, this._viewport.height),
       viewMat: this._matrices.view,
       viewProjMat,
       invViewProjMat,

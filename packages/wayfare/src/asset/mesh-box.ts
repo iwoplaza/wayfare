@@ -1,6 +1,6 @@
 import * as d from 'typegpu/data';
 import { normalize } from 'typegpu/std';
-import { meshAsset, type MeshAsset } from './mesh-asset.ts';
+import { type MeshAsset, meshAsset } from './mesh-asset.ts';
 
 type MeshData = {
   vertices: { pos: d.v3f; normal: d.v3f; uv: d.v2f }[];

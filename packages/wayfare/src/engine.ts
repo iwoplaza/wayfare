@@ -1,3 +1,4 @@
+import { Schedule } from 'directed';
 import {
   type Entity,
   Not,
@@ -16,7 +17,6 @@ import {
   vec4f,
 } from 'typegpu/data';
 import { mat4, quat } from 'wgpu-matrix';
-import { Schedule } from 'directed';
 
 import type { MeshAsset } from './asset/mesh-asset.ts';
 import {
@@ -99,9 +99,12 @@ export class Engine {
     this.world.add(Time);
     this.renderSchedule = new Schedule();
     this.renderSchedule.createTag(RENDER_TIMESLOT);
-    this.renderSchedule.add(() => {
-      renderer.render();
-    }, { tag: RENDER_TIMESLOT });
+    this.renderSchedule.add(
+      () => {
+        renderer.render();
+      },
+      { tag: RENDER_TIMESLOT },
+    );
     this.renderSchedule.build();
   }
 

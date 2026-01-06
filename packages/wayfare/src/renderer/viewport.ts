@@ -8,7 +8,7 @@ export class Viewport {
     private readonly _root: TgpuRoot,
     private _width: number,
     private _height: number,
-  ) { }
+  ) {}
 
   get width() {
     return this._width;
