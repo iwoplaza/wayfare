@@ -65,6 +65,7 @@ export class Renderer {
   readonly #matrices: {
     proj: m4x4f;
     view: m4x4f;
+    invView: m4x4f;
     model: m4x4f;
     invModel: m4x4f;
     normalModel: m4x4f;
@@ -104,6 +105,7 @@ export class Renderer {
     this.#matrices = {
       proj: mat4.identity(mat4x4f()),
       view: mat4.identity(mat4x4f()),
+      invView: mat4.identity(mat4x4f()),
       model: mat4.identity(mat4x4f()),
       invModel: mat4.identity(mat4x4f()),
       normalModel: mat4.identity(mat4x4f()),
@@ -150,6 +152,7 @@ export class Renderer {
     this.#povBuffer.write({
       viewport: vec2u(this.#viewport.width, this.#viewport.height),
       viewMat: this.#matrices.view,
+      invViewMat: this.#matrices.invView,
       viewProjMat,
       invViewProjMat,
     });
@@ -176,15 +179,15 @@ export class Renderer {
 
       const instanceParamsBuffer = obj.material.paramsSchema
         ? this.root
-          .createBuffer(obj.material.paramsSchema as AnyWgslData)
-          .$usage('uniform')
+            .createBuffer(obj.material.paramsSchema as AnyWgslData)
+            .$usage('uniform')
         : undefined;
 
       const instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-          ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
-          ...obj.bindings,
-        })
+            ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
+            ...obj.bindings,
+          })
         : undefined;
 
       resources = {
@@ -198,11 +201,11 @@ export class Renderer {
       // Recreating the group on every render
       resources.instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-          ...(resources.instanceParamsBuffer
-            ? { params: resources.instanceParamsBuffer }
-            : {}),
-          ...obj.bindings,
-        })
+            ...(resources.instanceParamsBuffer
+              ? { params: resources.instanceParamsBuffer }
+              : {}),
+            ...obj.bindings,
+          })
         : undefined;
     }
 
