@@ -7,12 +7,15 @@
   "license": "MIT",
   "author": "Iwo Plaza",
   "main": "./src/index.ts",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./air-particles": "./src/air-particles.ts"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "koota": "^0.5.0",
+    "koota": "catalog:",
     "typegpu": "catalog:",
     "wayfare": "workspace:"
   },

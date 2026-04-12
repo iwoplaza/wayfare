@@ -11,7 +11,7 @@ import {
 } from 'wayfare';
 import { quat } from 'wgpu-matrix';
 
-import pentagonFile from '@/constants/models/pentagon';
+import pentagonFile from '@/game/models/pentagon';
 
 const pentagonMesh = meshAsset({ src: pentagonFile });
 

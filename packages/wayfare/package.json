@@ -55,7 +55,7 @@
   "devDependencies": {
     "@webgpu/types": "catalog:",
     "keyboardevent-codes": "1.0.0",
-    "koota": "^0.5.0",
+    "koota": "catalog:",
     "tsdown": "catalog:build",
     "typegpu": "catalog:",
     "unplugin-typegpu": "catalog:",

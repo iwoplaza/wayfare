@@ -17,7 +17,7 @@
     "@manapotion/vanilla": "^1.0.0",
     "astro": "^5.1.1",
     "bionic-jolt-common": "workspace:*",
-    "koota": "^0.5.0",
+    "koota": "catalog:",
     "tailwindcss": "^3.4.17",
     "typegpu": "catalog:",
     "unplugin-typegpu": "catalog:",

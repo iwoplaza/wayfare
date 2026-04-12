@@ -4,7 +4,6 @@
   "categories": {
     "correctness": "error"
   },
-  "ignorePatterns": ["apps/rn-bionic-jolt/**/*.*"],
   "rules": {},
   "env": {
     "builtin": true
