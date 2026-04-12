@@ -1,19 +1,16 @@
 import { PixelRatio } from 'react-native';
+import { AudioContext } from 'react-native-audio-api';
 import { TgpuRoot } from 'typegpu';
-import { Engine, Renderer } from 'wayfare';
-import { createAirParticles } from 'bionic-jolt-common/air-particles';
-import { createDudes } from './dude';
-import { createGameCamera } from './game-camera';
-import { createMap } from './map';
-import { createPlayers } from './player';
+import * as wf from 'wayfare';
+import { BionicJolt } from 'bionic-jolt-common';
 
 export function setupGame(signal: AbortSignal, root: TgpuRoot, ctx: GPUCanvasContext) {
-  let engine: Engine | undefined;
   const canvas = ctx.canvas as HTMLCanvasElement;
-
-  const renderer = new Renderer(root, canvas, ctx);
-  engine = new Engine(root, renderer);
-  const world = engine.world;
+  const { start, loop, engine, renderer } = BionicJolt(
+    root,
+    ctx,
+    AudioContext as unknown as typeof globalThis.AudioContext,
+  );
 
   let prevCanvasWidth = 0;
   let prevCanvasHeight = 0;
@@ -28,32 +25,22 @@ export function setupGame(signal: AbortSignal, root: TgpuRoot, ctx: GPUCanvasCon
 
   updateViewport();
 
-  // const Audio = createAudio(world);
-  const MapStuff = createMap(world);
-  const AirParticles = createAirParticles(world, root);
-  const Dudes = createDudes(world);
-  const Players = createPlayers(world);
-  const GameCamera = createGameCamera(world);
+  engine.renderSchedule.add(
+    () => {
+      // Updating viewport
+      const newWidth = canvas.clientWidth * PixelRatio.get();
+      const newHeight = canvas.clientHeight * PixelRatio.get();
+      if (newWidth !== prevCanvasWidth || newHeight !== prevCanvasHeight) {
+        prevCanvasWidth = newWidth;
+        prevCanvasHeight = newHeight;
+        updateViewport();
+      }
+    },
+    { before: wf.RENDER_TIMESLOT },
+  );
 
-  Players.init();
-
-  engine.run(() => {
-    // Updating viewport
-    const newWidth = canvas.clientWidth * PixelRatio.get();
-    const newHeight = canvas.clientHeight * PixelRatio.get();
-    if (newWidth !== prevCanvasWidth || newHeight !== prevCanvasHeight) {
-      prevCanvasWidth = newWidth;
-      prevCanvasHeight = newHeight;
-      updateViewport();
-    }
-
-    // Audio.update();
-    Dudes.update();
-    Players.update();
-    MapStuff.update();
-    AirParticles.update();
-    GameCamera.update();
-  });
+  start();
+  loop();
 
   signal.addEventListener('abort', () => {
     if (engine) {
