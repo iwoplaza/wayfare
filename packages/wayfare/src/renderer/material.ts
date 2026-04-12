@@ -88,8 +88,8 @@ export type SharedBindGroup = TgpuBindGroup<(typeof sharedBindGroupLayout)['entr
 
 export type UniformsBindGroup = TgpuBindGroup<(typeof uniformsBindGroupLayout)['entries']>;
 
-const { pov } = sharedBindGroupLayout.bound;
-const { uniforms } = uniformsBindGroupLayout.bound;
+const povAccess = tgpu.accessor(POVStruct, () => sharedBindGroupLayout.$.pov);
+const uniformsAccess = tgpu.accessor(UniformsStruct, () => uniformsBindGroupLayout.$.uniforms);
 
 type TraitFor<T> = T extends Schema ? Trait<T> : never;
 
@@ -222,31 +222,31 @@ export function createMaterial<
 
         $$: {
           get viewport() {
-            return pov.$.viewport;
+            return povAccess.$.viewport;
           },
           get viewMat() {
-            return pov.$.viewMat;
+            return povAccess.$.viewMat;
           },
           get invViewMat() {
-            return pov.$.invViewMat;
+            return povAccess.$.invViewMat;
           },
           get viewProjMat() {
-            return pov.$.viewProjMat;
+            return povAccess.$.viewProjMat;
           },
           get invViewProjMat() {
-            return pov.$.invViewProjMat;
+            return povAccess.$.invViewProjMat;
           },
           get modelMat() {
-            return uniforms.$.modelMat;
+            return uniformsAccess.$.modelMat;
           },
           get invModelMat() {
-            return uniforms.$.invModelMat;
+            return uniformsAccess.$.invModelMat;
           },
           get normalModelMat() {
-            return uniforms.$.normalModelMat;
+            return uniformsAccess.$.normalModelMat;
           },
           get params(): d.Infer<TParams> {
-            return paramsLayout?.bound.params?.$ as d.Infer<TParams>;
+            return paramsLayout?.$.params as d.Infer<TParams>;
           },
           get bindings(): TgpuBindGroupLayout<TBindings>['$'] {
             return paramsLayout?.$ as TgpuBindGroupLayout<TBindings>['$'];
