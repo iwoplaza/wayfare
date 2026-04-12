@@ -31,14 +31,12 @@ export function createGameCamera(world: World) {
 
     const playerPos = getOrThrow(player, TransformTrait).position;
 
-    world
-      .query(TransformTrait, GameCameraTag)
-      .updateEach(([cameraTransform]) => {
-        const pos = cameraTransform.position;
-        pos.x = encroach(pos.x, playerPos.x, 0.0001, deltaSeconds);
-        pos.y = playerPos.y + 0.7;
-        pos.z = encroach(pos.z, playerPos.z, 0.0001, deltaSeconds);
-      });
+    world.query(TransformTrait, GameCameraTag).updateEach(([cameraTransform]) => {
+      const pos = cameraTransform.position;
+      pos.x = encroach(pos.x, playerPos.x, 0.0001, deltaSeconds);
+      pos.y = playerPos.y + 0.7;
+      pos.z = encroach(pos.z, playerPos.z, 0.0001, deltaSeconds);
+    });
   }
 
   return {

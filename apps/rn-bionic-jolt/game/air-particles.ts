@@ -1,26 +1,7 @@
 import { type World, trait } from 'koota';
 import tgpu, { type TgpuRoot } from 'typegpu';
-import {
-  builtin,
-  disarrayOf,
-  f32,
-  mat3x3f,
-  struct,
-  vec2f,
-  vec3f,
-  vec4f,
-} from 'typegpu/data';
-import {
-  add,
-  atan2,
-  cos,
-  discard,
-  fract,
-  length,
-  mul,
-  sin,
-  sub,
-} from 'typegpu/std';
+import { builtin, disarrayOf, f32, mat3x3f, struct, vec2f, vec3f, vec4f } from 'typegpu/data';
+import { add, atan2, cos, discard, fract, length, mul, sin, sub } from 'typegpu/std';
 import {
   ActiveCameraTag,
   InstanceBufferTrait,
@@ -38,10 +19,7 @@ const span = 10;
 
 const AirParticleSystem = trait({});
 
-export const InstanceLayout = tgpu.vertexLayout(
-  (count) => disarrayOf(vec3f, count),
-  'instance',
-);
+export const InstanceLayout = tgpu.vertexLayout((count) => disarrayOf(vec3f, count), 'instance');
 
 const particleMesh = createRectangle({
   width: vec3f(0.02, 0, 0),
@@ -60,30 +38,22 @@ export const AirParticlesMaterial = createMaterial({
   vertexLayout: POS_NORMAL_UV,
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, getPOV, getUniforms, getParams }) {
-    const getTransformedOrigin = tgpu['~unstable']
-      .fn([vec3f], vec3f)
-      .does((localOrigin) => {
-        const wrappedOrigin = sub(
-          localOrigin,
-          getParams().value.cameraPosition,
-        );
-        wrappedOrigin.y -= getParams().value.yOffset;
+    const getTransformedOrigin = tgpu['~unstable'].fn([vec3f], vec3f).does((localOrigin) => {
+      const wrappedOrigin = sub(localOrigin, getParams().value.cameraPosition);
+      wrappedOrigin.y -= getParams().value.yOffset;
 
-        // wrapping the space.
-        wrappedOrigin.y = -fract(-wrappedOrigin.y / span) * span;
-        wrappedOrigin.x =
-          (fract(wrappedOrigin.x / span / 2 + 0.5) - 0.5) * span * 2;
-        wrappedOrigin.z =
-          (fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
+      // wrapping the space.
+      wrappedOrigin.y = -fract(-wrappedOrigin.y / span) * span;
+      wrappedOrigin.x = (fract(wrappedOrigin.x / span / 2 + 0.5) - 0.5) * span * 2;
+      wrappedOrigin.z = (fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
 
-        return wrappedOrigin;
-      });
+      return wrappedOrigin;
+    });
 
     const computePosition = tgpu['~unstable']
       .fn([vec3f, vec3f], vec3f)
       .does((pos, originRelToCamera) => {
-        const angle =
-          -atan2(originRelToCamera.x, originRelToCamera.z) + Math.PI;
+        const angle = -atan2(originRelToCamera.x, originRelToCamera.z) + Math.PI;
         const rot_mat = mat3x3f(
           vec3f(cos(angle), 0, sin(angle)), // i
           vec3f(0, 1, 0), // j

@@ -56,17 +56,12 @@ export function createMap(world: World) {
 
     if (!progressMarkerPos) return;
 
-    world
-      .query(MapChunk, TransformTrait, Not(MapTail))
-      .updateEach(([chunk, transform], entity) => {
-        // Is well above the marker?
-        if (
-          transform.position.y - chunk.length >
-          progressMarkerPos.y + settings.deSpawnThreshold
-        ) {
-          entity.destroy();
-        }
-      });
+    world.query(MapChunk, TransformTrait, Not(MapTail)).updateEach(([chunk, transform], entity) => {
+      // Is well above the marker?
+      if (transform.position.y - chunk.length > progressMarkerPos.y + settings.deSpawnThreshold) {
+        entity.destroy();
+      }
+    });
 
     // Handle highlighting when new the marker
     world
@@ -87,11 +82,7 @@ export function createMap(world: World) {
       const tailPosition = tail?.get(TransformTrait)?.position;
       const tailChunk = tail?.get(MapChunk);
 
-      if (
-        !tail ||
-        !tailPosition ||
-        tailPosition.y > progressMarkerPos.y - settings.farDistance
-      ) {
+      if (!tail || !tailPosition || tailPosition.y > progressMarkerPos.y - settings.farDistance) {
         const xPos = (tailPosition?.x ?? 0) + (Math.random() * 2 - 1) * 0.4;
         const yPos = (tailPosition?.y ?? -10) - (tailChunk?.length ?? 0);
         const zPos = (tailPosition?.z ?? 0) + (Math.random() * 2 - 1) * 0.4;
@@ -100,13 +91,7 @@ export function createMap(world: World) {
           MapChunk({ length: 1 + Math.random() * 5 }),
           TransformTrait({
             position: vec3f(xPos, yPos, zPos),
-            rotation: quat.fromEuler(
-              0,
-              Math.random() * Math.PI,
-              0,
-              'xyz',
-              vec4f(),
-            ),
+            rotation: quat.fromEuler(0, Math.random() * Math.PI, 0, 'xyz', vec4f()),
           }),
           MeshTrait(pentagonMesh),
           MapTail,

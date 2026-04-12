@@ -13,10 +13,7 @@ export interface RectangleProps {
  * The width of the rectangle equals the magnitude of `wSpan`, and the height of the rectangle
  * equals the magnitude of `height`.
  */
-export function createRectangleMesh({
-  width,
-  height,
-}: RectangleProps): MeshAsset {
+export function createRectangleMesh({ width, height }: RectangleProps): MeshAsset {
   const halfWidth = width.mul(0.5);
   const halfHeight = height.mul(0.5);
   const negHalfWidth = width.mul(-0.5);

@@ -1,20 +1,11 @@
-import {
-  type ConfigurableTrait,
-  type World,
-  createAdded,
-  createRemoved,
-  trait,
-} from 'koota';
+import { type ConfigurableTrait, type World, createAdded, createRemoved, trait } from 'koota';
 
 const audioCtx = new AudioContext();
 const masterGainNode = audioCtx.createGain();
 masterGainNode.gain.value = 0.2;
 masterGainNode.connect(audioCtx.destination);
 
-if (
-  typeof window !== 'undefined' &&
-  typeof window.addEventListener !== 'undefined'
-) {
+if (typeof window !== 'undefined' && typeof window.addEventListener !== 'undefined') {
   // Disconnect audio context when the window is blurred
   window.addEventListener('blur', () => {
     masterGainNode.disconnect();
@@ -88,11 +79,11 @@ export function createAudio(world: World): AudioManager {
       audioCtx.resume();
     },
     update() {
-      world.query(Added(AudioNodeTrait)).updateEach(([audioNode], entity) => {
+      world.query(Added(AudioNodeTrait)).updateEach(([audioNode]) => {
         audioNode.connect(masterGainNode);
       });
 
-      world.query(Removed(AudioNodeTrait)).updateEach(([audioNode], entity) => {
+      world.query(Removed(AudioNodeTrait)).updateEach(([audioNode]) => {
         audioNode?.disconnect(masterGainNode);
       });
     },

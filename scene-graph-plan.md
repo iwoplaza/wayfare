@@ -1,4 +1,5 @@
 Design goals:
+
 - Systems should be global
 - Entities and components should be granular
 
@@ -25,9 +26,7 @@ const Player = wf.node((world) => {
   world.spawn(...DudeBundle());
 
   return {
-    onFrame() {
-      
-    },
+    onFrame() {},
   };
 });
 ```

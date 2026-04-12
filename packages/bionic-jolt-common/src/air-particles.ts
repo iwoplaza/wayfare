@@ -38,18 +38,15 @@ export const AirParticlesMaterial = wf.createMaterial({
 
       // wrapping the space.
       wrappedOrigin.y = -std.fract(-wrappedOrigin.y / span) * span;
-      wrappedOrigin.x =
-        (std.fract(wrappedOrigin.x / span / 2 + 0.5) - 0.5) * span * 2;
-      wrappedOrigin.z =
-        (std.fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
+      wrappedOrigin.x = (std.fract(wrappedOrigin.x / span / 2 + 0.5) - 0.5) * span * 2;
+      wrappedOrigin.z = (std.fract(wrappedOrigin.z / span / 2 + 0.5) - 0.5) * span * 2;
 
       return wrappedOrigin;
     };
 
     const computePosition = (pos: d.v3f, originRelToCamera: d.v3f) => {
       'use gpu';
-      const angle =
-        -std.atan2(originRelToCamera.x, originRelToCamera.z) + Math.PI;
+      const angle = -std.atan2(originRelToCamera.x, originRelToCamera.z) + Math.PI;
       const rot_mat = d.mat3x3f(
         d.vec3f(std.cos(angle), 0, std.sin(angle)), // i
         d.vec3f(0, 1, 0), // j
@@ -151,11 +148,7 @@ export function createAirParticles(world: World, root: TgpuRoot) {
       }
 
       world
-        .query(
-          wf.TransformTrait,
-          AirParticlesMaterial.Params,
-          AirParticleSystem,
-        )
+        .query(wf.TransformTrait, AirParticlesMaterial.Params, AirParticleSystem)
         .updateEach(([transform, params]) => {
           transform.position = cameraTransform.position;
 

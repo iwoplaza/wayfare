@@ -7,10 +7,7 @@ import { createGameCamera } from './game-camera';
 import { createMap } from './map';
 import { createPlayers } from './player';
 
-export function setupGame(
-  canvas: HTMLCanvasElement,
-  context: GPUCanvasContext,
-) {
+export function setupGame(canvas: HTMLCanvasElement, context: GPUCanvasContext) {
   let destroyed = false;
   let engine: Engine | undefined;
 

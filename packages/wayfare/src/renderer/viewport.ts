@@ -35,9 +35,7 @@ export class Viewport {
 
   get depthTextureView(): GPUTextureView {
     if (!this.#depthTextureView) {
-      this.#depthTextureView = this.#root
-        .unwrap(this.depthTexture)
-        .createView();
+      this.#depthTextureView = this.#root.unwrap(this.depthTexture).createView();
     }
     return this.#depthTextureView;
   }

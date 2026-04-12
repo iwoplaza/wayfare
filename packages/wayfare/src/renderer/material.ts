@@ -41,10 +41,7 @@ export interface Material<TParams extends d.BaseWgslData = d.BaseWgslData> {
   readonly vertexLayout: TgpuVertexLayout;
   readonly instanceLayout: TgpuVertexLayout | undefined;
   readonly paramsDefaults: d.Infer<TParams> | undefined;
-  getPipeline(
-    root: TgpuRoot,
-    format: GPUTextureFormat,
-  ): TgpuRenderPipeline<d.Vec4f>;
+  getPipeline(root: TgpuRoot, format: GPUTextureFormat): TgpuRenderPipeline<d.Vec4f>;
 }
 
 export const UniformsStruct: d.WgslStruct<{
@@ -87,13 +84,9 @@ export const uniformsBindGroupLayout: TgpuBindGroupLayout<{
   })
   .$name('wayfare-uniformsBindGroupLayout');
 
-export type SharedBindGroup = TgpuBindGroup<
-  (typeof sharedBindGroupLayout)['entries']
->;
+export type SharedBindGroup = TgpuBindGroup<(typeof sharedBindGroupLayout)['entries']>;
 
-export type UniformsBindGroup = TgpuBindGroup<
-  (typeof uniformsBindGroupLayout)['entries']
->;
+export type UniformsBindGroup = TgpuBindGroup<(typeof uniformsBindGroupLayout)['entries']>;
 
 const { pov } = sharedBindGroupLayout.bound;
 const { uniforms } = uniformsBindGroupLayout.bound;
@@ -118,10 +111,7 @@ export const MaterialTrait: Trait<{
 
 export type CreateMaterialResult<
   TParams extends d.AnyWgslData,
-  TBindings extends Record<string, TgpuLayoutEntry | null> = Record<
-    string,
-    never
-  >,
+  TBindings extends Record<string, TgpuLayoutEntry | null> = Record<string, never>,
 > = {
   material: Material<TParams>;
   Params: TraitFor<() => d.Infer<TParams>>;
@@ -145,9 +135,7 @@ export function createMaterial(options: {
   bindings?: undefined;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
-  createPipeline: (
-    ctx: MaterialContext<d.AnyWgslData, Record<string, never>>,
-  ) => MaterialOptions;
+  createPipeline: (ctx: MaterialContext<d.AnyWgslData, Record<string, never>>) => MaterialOptions;
 }): CreateMaterialResult<d.AnyWgslData, Record<string, never>>;
 export function createMaterial<TParams extends d.AnyWgslData>(options: {
   paramsSchema: TParams;
@@ -159,17 +147,13 @@ export function createMaterial<TParams extends d.AnyWgslData>(options: {
     ctx: MaterialContext<NoInfer<TParams>, Record<string, never>>,
   ) => MaterialOptions;
 }): CreateMaterialResult<TParams, Record<string, never>>;
-export function createMaterial<
-  TBindings extends Record<string, TgpuLayoutEntry | null>,
->(options: {
+export function createMaterial<TBindings extends Record<string, TgpuLayoutEntry | null>>(options: {
   paramsSchema?: undefined;
   paramsDefaults?: undefined;
   bindings: TBindings;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
-  createPipeline: (
-    ctx: MaterialContext<d.AnyWgslData, NoInfer<TBindings>>,
-  ) => MaterialOptions;
+  createPipeline: (ctx: MaterialContext<d.AnyWgslData, NoInfer<TBindings>>) => MaterialOptions;
 }): CreateMaterialResult<d.AnyWgslData, TBindings>;
 export function createMaterial<
   TParams extends d.AnyWgslData,
@@ -180,9 +164,7 @@ export function createMaterial<
   bindings: TBindings;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
-  createPipeline: (
-    ctx: MaterialContext<NoInfer<TParams>, NoInfer<TBindings>>,
-  ) => MaterialOptions;
+  createPipeline: (ctx: MaterialContext<NoInfer<TParams>, NoInfer<TBindings>>) => MaterialOptions;
 }): CreateMaterialResult<TParams, TBindings>;
 export function createMaterial<
   TParams extends d.AnyWgslData,
@@ -193,9 +175,7 @@ export function createMaterial<
   bindings?: TBindings | undefined;
   vertexLayout: TgpuVertexLayout;
   instanceLayout?: TgpuVertexLayout;
-  createPipeline: (
-    ctx: MaterialContext<NoInfer<TParams>, NoInfer<TBindings>>,
-  ) => MaterialOptions;
+  createPipeline: (ctx: MaterialContext<NoInfer<TParams>, NoInfer<TBindings>>) => MaterialOptions;
 }): CreateMaterialResult<TParams, TBindings> {
   const {
     paramsSchema,
@@ -230,10 +210,7 @@ export function createMaterial<
     instanceLayout,
     paramsDefaults,
 
-    getPipeline(
-      root: TgpuRoot,
-      format: GPUTextureFormat,
-    ): TgpuRenderPipeline<d.Vec4f> {
+    getPipeline(root: TgpuRoot, format: GPUTextureFormat): TgpuRenderPipeline<d.Vec4f> {
       const memo = pipelineStore.get(root);
       if (memo) {
         return memo;
@@ -282,29 +259,20 @@ export function createMaterial<
     },
   };
 
-  const paramsTrait = trait(() => paramsDefaults) as TraitFor<
-    () => d.Infer<TParams>
-  >;
+  const paramsTrait = trait(() => paramsDefaults) as TraitFor<() => d.Infer<TParams>>;
 
   const bindingsTrait = trait(
     () => ({}) as Partial<ExtractBindGroupInputFromLayout<TBindings>>,
-  ) as unknown as TraitFor<
-    () => Partial<ExtractBindGroupInputFromLayout<TBindings>>
-  >;
+  ) as unknown as TraitFor<() => Partial<ExtractBindGroupInputFromLayout<TBindings>>>;
 
   return {
     material,
     Params: paramsTrait,
     Bindings: bindingsTrait,
-    Bundle: (
-      params,
-      bindings?: Partial<ExtractBindGroupInputFromLayout<TBindings>>,
-    ) => [
+    Bundle: (params, bindings?: Partial<ExtractBindGroupInputFromLayout<TBindings>>) => [
       MaterialTrait({
         material,
-        // biome-ignore lint/suspicious/noExplicitAny: it's complicated
         paramsTrait: paramsTrait as any,
-        // biome-ignore lint/suspicious/noExplicitAny: it's complicated
         bindingsTrait: bindingsTrait as any,
       }),
       params ? paramsTrait(params) : paramsTrait,

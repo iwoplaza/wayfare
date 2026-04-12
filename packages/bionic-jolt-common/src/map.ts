@@ -55,10 +55,7 @@ export function createMap(world: World) {
       .query(MapChunk, wf.TransformTrait, Not(MapTail))
       .updateEach(([chunk, transform], entity) => {
         // Is well above the marker?
-        if (
-          transform.position.y - chunk.length >
-          progressMarkerPos.y + settings.deSpawnThreshold
-        ) {
+        if (transform.position.y - chunk.length > progressMarkerPos.y + settings.deSpawnThreshold) {
           entity.destroy();
         }
 
@@ -78,15 +75,13 @@ export function createMap(world: World) {
       });
 
     // Handle highlighting when new the marker
-    world
-      .query(MapChunk, wf.BlinnPhongMaterial.Params)
-      .updateEach(([chunk, material]) => {
-        if (chunk.passed) {
-          material.albedo = d.vec3f(1, 1, 0);
-        } else {
-          material.albedo = d.vec3f(1, 0.5, 0);
-        }
-      });
+    world.query(MapChunk, wf.BlinnPhongMaterial.Params).updateEach(([chunk, material]) => {
+      if (chunk.passed) {
+        material.albedo = d.vec3f(1, 1, 0);
+      } else {
+        material.albedo = d.vec3f(1, 0.5, 0);
+      }
+    });
 
     // Add new chunks
     let limit = 10;
@@ -95,11 +90,7 @@ export function createMap(world: World) {
       const tailPosition = tail?.get(wf.TransformTrait)?.position;
       const tailChunk = tail?.get(MapChunk);
 
-      if (
-        !tail ||
-        !tailPosition ||
-        tailPosition.y > progressMarkerPos.y - settings.farDistance
-      ) {
+      if (!tail || !tailPosition || tailPosition.y > progressMarkerPos.y - settings.farDistance) {
         const xPos = (tailPosition?.x ?? 0) + (Math.random() * 2 - 1) * 0.4;
         const yPos = (tailPosition?.y ?? -10) - (tailChunk?.length ?? 0);
         const zPos = (tailPosition?.z ?? 0) + (Math.random() * 2 - 1) * 0.4;
@@ -108,13 +99,7 @@ export function createMap(world: World) {
           MapChunk({ length: 1 + Math.random() * 5, passed: false }),
           wf.TransformTrait({
             position: d.vec3f(xPos, yPos, zPos),
-            rotation: quat.fromEuler(
-              0,
-              Math.random() * Math.PI,
-              0,
-              'xyz',
-              d.vec4f(),
-            ),
+            rotation: quat.fromEuler(0, Math.random() * Math.PI, 0, 'xyz', d.vec4f()),
           }),
           wf.MeshTrait(pentagonMesh),
           MapTail,

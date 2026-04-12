@@ -1,4 +1,4 @@
-import { type DataType, type Loader, load, parse } from '@loaders.gl/core';
+import { type DataType, load, parse } from '@loaders.gl/core';
 import { OBJLoader } from '@loaders.gl/obj';
 import type { Mesh as LoadersMesh } from '@loaders.gl/schema';
 import type { TgpuRoot } from 'typegpu';
@@ -18,11 +18,7 @@ export type MeshAsset = {
   peek(root: TgpuRoot): Mesh | undefined;
 };
 
-export const meshAsset = ({
-  url,
-  src,
-  data: preexistingData,
-}: MeshAssetOptions): MeshAsset => {
+export const meshAsset = ({ url, src, data: preexistingData }: MeshAssetOptions): MeshAsset => {
   let meshDataPromise: Promise<MeshData> | null = null;
   let meshData: MeshData | undefined = preexistingData;
 
@@ -51,9 +47,7 @@ export const meshAsset = ({
               return data;
             });
         } else {
-          throw new Error(
-            `Invalid mesh asset parameters. Expected either 'src' or 'url'`,
-          );
+          throw new Error(`Invalid mesh asset parameters. Expected either 'src' or 'url'`);
         }
       }
 
@@ -77,7 +71,7 @@ export const meshAsset = ({
       meshPromise = (async () => {
         await this.preload();
 
-        mesh = await createMeshFromData(root, meshData as MeshData);
+        mesh = createMeshFromData(root, meshData as MeshData);
         meshStore.set(root, mesh);
         return mesh;
       })();
@@ -99,26 +93,6 @@ export const meshAsset = ({
 type MeshData = {
   vertices: { pos: v3f; normal: v3f; uv: v2f }[];
 };
-
-async function loadModel(
-  src: string | DataType,
-  loader: Loader = OBJLoader,
-): Promise<MeshData> {
-  const rawData = await load(src, loader);
-
-  const POSITION = rawData.attributes.POSITION.value;
-  const NORMAL = rawData.attributes.NORMAL.value;
-  const TEXCOORD_0 = rawData.attributes.TEXCOORD_0.value;
-  const vertexCount = POSITION.length / 3;
-
-  return {
-    vertices: Array.from({ length: vertexCount }, (_, i) => ({
-      pos: vec3f(POSITION[i * 3], POSITION[i * 3 + 1], POSITION[i * 3 + 2]),
-      normal: vec3f(NORMAL[i * 3], NORMAL[i * 3 + 1], NORMAL[i * 3 + 2]),
-      uv: vec2f(TEXCOORD_0[i * 2], TEXCOORD_0[i * 2 + 1]),
-    })),
-  };
-}
 
 async function transformObjModel(rawData: LoadersMesh): Promise<MeshData> {
   const POSITION = rawData.attributes.POSITION.value;

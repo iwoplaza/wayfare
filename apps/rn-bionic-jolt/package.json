@@ -1,8 +1,8 @@
 {
   "name": "rn-bionic-jolt",
-  "main": "expo-router/entry",
   "version": "1.0.0",
   "private": true,
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -12,14 +12,12 @@
     "test": "jest --watchAll",
     "lint": "expo lint"
   },
-  "jest": {
-    "preset": "jest-expo"
-  },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "@ungap/structured-clone": "^1.2.1",
+    "bionic-jolt-common": "workspace:*",
     "expo": "~52.0.30",
     "expo-blur": "~14.0.2",
     "expo-constants": "~17.0.4",
@@ -32,7 +30,7 @@
     "expo-symbols": "~0.2.1",
     "expo-system-ui": "~4.0.7",
     "expo-web-browser": "~14.0.2",
-    "koota": "^0.1.12",
+    "koota": "^0.5.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.6",
@@ -45,7 +43,6 @@
     "react-native-wgpu": "^0.1.22",
     "typegpu": "catalog:",
     "wayfare": "workspace:*",
-    "bionic-jolt-common": "workspace:*",
     "wgpu-matrix": "^3.3.0"
   },
   "devDependencies": {
@@ -60,6 +57,9 @@
     "react-test-renderer": "18.3.1",
     "typescript": "^5.3.3",
     "unplugin-typegpu": "catalog:"
+  },
+  "jest": {
+    "preset": "jest-expo"
   },
   "packageManager": "pnpm@10.4.0+sha512.6b849d0787d97f8f4e1f03a9b8ff8f038e79e153d6f11ae539ae7c435ff9e796df6a862c991502695c7f9e8fac8aeafc1ac5a8dab47e36148d183832d886dd52"
 }

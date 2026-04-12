@@ -1,10 +1,4 @@
-import type {
-  TgpuBindGroup,
-  TgpuBuffer,
-  TgpuRoot,
-  UniformFlag,
-  VertexFlag,
-} from 'typegpu';
+import type { TgpuBindGroup, TgpuBuffer, TgpuRoot, UniformFlag, VertexFlag } from 'typegpu';
 import {
   type AnyWgslData,
   type Disarray,
@@ -18,10 +12,7 @@ import { add } from 'typegpu/std';
 import { mat4 } from 'wgpu-matrix';
 
 import type { MeshAsset } from '../asset/mesh-asset.ts';
-import type {
-  OrthographicConfig,
-  PerspectiveConfig,
-} from '../camera-traits.ts';
+import type { OrthographicConfig, PerspectiveConfig } from '../camera-traits.ts';
 import type { Transform } from '../transform.ts';
 import {
   type Material,
@@ -81,11 +72,7 @@ export class Renderer {
   readonly canvas: HTMLCanvasElement;
   readonly context: GPUCanvasContext;
 
-  constructor(
-    root: TgpuRoot,
-    canvas: HTMLCanvasElement,
-    context: GPUCanvasContext,
-  ) {
+  constructor(root: TgpuRoot, canvas: HTMLCanvasElement, context: GPUCanvasContext) {
     this.root = root;
     this.canvas = canvas;
     this.context = context;
@@ -143,11 +130,7 @@ export class Renderer {
   }
 
   #updatePOV() {
-    const viewProjMat = mat4.mul(
-      this.#matrices.proj,
-      this.#matrices.view,
-      mat4x4f(),
-    );
+    const viewProjMat = mat4.mul(this.#matrices.proj, this.#matrices.view, mat4x4f());
     const invViewProjMat = mat4.invert(viewProjMat, mat4x4f());
     this.#povBuffer.write({
       viewport: vec2u(this.#viewport.width, this.#viewport.height),
@@ -170,24 +153,19 @@ export class Renderer {
         })
         .$usage('uniform');
 
-      const uniformsBindGroup = this.root.createBindGroup(
-        uniformsBindGroupLayout,
-        {
-          uniforms: uniformsBuffer,
-        },
-      );
+      const uniformsBindGroup = this.root.createBindGroup(uniformsBindGroupLayout, {
+        uniforms: uniformsBuffer,
+      });
 
       const instanceParamsBuffer = obj.material.paramsSchema
-        ? this.root
-          .createBuffer(obj.material.paramsSchema as AnyWgslData)
-          .$usage('uniform')
+        ? this.root.createBuffer(obj.material.paramsSchema as AnyWgslData).$usage('uniform')
         : undefined;
 
       const instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-          ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
-          ...obj.bindings,
-        })
+            ...(instanceParamsBuffer ? { params: instanceParamsBuffer } : {}),
+            ...obj.bindings,
+          })
         : undefined;
 
       resources = {
@@ -201,11 +179,9 @@ export class Renderer {
       // Recreating the group on every render
       resources.instanceParamsBindGroup = obj.material.paramsLayout
         ? this.root.createBindGroup(obj.material.paramsLayout, {
-          ...(resources.instanceParamsBuffer
-            ? { params: resources.instanceParamsBuffer }
-            : {}),
-          ...obj.bindings,
-        })
+            ...(resources.instanceParamsBuffer ? { params: resources.instanceParamsBuffer } : {}),
+            ...obj.bindings,
+          })
         : undefined;
     }
 
@@ -276,35 +252,21 @@ export class Renderer {
 
           const overrideMaterial = overrides?.material;
           const realMaterial = overrideMaterial ?? obj.material;
-          const pipeline = realMaterial.getPipeline(
-            this.root,
-            this.#presentationFormat,
-          );
+          const pipeline = realMaterial.getPipeline(this.root, this.#presentationFormat);
 
-          const { uniformsBindGroup, instanceParamsBindGroup } =
-            this.#resourcesFor(obj);
+          const { uniformsBindGroup, instanceParamsBindGroup } = this.#resourcesFor(obj);
 
           pass.setPipeline(pipeline);
           pass.setBindGroup(sharedBindGroupLayout, this.#sharedBindGroup);
           pass.setBindGroup(uniformsBindGroupLayout, uniformsBindGroup);
           pass.setVertexBuffer(realMaterial.vertexLayout, mesh.vertexBuffer);
 
-          if (
-            !overrides?.material &&
-            obj.material.paramsLayout &&
-            instanceParamsBindGroup
-          ) {
-            pass.setBindGroup(
-              obj.material.paramsLayout,
-              instanceParamsBindGroup,
-            );
+          if (!overrides?.material && obj.material.paramsLayout && instanceParamsBindGroup) {
+            pass.setBindGroup(obj.material.paramsLayout, instanceParamsBindGroup);
           }
 
           if (realMaterial.instanceLayout && obj.instanceBuffer) {
-            pass.setVertexBuffer(
-              realMaterial.instanceLayout,
-              obj.instanceBuffer,
-            );
+            pass.setVertexBuffer(realMaterial.instanceLayout, obj.instanceBuffer);
           }
 
           if (obj.extraBinding) {
@@ -313,9 +275,7 @@ export class Renderer {
 
           pass.draw(
             mesh.vertexCount,
-            obj.instanceBuffer
-              ? obj.instanceBuffer.dataType.elementCount
-              : undefined,
+            obj.instanceBuffer ? obj.instanceBuffer.dataType.elementCount : undefined,
           );
         }
       },

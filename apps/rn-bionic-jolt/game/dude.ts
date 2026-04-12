@@ -26,11 +26,7 @@ export const Dude = trait({
 });
 
 export function DudeBundle(): ConfigurableTrait[] {
-  return [
-    Dude,
-    MeshTrait(dudeMesh),
-    ...BlinnPhongMaterial.Bundle({ albedo: vec3f(1, 1, 1) }),
-  ];
+  return [Dude, MeshTrait(dudeMesh), ...BlinnPhongMaterial.Bundle({ albedo: vec3f(1, 1, 1) })];
 }
 
 export function createDudes(world: World) {
@@ -52,18 +48,8 @@ export function createDudes(world: World) {
     world.query(TransformTrait, Dude).updateEach(([transform, dude]) => {
       const dir = dude.movementDir;
       // Smoothly encroaching the turn direction
-      dude.smoothTurnDir.x = encroach(
-        dude.smoothTurnDir.x,
-        dir.x,
-        0.01,
-        deltaSeconds,
-      );
-      dude.smoothTurnDir.z = encroach(
-        dude.smoothTurnDir.z,
-        dir.z,
-        0.01,
-        deltaSeconds,
-      );
+      dude.smoothTurnDir.x = encroach(dude.smoothTurnDir.x, dir.x, 0.01, deltaSeconds);
+      dude.smoothTurnDir.z = encroach(dude.smoothTurnDir.z, dir.z, 0.01, deltaSeconds);
 
       // Tilting based on movement direction
       transform.rotation = quat.fromEuler(

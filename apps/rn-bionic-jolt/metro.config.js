@@ -6,10 +6,7 @@ const path = require('node:path');
 const config = getDefaultConfig(__dirname);
 
 const ALIASES = {
-  'bionic-jolt-common': path.resolve(
-    __dirname,
-    '../../packages/bionic-jolt-common',
-  ),
+  'bionic-jolt-common': path.resolve(__dirname, '../../packages/bionic-jolt-common'),
 };
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {

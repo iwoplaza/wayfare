@@ -14,11 +14,7 @@ export { createGameCamera } from './game-camera.ts';
 export { Player, createPlayers } from './player.ts';
 export { createMap } from './map.ts';
 
-export function BionicJolt(
-  root: TgpuRoot,
-  canvas: HTMLCanvasElement,
-  context: GPUCanvasContext,
-) {
+export function BionicJolt(root: TgpuRoot, canvas: HTMLCanvasElement, context: GPUCanvasContext) {
   const renderer = new wf.Renderer(root, canvas, context);
   const engine = new wf.Engine(root, renderer);
   const world = engine.world;
