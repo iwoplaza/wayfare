@@ -52,6 +52,12 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> = cre
         vertex: vertexFn,
         fragment: fragmentFn,
         targets: { format },
+        primitive: { topology: 'triangle-list', cullMode: 'back' },
+        depthStencil: {
+          depthWriteEnabled: true,
+          depthCompare: 'less',
+          format: 'depth24plus',
+        },
       }),
     };
   },

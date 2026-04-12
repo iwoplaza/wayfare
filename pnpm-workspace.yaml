@@ -5,8 +5,9 @@ packages:
 catalog:
   '@webgpu/types': ^0.1.68
   typegpu: 0.10.2
-  unplugin-typegpu: 0.10.2
   typescript: npm:tsover@6.0.0
+  unplugin-typegpu: 0.10.2
+  koota: 0.5.1
 
 catalogs:
   build:

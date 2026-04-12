@@ -2,7 +2,7 @@
  * All code related to the character that the players embody.
  */
 
-import dudeFile from '@/constants/models/dude';
+import dudeFile from '@/game/models/dude';
 import { type ConfigurableTrait, type World, trait } from 'koota';
 import { vec3f, vec4f } from 'typegpu/data';
 import {

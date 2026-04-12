@@ -2,17 +2,7 @@ import { type World, trait } from 'koota';
 import tgpu, { type TgpuRoot } from 'typegpu';
 import { builtin, disarrayOf, f32, mat3x3f, struct, vec2f, vec3f, vec4f } from 'typegpu/data';
 import { add, atan2, cos, discard, fract, length, mul, sin, sub } from 'typegpu/std';
-import {
-  ActiveCameraTag,
-  InstanceBufferTrait,
-  MeshTrait,
-  POS_NORMAL_UV,
-  Time,
-  TransformTrait,
-  createMaterial,
-  createRectangle,
-  getOrThrow,
-} from 'wayfare';
+import * as wf from 'wayfare';
 
 const particleAmount = 1000;
 const span = 10;
@@ -21,12 +11,12 @@ const AirParticleSystem = trait({});
 
 export const InstanceLayout = tgpu.vertexLayout((count) => disarrayOf(vec3f, count), 'instance');
 
-const particleMesh = createRectangle({
+const particleMesh = wf.createRectangleMesh({
   width: vec3f(0.02, 0, 0),
   height: vec3f(0, 0.5, 0),
 });
 
-export const AirParticlesMaterial = createMaterial({
+export const AirParticlesMaterial = wf.createMaterial({
   paramsSchema: struct({
     cameraPosition: vec3f,
     yOffset: f32,
@@ -35,7 +25,7 @@ export const AirParticlesMaterial = createMaterial({
     cameraPosition: vec3f(),
     yOffset: 0,
   },
-  vertexLayout: POS_NORMAL_UV,
+  vertexLayout: wf.POS_NORMAL_UV,
   instanceLayout: InstanceLayout,
   createPipeline({ root, format, getPOV, getUniforms, getParams }) {
     const getTransformedOrigin = tgpu['~unstable'].fn([vec3f], vec3f).does((localOrigin) => {
