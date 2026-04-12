@@ -1,6 +1,4 @@
-import tgpu from 'typegpu';
-import * as d from 'typegpu/data';
-import * as std from 'typegpu/std';
+import tgpu, { d, std } from 'typegpu';
 import { POS_NORMAL_UV } from '../mesh.ts';
 import { type CreateMaterialResult, createMaterial } from './material.ts';
 
@@ -14,7 +12,7 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> = cre
   vertexLayout: POS_NORMAL_UV,
 
   createPipeline({ root, format, $$ }) {
-    const vertexFn = tgpu['~unstable'].vertexFn({
+    const vertexFn = tgpu.vertexFn({
       in: {
         pos: d.vec3f,
         normal: d.vec3f,
@@ -22,17 +20,18 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> = cre
       },
       out: { pos: d.builtin.position, normal: d.vec3f, uv: d.vec2f },
     })((input) => {
-      const worldPos = $$.modelMat.mul(d.vec4f(input.pos, 1));
+      'use gpu';
+      const worldPos = $$.modelMat * d.vec4f(input.pos, 1);
       return {
-        pos: $$.viewProjMat.mul(worldPos),
-        normal: $$.normalModelMat.mul(d.vec4f(input.normal, 0)).xyz,
+        pos: $$.viewProjMat * worldPos,
+        normal: ($$.normalModelMat * d.vec4f(input.normal, 0)).xyz,
         uv: input.uv,
       };
     });
 
     const sunDir = std.normalize(d.vec3f(-0.5, 2, -0.5));
 
-    const fragmentFn = tgpu['~unstable'].fragmentFn({
+    const fragmentFn = tgpu.fragmentFn({
       in: { normal: d.vec3f },
       out: d.vec4f,
     })((input) => {
@@ -48,16 +47,12 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> = cre
     });
 
     return {
-      pipeline: root['~unstable']
-        .withVertex(vertexFn, POS_NORMAL_UV.attrib)
-        .withFragment(fragmentFn, { format })
-        .withPrimitive({ topology: 'triangle-list', cullMode: 'back' })
-        .withDepthStencil({
-          depthWriteEnabled: true,
-          depthCompare: 'less',
-          format: 'depth24plus',
-        })
-        .createPipeline(),
+      pipeline: root.createRenderPipeline({
+        attribs: POS_NORMAL_UV.attrib,
+        vertex: vertexFn,
+        fragment: fragmentFn,
+        targets: { format },
+      }),
     };
   },
 });

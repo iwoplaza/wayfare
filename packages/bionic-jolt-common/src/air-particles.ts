@@ -1,7 +1,5 @@
 import { type World, trait } from 'koota';
-import tgpu, { type TgpuRoot } from 'typegpu';
-import * as d from 'typegpu/data';
-import * as std from 'typegpu/std';
+import tgpu, { d, std, type TgpuRoot } from 'typegpu';
 import * as wf from 'wayfare';
 
 const particleAmount = 1000;
@@ -9,10 +7,7 @@ const span = 10;
 
 const AirParticleSystem = trait();
 
-export const InstanceLayout = tgpu.vertexLayout(
-  (count) => d.disarrayOf(d.vec3f, count),
-  'instance',
-);
+export const InstanceLayout = tgpu.vertexLayout(d.disarrayOf(d.vec3f), 'instance');
 
 const particleMesh = wf.createRectangleMesh({
   width: d.vec3f(0.02, 0, 0),
@@ -33,7 +28,7 @@ export const AirParticlesMaterial = wf.createMaterial({
   createPipeline({ root, format, $$ }) {
     const getTransformedOrigin = (localOrigin: d.v3f) => {
       'use gpu';
-      const wrappedOrigin = localOrigin.sub($$.params.cameraPosition);
+      const wrappedOrigin = localOrigin - $$.params.cameraPosition;
       wrappedOrigin.y -= $$.params.yOffset;
 
       // wrapping the space.
@@ -53,7 +48,7 @@ export const AirParticlesMaterial = wf.createMaterial({
         d.vec3f(-std.sin(angle), 0, std.cos(angle)), // k
       );
 
-      return rot_mat.mul(pos).add(originRelToCamera);
+      return rot_mat * pos + originRelToCamera;
     };
 
     const Varying = {
@@ -62,7 +57,7 @@ export const AirParticlesMaterial = wf.createMaterial({
       originRelToCamera: d.vec3f,
     } as const;
 
-    const vertexFn = tgpu['~unstable'].vertexFn({
+    const vertexFn = tgpu.vertexFn({
       in: {
         pos: d.vec3f,
         normal: d.vec3f,
@@ -74,18 +69,19 @@ export const AirParticlesMaterial = wf.createMaterial({
         ...Varying,
       },
     })((input) => {
+      'use gpu';
       const originRelToCamera = getTransformedOrigin(input.origin);
       const posRelToCamera = computePosition(input.pos, originRelToCamera);
 
       return {
-        pos: $$.viewProjMat.mul($$.modelMat).mul(d.vec4f(posRelToCamera, 1)),
-        normal: $$.normalModelMat.mul(d.vec4f(input.normal, 0)).xyz,
+        pos: $$.viewProjMat * $$.modelMat * d.vec4f(posRelToCamera, 1),
+        normal: ($$.normalModelMat * d.vec4f(input.normal, 0)).xyz,
         uv: input.uv,
         originRelToCamera: originRelToCamera,
       };
     });
 
-    const fragmentFn = tgpu['~unstable'].fragmentFn({
+    const fragmentFn = tgpu.fragmentFn({
       in: Varying,
       out: d.vec4f,
     })((input) => {
@@ -97,19 +93,21 @@ export const AirParticlesMaterial = wf.createMaterial({
     });
 
     return {
-      pipeline: root['~unstable']
-        .withVertex(vertexFn, {
+      pipeline: root.createRenderPipeline({
+        attribs: {
           ...wf.POS_NORMAL_UV.attrib,
           origin: InstanceLayout.attrib,
-        })
-        .withFragment(fragmentFn, { format })
-        .withPrimitive({ topology: 'triangle-list', cullMode: 'back' })
-        .withDepthStencil({
+        },
+        vertex: vertexFn,
+        fragment: fragmentFn,
+        targets: { format },
+        primitive: { topology: 'triangle-list', cullMode: 'back' },
+        depthStencil: {
           depthWriteEnabled: true,
           depthCompare: 'less',
           format: 'depth24plus',
-        })
-        .createPipeline(),
+        },
+      }),
     };
   },
 });
