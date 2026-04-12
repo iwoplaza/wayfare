@@ -1,10 +1,10 @@
 import { type ExtractSchema, Not, type World, trait } from 'koota';
-import * as d from 'typegpu/data';
+import { d } from 'typegpu';
 import * as wf from 'wayfare';
 import { quat } from 'wgpu-matrix';
 
 import pentagonFile from './assets/pentagon.js';
-import { WindAudio } from './audio.ts';
+import { WindAudioMaterial } from './wind-audio.ts';
 import { GameState } from './player.ts';
 
 const pentagonMesh = wf.meshAsset({ src: pentagonFile });
@@ -116,7 +116,7 @@ export function createMap(world: World) {
 
   function updateWindAudioSystem() {
     if (!world.queryFirst(WindAudioSource)) {
-      world.spawn(WindAudioSource, ...WindAudio.Bundle());
+      world.spawn(WindAudioSource, ...WindAudioMaterial.Bundle());
     }
 
     const windListener = world.queryFirst(WindListener)?.get(wf.TransformTrait);
@@ -133,7 +133,7 @@ export function createMap(world: World) {
     }, Number.POSITIVE_INFINITY);
 
     if (minDist < Number.POSITIVE_INFINITY) {
-      world.query(WindAudio.Params, WindAudioSource).updateEach(([params]) => {
+      world.query(WindAudioMaterial.Params, WindAudioSource).updateEach(([params]) => {
         const clamped1 = clamp01(1 - minDist * 0.5);
 
         params.gainNode.gain.value = clamped1 ** 3;

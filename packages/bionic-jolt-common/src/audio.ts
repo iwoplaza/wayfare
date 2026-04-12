@@ -1,89 +1,119 @@
-import { type ConfigurableTrait, type World, createAdded, createRemoved, trait } from 'koota';
+// TODO: Remove the audio nodes when the traits are removed
 
-const audioCtx = new AudioContext();
-const masterGainNode = audioCtx.createGain();
-masterGainNode.gain.value = 0.2;
-masterGainNode.connect(audioCtx.destination);
+import {
+  type ConfigurableTrait,
+  type ExtractSchema,
+  type Trait,
+  type TraitValue,
+  type World,
+  createRemoved,
+  trait,
+} from 'koota';
 
-if (typeof window !== 'undefined' && typeof window.addEventListener !== 'undefined') {
-  // Disconnect audio context when the window is blurred
-  window.addEventListener('blur', () => {
-    masterGainNode.disconnect();
-  });
-
-  // Reconnect audio context when the window is focused
-  window.addEventListener('focus', () => {
-    masterGainNode.connect(audioCtx.destination);
-  });
-}
-
+export const AudioCtxTrait = trait(() => undefined as unknown as AudioContext);
 export const AudioNodeTrait = trait(() => undefined as unknown as AudioNode);
 
-interface AudioManager {
+export const AudioSourceTrait = trait({
+  buffer: () => undefined as unknown as AudioBufferSourceNode,
+});
+
+export interface AudioManager {
   tryResume(): void;
   update(): void;
 }
 
-function createWhiteNoiseSource(audioCtx: AudioContext) {
-  const bufferSize = 2 * audioCtx.sampleRate;
-  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-  const output = noiseBuffer.getChannelData(0);
-
-  for (let i = 0; i < bufferSize; i++) {
-    output[i] = Math.random() * 2 - 1;
-  }
-
-  const whiteNoise = audioCtx.createBufferSource();
-  whiteNoise.buffer = noiseBuffer;
-  whiteNoise.loop = true;
-  whiteNoise.start(0);
-
-  return whiteNoise;
+interface InitAudioMaterialContext {
+  audioCtx: AudioContext;
 }
 
-const whiteNoiseSource = createWhiteNoiseSource(audioCtx);
+type InitSharedAudioMaterial<TShared> = (audioCtx: AudioContext) => TShared;
+type InitAudioMaterial<TParamsTrait extends Trait, TShared> = (
+  ctx: InitAudioMaterialContext,
+  shared: TShared,
+) => { node: AudioNode; initialParams: TraitValue<ExtractSchema<TParamsTrait>> };
 
-export const WindAudio = (() => {
-  const Params = trait({
-    gainNode: () => undefined as unknown as GainNode,
-    highPass: () => undefined as unknown as BiquadFilterNode,
-  });
+export interface CreateAudioMaterialOptions<TParamsTrait extends Trait, TShared> {
+  paramsTrait: TParamsTrait;
+  initShared?: InitSharedAudioMaterial<TShared> | undefined;
+  init: InitAudioMaterial<TParamsTrait, TShared>;
+}
+
+export interface CreateAudioMaterialResult<TParamsTrait extends Trait> {
+  Params: TParamsTrait;
+  Bundle(): ConfigurableTrait[];
+}
+
+const InitAudioMaterialTrait = trait({
+  paramsTrait: () => undefined as unknown as Trait,
+  initShared: () => undefined as unknown as InitSharedAudioMaterial<unknown>,
+  init: () => undefined as unknown as InitAudioMaterial<Trait, never>,
+});
+
+export function createAudioMaterial<TParamsTrait extends Trait, TShared>(
+  options: CreateAudioMaterialOptions<TParamsTrait, TShared>,
+): CreateAudioMaterialResult<TParamsTrait> {
+  const { paramsTrait, initShared, init } = options;
 
   return {
-    Params,
-    Bundle(): ConfigurableTrait[] {
-      const lowPass = audioCtx.createBiquadFilter();
-      lowPass.type = 'lowpass';
-      lowPass.frequency.value = 1000;
-      lowPass.Q.value = 1;
-
-      const highPass = audioCtx.createBiquadFilter();
-      highPass.type = 'highpass';
-      highPass.frequency.value = 1000;
-
-      const gainNode = audioCtx.createGain();
-
-      whiteNoiseSource.connect(lowPass).connect(highPass).connect(gainNode);
-
-      return [AudioNodeTrait(gainNode), Params({ gainNode, highPass })];
-    },
+    Params: paramsTrait,
+    Bundle: () => [
+      InitAudioMaterialTrait({
+        initShared,
+        init: init as unknown as InitAudioMaterial<Trait, never>,
+        paramsTrait,
+      }),
+    ],
   };
-})();
+}
 
-export function createAudio(world: World): AudioManager {
-  const Added = createAdded();
+export function createAudio(
+  world: World,
+  AudioContext: typeof globalThis.AudioContext,
+): AudioManager {
   const Removed = createRemoved();
+
+  const audioCtx = new AudioContext();
+  const masterGainNode = audioCtx.createGain();
+  masterGainNode.gain.value = 0.2;
+  masterGainNode.connect(audioCtx.destination);
+
+  if (typeof window !== 'undefined' && typeof window.addEventListener !== 'undefined') {
+    // Disconnect audio context when the window is blurred
+    window.addEventListener('blur', () => {
+      masterGainNode.disconnect();
+    });
+
+    // Reconnect audio context when the window is focused
+    window.addEventListener('focus', () => {
+      masterGainNode.connect(audioCtx.destination);
+    });
+  }
+
+  const sharedMap = new WeakMap();
 
   return {
     tryResume() {
       audioCtx.resume();
     },
     update() {
-      world.query(Added(AudioNodeTrait)).updateEach(([audioNode]) => {
-        audioNode.connect(masterGainNode);
-      });
+      world
+        .query(InitAudioMaterialTrait)
+        .updateEach(([{ initShared, init, paramsTrait }], entity) => {
+          let shared: unknown;
+          if (sharedMap.has(initShared)) {
+            shared = sharedMap.get(initShared);
+          } else {
+            shared = initShared(audioCtx);
+            sharedMap.set(initShared, shared);
+          }
+          const { node, initialParams } = init({ audioCtx }, shared as never);
 
-      world.query(Removed(AudioNodeTrait)).updateEach(([audioNode]) => {
+          node.connect(masterGainNode);
+          entity.remove(InitAudioMaterialTrait);
+          entity.add(paramsTrait(initialParams));
+        });
+
+      world.query(Removed(AudioNodeTrait), AudioNodeTrait).updateEach(([audioNode]) => {
         audioNode?.disconnect(masterGainNode);
       });
     },

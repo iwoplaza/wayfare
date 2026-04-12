@@ -17,6 +17,7 @@
     "koota": "catalog:",
     "react": "19.2.5",
     "react-native": "0.83.4",
+    "react-native-audio-api": "^0.11.7",
     "react-native-wgpu": "0.5.11",
     "react-native-worklets": "0.8.1",
     "typegpu": "catalog:"

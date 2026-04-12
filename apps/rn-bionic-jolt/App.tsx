@@ -2,8 +2,9 @@ import { useConfigureContext, useRoot } from '@typegpu/react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Canvas } from 'react-native-wgpu';
-import { setupGame } from './game/main';
 import { useEffect } from 'react';
+
+import { setupGame } from './game/main.ts';
 
 export default function App() {
   const root = useRoot();

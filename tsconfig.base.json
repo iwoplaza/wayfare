@@ -15,6 +15,7 @@
     "emitDeclarationOnly": true,
     "noEmitHelpers": true,
     "noEmitOnError": true,
+    "verbatimModuleSyntax": true,
     "types": ["@webgpu/types"]
   },
   "exclude": ["${configDir}/dist", "${configDir}/node_modules"],
