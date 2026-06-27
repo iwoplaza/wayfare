@@ -23,7 +23,7 @@ export class Viewport {
 
   get depthTexture(): TgpuTexture & RenderFlag {
     if (!this.#depthTexture) {
-      this.#depthTexture = this.#root['~unstable']
+      this.#depthTexture = this.#root
         .createTexture({
           format: 'depth24plus',
           size: [this.#width, this.#height],

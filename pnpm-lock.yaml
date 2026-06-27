@@ -14,11 +14,11 @@ catalogs:
       specifier: ^0.1.68
       version: 0.1.68
     typegpu:
-      specifier: 0.10.2
-      version: 0.10.2
+      specifier: 0.11.8
+      version: 0.11.8
     unplugin-typegpu:
-      specifier: 0.10.2
-      version: 0.10.2
+      specifier: ^0.11.5
+      version: 0.11.5
 
 overrides:
   typescript: npm:tsover@6.0.0
@@ -72,10 +72,10 @@ importers:
         version: 3.4.17
       typegpu:
         specifier: 'catalog:'
-        version: 0.10.2
+        version: 0.11.8
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.10.2(typegpu@0.10.2)
+        version: 0.11.5(typegpu@0.11.8)
       wayfare:
         specifier: workspace:*
         version: link:../../packages/wayfare
@@ -91,7 +91,7 @@ importers:
     dependencies:
       '@typegpu/react':
         specifier: 0.10.0-alpha.8
-        version: 0.10.0-alpha.8(da4d2602e066e46dbb3076960800a397)
+        version: 0.10.0-alpha.8(a0114ea2875dcd8157207778ed8fabfa)
       bionic-jolt-common:
         specifier: workspace:^
         version: link:../../packages/bionic-jolt-common
@@ -121,7 +121,7 @@ importers:
         version: 0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.0(@babel/core@7.29.0))(react-native@0.83.4(@babel/core@7.29.0)(@react-native/metro-config@0.85.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
       typegpu:
         specifier: 'catalog:'
-        version: 0.10.2
+        version: 0.11.8
     devDependencies:
       '@types/react':
         specifier: ~19.2.0
@@ -131,7 +131,7 @@ importers:
         version: tsover@6.0.0
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.10.2(typegpu@0.10.2)
+        version: 0.11.5(typegpu@0.11.8)
 
   packages/bionic-jolt-common:
     dependencies:
@@ -140,7 +140,7 @@ importers:
         version: 0.5.1(@types/react@19.2.14)(react@19.2.5)
       typegpu:
         specifier: 'catalog:'
-        version: 0.10.2
+        version: 0.11.8
       wayfare:
         specifier: 'workspace:'
         version: link:../wayfare
@@ -181,10 +181,10 @@ importers:
         version: 0.12.9(typescript@5.7.3)
       typegpu:
         specifier: 'catalog:'
-        version: 0.10.2
+        version: 0.11.8
       unplugin-typegpu:
         specifier: 'catalog:'
-        version: 0.10.2(typegpu@0.10.2)
+        version: 0.11.5(typegpu@0.11.8)
       wgpu-matrix:
         specifier: ^3.4.0
         version: 3.4.0
@@ -733,10 +733,6 @@ packages:
 
   '@babel/runtime@7.26.7':
     resolution: {integrity: sha512-AOPI3D+a8dXnja+iwsUqGRjr1BbZIe771sXdapOtYI531gSqpi92vXivKcq2asu/DFpdl1ceFAKZyRzK2PCVcQ==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/standalone@7.29.2':
-    resolution: {integrity: sha512-VSuvywmVRS8efooKrvJzs6BlVSxRvAdLeGrAKUrWoBx1fFBSeE/oBpUZCQ5BcprLyXy04W8skzz7JT8GqlNRJg==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.28.6':
@@ -2498,6 +2494,10 @@ packages:
     resolution: {integrity: sha512-mfh6a7gKXE8pDlxTvqIc/syH/P3RkzbOF6LeHdcKztLEzYe6IMsRCL7N8vI7hqTGWNxpkCuuRTpT21xNWqhRtQ==}
     engines: {node: '>=20.18.0'}
 
+  ast-kit@2.2.0:
+    resolution: {integrity: sha512-m1Q/RaVOnTp9JxPX+F+Zn7IcLYMzM8kZofDImfsKZd8MbR+ikdOzTeztStWqfrqIxZnYWryyI9ePm3NGjnZgGw==}
+    engines: {node: '>=20.19.0'}
+
   astro@5.2.6:
     resolution: {integrity: sha512-CrTuJMwpWF9kmOhX+cl6uPqNbTRrHO7eXggFP9SK7+Bsen/7FpJtA6k1p/ALleuV5ndJLqn/9tpmP3qACHPjYA==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=22.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
@@ -3841,12 +3841,11 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  magic-string-ast@1.0.0:
-    resolution: {integrity: sha512-8rbuNizut2gW94kv7pqgt0dvk+AHLPVIm0iJtpSgQJ9dx21eWx5SBel8z3jp1xtC0j6/iyK3AWGhAR1H61s7LA==}
-    engines: {node: '>=20.18.0'}
-
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
+
+  magic-string@0.30.21:
+    resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
   magicast@0.3.5:
     resolution: {integrity: sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ==}
@@ -5102,6 +5101,10 @@ packages:
     resolution: {integrity: sha512-SJNnjbvTEo5VmIjsMYpUFL34b9RyaI382r1v7gyVXZpd4VnjIZKMrGk1mphXM4zkhrs3hZfO1Xwv63DoZX50yw==}
     engines: {node: '>=12.20.0'}
 
+  tinyest@0.3.2:
+    resolution: {integrity: sha512-1wqSt97RLezWzeogLSVXHr+E3jpYO8jxyaK2AIdJeGoZZTCubwNxQ9IqU5gbQpJVcxlbPugPAsII+m9/gqpPSA==}
+    engines: {node: '>=12.20.0'}
+
   tinyexec@0.3.2:
     resolution: {integrity: sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==}
 
@@ -5181,8 +5184,8 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  tsover-runtime@0.0.5:
-    resolution: {integrity: sha512-OwpUKI97GvNRVukCE4jtCzUwQvnn6Wyu4a3LikaNF1GXosopXW4J928/EdBsKBxLKv/NP7RjuwhGFkkR1UCdjA==}
+  tsover-runtime@0.0.7:
+    resolution: {integrity: sha512-FHHwMJzZbnP23+fU1PxXljy7j0RRRosL2r1/CRUNTqfW+l7m35JsUkM615x/cAzw4GqRdXPIl3axKMj9qzpZtQ==}
 
   tsover@6.0.0:
     resolution: {integrity: sha512-E51e1sMdrvBd2kVeNs2I3Kj7VdCivrwTmw89RYICmiWmtufI3EtywWgRAARFuVTZc3oKrkS1czNsVNLg0Zwv4A==}
@@ -5204,12 +5207,13 @@ packages:
     resolution: {integrity: sha512-6kSc32kT0rbwxD6QL1CYe8IqdzN/J/ILMrNK+HMQCKH3insCDRY/3ITb0vcBss0a3t72fzh2YSzj8ko1HgwT3g==}
     engines: {node: '>=16'}
 
-  typed-binary@4.3.2:
-    resolution: {integrity: sha512-HT3pIBM2njCZUmeczDaQUUErGiM6GXFCqMsHegE12HCoBtvHCkfR10JJni0TeGOTnLilTd6YFyj+YhflqQDrDQ==}
+  typed-binary@4.3.3:
+    resolution: {integrity: sha512-W2hLsSzt3k/tg38gDE4Fn/QiwcoqGuUHBc2cb3mXuH7KcYxe/GM57vzW14s2/bawB4R5knGgGq8Xb57vsaJ4Sg==}
 
-  typegpu@0.10.2:
-    resolution: {integrity: sha512-5DZRvNtsbvRM++MONmwxfX0+vYAZgPKnGNCB8nnr3jwXo/gaOJ51WcgKRU8cHvK0RvMikCCVdolwBeEC0B9m7A==}
+  typegpu@0.11.8:
+    resolution: {integrity: sha512-aEVdtGDTWrXB5yVCwriM84iyfnw8dHWiXVTA2Hr9hnJN2F4IXKainTVKd3HP2/lPHqDg5iYjt7yL//p2sJAWBg==}
     engines: {node: '>=12.20.0'}
+    hasBin: true
 
   typescript@5.7.3:
     resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
@@ -5285,14 +5289,18 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-typegpu@0.10.2:
-    resolution: {integrity: sha512-E+kWHyxuxuBbXElZWDjt0/nTHP+niDBvGYV/KGNr9yD9USD4+EZKSvPVmsFUI9K1ALtVG17s+qMWcPFsjoV2Yw==}
+  unplugin-typegpu@0.11.5:
+    resolution: {integrity: sha512-t8LsPjCbSS8u5skYo4BdUQs1hL9jKyEIc3pbbDlN3UttV0FeLY1rBgx+0Qr/qNhuU0nuE+MH4PKxs5Y1EetfRQ==}
     peerDependencies:
-      typegpu: ^0.10.2
+      typegpu: ^0.11.7
 
   unplugin@2.3.5:
     resolution: {integrity: sha512-RyWSb5AHmGtjjNQ6gIlA67sHOsWpsbWpwDokLwTcejVdOjEkJZh7QKu14J00gDDVSh8kGH4KYC/TNBceXFZhtw==}
     engines: {node: '>=18.12.0'}
+
+  unplugin@3.0.0:
+    resolution: {integrity: sha512-0Mqk3AT2TZCXWKdcoaufeXNukv2mTrEZExeXlHIOZXdqYoHHr4n51pymnwV8x2BOVxwXbK2HLlI7usrqMpycdg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
 
   unstorage@1.14.4:
     resolution: {integrity: sha512-1SYeamwuYeQJtJ/USE1x4l17LkmQBzg7deBJ+U9qOBoHo15d1cDxG4jM31zKRgF7pG0kirZy4wVMX6WL6Zoscg==}
@@ -6319,8 +6327,6 @@ snapshots:
   '@babel/runtime@7.26.7':
     dependencies:
       regenerator-runtime: 0.14.1
-
-  '@babel/standalone@7.29.2': {}
 
   '@babel/template@7.28.6':
     dependencies:
@@ -8002,10 +8008,10 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@typegpu/react@0.10.0-alpha.8(da4d2602e066e46dbb3076960800a397)':
+  '@typegpu/react@0.10.0-alpha.8(a0114ea2875dcd8157207778ed8fabfa)':
     dependencies:
       react: 19.2.5
-      typegpu: 0.10.2
+      typegpu: 0.11.8
     optionalDependencies:
       react-native: 0.83.4(@babel/core@7.29.0)(@react-native/metro-config@0.85.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5)
       react-native-wgpu: 0.5.11(react-native-reanimated@4.3.0(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.0(@babel/core@7.29.0))(react-native@0.83.4(@babel/core@7.29.0)(@react-native/metro-config@0.85.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.83.4(@babel/core@7.29.0)(@react-native/metro-config@0.85.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.0(@babel/core@7.29.0))(react-native@0.83.4(@babel/core@7.29.0)(@react-native/metro-config@0.85.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5))(react-native@0.83.4(@babel/core@7.29.0)(@react-native/metro-config@0.85.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
@@ -8180,6 +8186,11 @@ snapshots:
   ast-kit@2.1.1:
     dependencies:
       '@babel/parser': 7.28.0
+      pathe: 2.0.3
+
+  ast-kit@2.2.0:
+    dependencies:
+      '@babel/parser': 7.29.2
       pathe: 2.0.3
 
   astro@5.2.6(@types/node@25.0.3)(jiti@2.4.2)(lightningcss@1.32.0)(rollup@4.45.1)(terser@5.44.1)(typescript@5.7.3)(yaml@2.7.0):
@@ -9705,13 +9716,13 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  magic-string-ast@1.0.0:
-    dependencies:
-      magic-string: 0.30.17
-
   magic-string@0.30.17:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  magic-string@0.30.21:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   magicast@0.3.5:
     dependencies:
@@ -11585,6 +11596,8 @@ snapshots:
 
   tinyest@0.3.1: {}
 
+  tinyest@0.3.2: {}
+
   tinyexec@0.3.2: {}
 
   tinyexec@1.0.1: {}
@@ -11650,10 +11663,7 @@ snapshots:
   tslib@2.8.1:
     optional: true
 
-  tsover-runtime@0.0.5:
-    dependencies:
-      minimatch: 9.0.5
-      unplugin: 2.3.5
+  tsover-runtime@0.0.7: {}
 
   tsover@6.0.0:
     dependencies:
@@ -11668,13 +11678,13 @@ snapshots:
 
   type-fest@4.34.1: {}
 
-  typed-binary@4.3.2: {}
+  typed-binary@4.3.3: {}
 
-  typegpu@0.10.2:
+  typegpu@0.11.8:
     dependencies:
-      tinyest: 0.3.1
-      tsover-runtime: 0.0.5
-      typed-binary: 4.3.2
+      tinyest: 0.3.2
+      tsover-runtime: 0.0.7
+      typed-binary: 4.3.3
 
   typescript@5.7.3: {}
 
@@ -11761,23 +11771,33 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-typegpu@0.10.2(typegpu@0.10.2):
+  unplugin-typegpu@0.11.5(typegpu@0.11.8):
     dependencies:
-      '@babel/standalone': 7.29.2
+      '@babel/parser': 7.29.2
+      '@babel/traverse': 7.29.0
+      '@babel/types': 7.29.0
+      ast-kit: 2.2.0
       defu: 6.1.4
-      estree-walker: 3.0.3
-      magic-string-ast: 1.0.0
+      magic-string: 0.30.21
       pathe: 2.0.3
-      picomatch: 4.0.3
+      picomatch: 4.0.4
       tinyest: 0.3.1
       tinyest-for-wgsl: 0.3.2
-      typegpu: 0.10.2
-      unplugin: 2.3.5
+      typegpu: 0.11.8
+      unplugin: 3.0.0
+    transitivePeerDependencies:
+      - supports-color
 
   unplugin@2.3.5:
     dependencies:
       acorn: 8.15.0
       picomatch: 4.0.3
+      webpack-virtual-modules: 0.6.2
+
+  unplugin@3.0.0:
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      picomatch: 4.0.4
       webpack-virtual-modules: 0.6.2
 
   unstorage@1.14.4:

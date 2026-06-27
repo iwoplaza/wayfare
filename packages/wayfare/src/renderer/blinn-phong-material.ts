@@ -35,13 +35,14 @@ export const BlinnPhongMaterial: CreateMaterialResult<typeof ParamsSchema> = cre
       in: { normal: d.vec3f },
       out: d.vec4f,
     })((input) => {
+      'use gpu';
       const normal = std.normalize(input.normal);
 
       const diffuse = d.vec3f(1.0, 0.9, 0.7);
       const ambient = d.vec3f(0.1, 0.15, 0.2);
       const att = std.max(0, std.dot(normal, sunDir));
 
-      const finalColor = std.mul(ambient.add(diffuse.mul(att)), $$.params.albedo);
+      const finalColor = (ambient + diffuse * att) * $$.params.albedo;
 
       return d.vec4f(finalColor, 1.0);
     });
