@@ -1,53 +1,32 @@
 import { PixelRatio } from 'react-native';
-import tgpu from 'typegpu';
-import { Engine, Renderer } from 'wayfare';
-import { createAirParticles } from './air-particles';
-import { createDudes } from './dude';
-import { createGameCamera } from './game-camera';
-import { createMap } from './map';
-import { createPlayers } from './player';
+import { AudioContext } from 'react-native-audio-api';
+import { TgpuRoot } from 'typegpu';
+import * as wf from 'wayfare';
+import { BionicJolt } from 'bionic-jolt-common';
 
-export function setupGame(
-  canvas: HTMLCanvasElement,
-  context: GPUCanvasContext,
-) {
-  let destroyed = false;
-  let engine: Engine | undefined;
+export function setupGame(signal: AbortSignal, root: TgpuRoot, ctx: GPUCanvasContext) {
+  const canvas = ctx.canvas as HTMLCanvasElement;
+  const { start, loop, engine, renderer } = BionicJolt(
+    root,
+    ctx,
+    AudioContext as unknown as typeof globalThis.AudioContext,
+  );
 
-  (async () => {
-    const root = await tgpu.init();
+  let prevCanvasWidth = 0;
+  let prevCanvasHeight = 0;
 
-    if (destroyed) {
-      return;
-    }
+  function updateViewport() {
+    prevCanvasWidth = canvas.clientWidth * PixelRatio.get();
+    prevCanvasHeight = canvas.clientHeight * PixelRatio.get();
+    canvas.width = prevCanvasWidth;
+    canvas.height = prevCanvasHeight;
+    renderer.updateViewport(prevCanvasWidth, prevCanvasHeight);
+  }
 
-    const renderer = new Renderer(root, canvas, context);
-    engine = new Engine(root, renderer);
-    const world = engine.world;
+  updateViewport();
 
-    let prevCanvasWidth = 0;
-    let prevCanvasHeight = 0;
-
-    function updateViewport() {
-      prevCanvasWidth = canvas.clientWidth * PixelRatio.get();
-      prevCanvasHeight = canvas.clientHeight * PixelRatio.get();
-      canvas.width = prevCanvasWidth;
-      canvas.height = prevCanvasHeight;
-      renderer.updateViewport(prevCanvasWidth, prevCanvasHeight);
-    }
-
-    updateViewport();
-
-    // const Audio = createAudio(world);
-    const MapStuff = createMap(world);
-    const AirParticles = createAirParticles(world, root);
-    const Dudes = createDudes(world);
-    const Players = createPlayers(world);
-    const GameCamera = createGameCamera(world);
-
-    Players.init();
-
-    engine.run(() => {
+  engine.renderSchedule.add(
+    () => {
       // Updating viewport
       const newWidth = canvas.clientWidth * PixelRatio.get();
       const newHeight = canvas.clientHeight * PixelRatio.get();
@@ -56,20 +35,16 @@ export function setupGame(
         prevCanvasHeight = newHeight;
         updateViewport();
       }
+    },
+    { before: wf.RENDER_TIMESLOT },
+  );
 
-      // Audio.update();
-      Dudes.update();
-      Players.update();
-      MapStuff.update();
-      AirParticles.update();
-      GameCamera.update();
-    });
-  })();
+  start();
+  loop();
 
-  return () => {
-    destroyed = true;
+  signal.addEventListener('abort', () => {
     if (engine) {
       engine.destroy();
     }
-  };
+  });
 }

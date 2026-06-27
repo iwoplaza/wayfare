@@ -44,18 +44,8 @@ export function createDudes(world: World) {
     world.query(wf.TransformTrait, Dude).updateEach(([transform, dude]) => {
       const dir = dude.movementDir;
       // Smoothly encroaching the turn direction
-      dude.smoothTurnDir.x = wf.encroach(
-        dude.smoothTurnDir.x,
-        dir.x,
-        0.01,
-        deltaSeconds,
-      );
-      dude.smoothTurnDir.z = wf.encroach(
-        dude.smoothTurnDir.z,
-        dir.z,
-        0.01,
-        deltaSeconds,
-      );
+      dude.smoothTurnDir.x = wf.encroach(dude.smoothTurnDir.x, dir.x, 0.01, deltaSeconds);
+      dude.smoothTurnDir.z = wf.encroach(dude.smoothTurnDir.z, dir.z, 0.01, deltaSeconds);
 
       // Tilting based on movement direction
       transform.rotation = quat.fromEuler(

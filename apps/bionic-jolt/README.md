@@ -6,10 +6,10 @@
 
 </div>
 
-
 ## TODOs
 
 Prototype:
+
 - [ ] Visuals
   - [x] Basic 3d shading
   - [x] Instanced particles
@@ -34,4 +34,5 @@ Prototype:
   - [ ] Collision detection
 
 v0.2:
+
 - [ ] "Turbulent" clothes on the Dudes

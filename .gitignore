@@ -25,6 +25,3 @@ pnpm-debug.log*
 
 # Blender
 *.blend1
-
-# zed
-.zed

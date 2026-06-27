@@ -17,11 +17,7 @@ if (loadingScreen) {
 
 export async function main(canvas: HTMLCanvasElement) {
   const root = await tgpu.init();
-  const bj = BionicJolt(
-    root,
-    canvas,
-    canvas.getContext('webgpu') as GPUCanvasContext,
-  );
+  const bj = BionicJolt(root, canvas.getContext('webgpu') as GPUCanvasContext, AudioContext);
 
   // Listen to changes in window size and resize the canvas
   const handleResize = () => {

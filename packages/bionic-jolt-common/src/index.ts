@@ -16,14 +16,15 @@ export { createMap } from './map.ts';
 
 export function BionicJolt(
   root: TgpuRoot,
-  canvas: HTMLCanvasElement,
-  context: GPUCanvasContext,
+  ctx: GPUCanvasContext,
+  AudioContext: typeof globalThis.AudioContext,
 ) {
-  const renderer = new wf.Renderer(root, canvas, context);
+  const canvas = ctx.canvas as HTMLCanvasElement;
+  const renderer = new wf.Renderer(root, canvas, ctx);
   const engine = new wf.Engine(root, renderer);
   const world = engine.world;
 
-  const Audio = createAudio(world);
+  const Audio = createAudio(world, AudioContext);
   const MapStuff = createMap(world);
   const AirParticles = createAirParticles(world, root);
   const Dudes = createDudes(world);

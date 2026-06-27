@@ -6,12 +6,9 @@ export {
   InstanceBufferTrait,
   Velocity,
   ScheduleSystem,
+  RENDER_TIMESLOT,
 } from './engine.ts';
-export {
-  ActiveCameraTag,
-  PerspectiveCamera,
-  OrthographicCamera,
-} from './camera-traits.ts';
+export { ActiveCameraTag, PerspectiveCamera, OrthographicCamera } from './camera-traits.ts';
 export type { PerspectiveConfig, OrthographicConfig } from './camera-traits.ts';
 export { ChildOf, ParentOf, connectAsChild } from './node-tree.ts';
 export { getOrAdd, getOrThrow } from './get-or-add.ts';

@@ -11,7 +11,7 @@ A modular game engine built on top of [TypeGPU](https://typegpu.com) & [Koota](h
 ## Quotes
 
 > ⛵️ "We asked ourselves if shaders could be written in JavaScript... instead of asking if they should"<br>
-\- made-up quote
+> \- made-up quote
 
-> ⛵️ "The web has intruded f#%*!ng shaders"<br>
-\- reddit in general
+> ⛵️ "The web has intruded f#%\*!ng shaders"<br>
+> \- reddit in general

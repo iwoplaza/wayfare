@@ -1,44 +1,14 @@
 {
   "name": "wayfare",
-  "type": "module",
-  "version": "0.3.0-alpha.14",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": "./src/index.ts"
-  },
-  "publishConfig": {
-    "main": "./dist/index.mjs",
-    "types": "./dist/index.d.mts",
-    "exports": {
-      "./package.json": "./package.json",
-      ".": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      }
-    }
-  },
-  "files": [
-    "README.md",
-    "package.json",
-    "src/**/*",
-    "dist/**/*"
-  ],
-  "sideEffects": false,
-  "scripts": {
-    "build": "tsdown",
-    "prepublishOnly": "pnpm build",
-    "test:types": "tsc --noEmit"
-  },
+  "version": "0.3.0-alpha.15",
   "keywords": [
-    "WebGPU",
-    "TypeGPU",
-    "game",
-    "engine",
     "3d",
-    "graphics",
-    "ecs"
+    "TypeGPU",
+    "WebGPU",
+    "ecs",
+    "engine",
+    "game",
+    "graphics"
   ],
   "license": "MIT",
   "author": {
@@ -46,24 +16,54 @@
     "email": "iwo@iwoplaza.dev",
     "url": "https://iwoplaza.dev"
   },
-  "peerDependencies": {
-    "koota": "^0.5.0",
-    "typegpu": "^0.7.0",
-    "wgpu-matrix": "^3.4.0"
+  "files": [
+    "README.md",
+    "package.json",
+    "dist/**/*"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "prepublishOnly": "pnpm build",
+    "test:types": "tsc --noEmit"
   },
   "dependencies": {
     "@loaders.gl/core": "^4.3.3",
     "@loaders.gl/gltf": "^4.3.3",
     "@loaders.gl/obj": "^4.3.3",
-    "@loaders.gl/schema": "^4.3.3"
+    "@loaders.gl/schema": "^4.3.3",
+    "directed": "^0.1.6"
   },
   "devDependencies": {
     "@webgpu/types": "catalog:",
     "keyboardevent-codes": "1.0.0",
+    "koota": "catalog:",
     "tsdown": "catalog:build",
-    "koota": "^0.5.0",
     "typegpu": "catalog:",
     "unplugin-typegpu": "catalog:",
+    "wgpu-matrix": "^3.4.0"
+  },
+  "peerDependencies": {
+    "koota": "^0.5.0",
+    "typegpu": "^0.10.2",
     "wgpu-matrix": "^3.4.0"
   }
 }

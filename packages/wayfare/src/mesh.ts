@@ -1,18 +1,11 @@
-import { type TgpuBuffer, type VertexFlag, tgpu } from 'typegpu';
-import {
-  type Disarray,
-  type WgslArray,
-  disarrayOf,
-  unstruct,
-  vec2f,
-  vec3f,
-} from 'typegpu/data';
+import { tgpu, d } from 'typegpu';
+import type { TgpuBuffer, VertexFlag } from 'typegpu';
 
 export interface Mesh {
   vertexCount: number;
-  vertexBuffer: TgpuBuffer<WgslArray | Disarray> & VertexFlag;
+  vertexBuffer: TgpuBuffer<d.WgslArray | d.Disarray> & VertexFlag;
 }
 
-export const POS_NORMAL_UV = tgpu.vertexLayout((n) =>
-  disarrayOf(unstruct({ pos: vec3f, normal: vec3f, uv: vec2f }), n),
+export const POS_NORMAL_UV = tgpu.vertexLayout(
+  d.disarrayOf(d.unstruct({ pos: d.vec3f, normal: d.vec3f, uv: d.vec2f })),
 );
