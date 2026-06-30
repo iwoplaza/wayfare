@@ -3,7 +3,7 @@ import tgpu, { d } from 'typegpu';
 import { vec3f, vec4f } from 'typegpu/data';
 import * as wf from 'wayfare';
 import { quat } from 'wgpu-matrix';
-import type { GrapplePoint, PlatformDef, PlayerSnapshot } from './physics.ts';
+import { playerSize, type GrapplePoint, type PlatformDef, type PlayerSnapshot } from './physics.ts';
 
 export type RectEntity = {
   entity: Entity;
@@ -21,6 +21,11 @@ const rectangleMesh = wf.createRectangleMesh({
   width: vec3f(1, 0, 0),
   height: vec3f(0, 1, 0),
 });
+export const playerVisualSize = { width: 0.68, height: 0.72 };
+const jumpStretchSize = { width: 0.46, height: 1.08 };
+const dashStretchX = 0.42;
+const dashSquashY = 0.28;
+const maxJumpStretchVelocity = 0.68;
 
 const ColorParamsSchema = d.struct({
   albedo: d.vec3f,
@@ -157,8 +162,25 @@ export function createGrappleRects(world: World, points: GrapplePoint[]) {
 }
 
 export function syncPlayer(rect: RectEntity, player: PlayerSnapshot) {
-  setRect(rect, player.x, player.y, player.angle);
+  const jumpStretch = smoothstep(Math.max(0, player.velocity.y) / maxJumpStretchVelocity);
+  const dashSquash = smoothstep(player.dashSquash);
+  const jumpWidth = lerp(rect.width, jumpStretchSize.width, jumpStretch);
+  const jumpHeight = lerp(rect.height, jumpStretchSize.height, jumpStretch);
+  const width = jumpWidth * (1 + dashStretchX * dashSquash);
+  const height = jumpHeight * (1 - dashSquashY * dashSquash);
+  const y = player.y + (height - playerSize.height) / 2;
+
+  setRect(rect, player.x, y, player.angle, width, height);
   setColor(rect, player.grounded ? [1, 1, 1] : [0.92, 0.98, 1]);
+}
+
+function lerp(from: number, to: number, amount: number) {
+  return from + (to - from) * amount;
+}
+
+function smoothstep(value: number) {
+  const t = Math.max(0, Math.min(1, value));
+  return t * t * (3 - 2 * t);
 }
 
 export function syncRope(

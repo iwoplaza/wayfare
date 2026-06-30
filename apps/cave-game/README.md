@@ -51,16 +51,20 @@ The physics world will use Matter bodies as the source of truth for movement and
 
 Current tuning in `src/physics.ts`:
 
-- Player size: `0.55 x 0.9`.
+- Player collision size: `0.55 x 0.9`.
+- Player natural visual size: `0.68 x 0.72`, stretching toward `0.46 x 1.08` while jumping upward.
 - Player/platform contact friction: `0`, so horizontal control comes from the velocity controller instead of Matter surface friction.
-- Free walk speed cap: `0.21`.
-- Grapple movement speed cap: `0.165`.
+- Movement speed scale: `0.8`.
+- Free walk speed cap: `0.168`.
+- Grapple movement speed cap: `0.132`.
 - Grapple selection range: `12.6`.
 - Velocity clamp: `{ x: 0.5, y: 0.45 }`.
 - Gravity scale: `0.0000982`.
 - Jump velocity: `-0.68`.
 - Jump lockout: `0.14s`, plus a small upward translation to break platform contact.
 - Dash velocity: `0.26`.
+- Dash gravity cancel: `0.18s`.
+- Dash visual stretch: `+42%` width and `-28%` height, easing back over the dash.
 - Slam velocity: `0.52`.
 
 ## Controls

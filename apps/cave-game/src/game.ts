@@ -7,6 +7,7 @@ import {
   createCamera,
   createGrappleRects,
   createPlatformRects,
+  playerVisualSize,
   setColor,
   spawnRect,
   spawnRope,
@@ -39,7 +40,7 @@ export function createCaveGame(root: TgpuRoot, context: GPUCanvasContext, elemen
 
   const world = engine.world;
   const camera = createCamera(world);
-  const playerRect = spawnRect(world, 0.55, 0.9, [1, 1, 1]);
+  const playerRect = spawnRect(world, playerVisualSize.width, playerVisualSize.height, [1, 1, 1]);
   const ropeRect = spawnRope(world, 0.045, [1, 0.92, 0.28]);
   const grappleRects = createGrappleRects(world, physics.grapplePoints);
 

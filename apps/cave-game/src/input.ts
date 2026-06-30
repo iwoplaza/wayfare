@@ -21,6 +21,7 @@ type KeyboardCode = 'KeyW' | 'KeyA' | 'KeyS' | 'KeyD' | 'ShiftLeft' | 'ShiftRigh
 
 const zero = (): Vec2 => ({ x: 0, y: 0 });
 const distance = (a: Vec2, b: Vec2) => Math.hypot(a.x - b.x, a.y - b.y);
+const clampUnit = (value: number) => Math.max(-1, Math.min(1, value));
 const movementCodes = new Set<KeyboardCode>(['KeyW', 'KeyA', 'KeyS', 'KeyD']);
 const actionCodes = new Set<KeyboardCode>(['Space', 'ShiftLeft', 'ShiftRight']);
 const handledCodes = new Set<KeyboardCode>([...movementCodes, ...actionCodes]);
@@ -228,11 +229,14 @@ export class InputController {
   }
 
   #setMovement(vector: Vec2) {
-    const magnitude = Math.hypot(vector.x, vector.y);
-    const scale = magnitude > 1 ? 1 / magnitude : 1;
+    const movement = {
+      x: clampUnit(vector.x),
+      y: clampUnit(vector.y),
+    };
+    const magnitude = Math.hypot(movement.x, movement.y);
 
-    this.movement.x = vector.x * scale;
-    this.movement.y = vector.y * scale;
+    this.movement.x = movement.x;
+    this.movement.y = movement.y;
 
     if (magnitude > 0.18) {
       this.look.x = this.movement.x;

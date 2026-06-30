@@ -20,14 +20,17 @@ export type PlayerSnapshot = {
   angle: number;
   velocity: Vec2;
   grounded: boolean;
+  dashSquash: number;
 };
 
-const playerSize = { width: 0.55, height: 0.9 };
-const maxFreeRunSpeed = 0.21;
-const maxGrappleRunSpeed = 0.165;
+export const playerSize = { width: 0.55, height: 0.9 };
+const movementSpeedScale = 0.8;
+const maxFreeRunSpeed = 0.21 * movementSpeedScale;
+const maxGrappleRunSpeed = 0.165 * movementSpeedScale;
 const maxSafeVelocity = { x: 0.5, y: 0.45 };
 const maxPhysicsStepMs = 1000 / 30;
 const jumpLockoutSeconds = 0.14;
+const dashGravityCancelSeconds = 0.18;
 
 export class PhysicsWorld {
   readonly engine = Matter.Engine.create();
@@ -39,6 +42,7 @@ export class PhysicsWorld {
   #activeGrapplePoint: GrapplePoint | null = null;
   #grounded = false;
   #jumpLockoutSeconds = 0;
+  #dashGravityCancelSeconds = 0;
 
   constructor() {
     this.engine.positionIterations = 8;
@@ -76,6 +80,7 @@ export class PhysicsWorld {
 
   step(deltaSeconds: number, movement: Vec2, actions: Action[]) {
     this.#jumpLockoutSeconds = Math.max(0, this.#jumpLockoutSeconds - deltaSeconds);
+    this.#dashGravityCancelSeconds = Math.max(0, this.#dashGravityCancelSeconds - deltaSeconds);
     this.#applyMovement(movement);
 
     for (const action of actions) {
@@ -83,6 +88,7 @@ export class PhysicsWorld {
     }
 
     this.#clampPlayerVelocity();
+    this.#cancelDashGravity();
     this.#stepMatter(deltaSeconds);
     this.#clampPlayerVelocity();
     this.#grounded = this.#computeGrounded();
@@ -133,6 +139,7 @@ export class PhysicsWorld {
       angle: -this.player.angle,
       velocity: { x: this.player.velocity.x, y: -this.player.velocity.y },
       grounded: this.#grounded,
+      dashSquash: this.#dashGravityCancelSeconds / dashGravityCancelSeconds,
     };
   }
 
@@ -157,15 +164,25 @@ export class PhysicsWorld {
     }
 
     if (action === 'dash-left' || action === 'dash-right') {
+      this.#dashGravityCancelSeconds = dashGravityCancelSeconds;
       Matter.Body.setVelocity(this.player, {
         x: action === 'dash-left' ? -0.26 : 0.26,
-        y: this.player.velocity.y * 0.62,
+        y: 0,
       });
     }
 
     if (action === 'slam' && !this.#grounded) {
       Matter.Body.setVelocity(this.player, { x: this.player.velocity.x * 0.3, y: 0.52 });
     }
+  }
+
+  #cancelDashGravity() {
+    if (this.#dashGravityCancelSeconds <= 0) return;
+
+    Matter.Body.applyForce(this.player, this.player.position, {
+      x: -this.engine.gravity.x * this.engine.gravity.scale * this.player.mass,
+      y: -this.engine.gravity.y * this.engine.gravity.scale * this.player.mass,
+    });
   }
 
   #stepMatter(deltaSeconds: number) {
