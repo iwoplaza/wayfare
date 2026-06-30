@@ -1,0 +1,27 @@
+{
+  "name": "cave-game",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:watch": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test:types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "koota": "catalog:",
+    "matter-js": "^0.20.0",
+    "typegpu": "catalog:",
+    "wayfare": "workspace:*",
+    "wgpu-matrix": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/matter-js": "^0.19.8",
+    "@webgpu/types": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-typegpu": "catalog:",
+    "vite": "^6.1.0"
+  },
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
+}

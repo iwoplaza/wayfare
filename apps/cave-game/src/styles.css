@@ -1,0 +1,134 @@
+:root {
+  color-scheme: dark;
+  font-family: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Menlo, monospace;
+  background: #05070a;
+  touch-action: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#game-shell {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+}
+
+#game-shell {
+  position: relative;
+  background: #05070a;
+}
+
+#game-canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+#touch-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.touch-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50vw;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.touch-zone-left {
+  left: 0;
+  background: linear-gradient(90deg, rgb(42 69 73 / 0.18), transparent 64%);
+}
+
+.touch-zone-right {
+  right: 0;
+  background: linear-gradient(270deg, rgb(74 54 44 / 0.2), transparent 64%);
+}
+
+.stick-origin,
+.stick-current {
+  position: fixed;
+  left: 0;
+  top: 0;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translate(-999px, -999px);
+  transition: opacity 120ms ease;
+}
+
+.stick-origin {
+  width: 96px;
+  height: 96px;
+  margin: -48px 0 0 -48px;
+  border: 2px solid rgb(222 235 214 / 0.34);
+  background: rgb(11 18 20 / 0.35);
+}
+
+.stick-current {
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  box-shadow: 0 0 22px rgb(255 255 255 / 0.18);
+}
+
+.stick-current-left {
+  background: #79d4c1;
+}
+
+.stick-current-right {
+  background: #f1a76d;
+}
+
+.touch-zone.active .stick-origin,
+.touch-zone.active .stick-current {
+  opacity: 1;
+}
+
+#reticle {
+  position: fixed;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 2px solid #ffe08a;
+  border-radius: 999px;
+  box-shadow: 0 0 18px #ffe08a;
+  opacity: 0;
+  transform: translate(-999px, -999px);
+  transition: opacity 120ms ease;
+}
+
+#reticle.active {
+  opacity: 1;
+}
+
+#error-panel {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 16px 18px;
+  color: #ffe8d7;
+  background: rgb(20 13 10 / 0.88);
+  border: 1px solid rgb(255 232 215 / 0.22);
+  border-radius: 8px;
+  transform: translate(-50%, -50%);
+  display: none;
+}
+
+#error-panel.active {
+  display: block;
+}

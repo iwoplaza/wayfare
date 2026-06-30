@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "noEmit": true,
+    "types": ["@webgpu/types", "vite/client"]
+  },
+  "include": ["src/**/*.ts", "vite.config.ts"]
+}

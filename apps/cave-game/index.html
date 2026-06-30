@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>cave-game</title>
+  </head>
+  <body>
+    <main id="game-shell">
+      <canvas id="game-canvas"></canvas>
+      <div id="touch-layer" aria-hidden="true">
+        <div id="left-zone" class="touch-zone touch-zone-left">
+          <div id="left-origin" class="stick-origin"></div>
+          <div id="left-current" class="stick-current stick-current-left"></div>
+        </div>
+        <div id="right-zone" class="touch-zone touch-zone-right">
+          <div id="right-origin" class="stick-origin"></div>
+          <div id="right-current" class="stick-current stick-current-right"></div>
+        </div>
+        <div id="reticle"></div>
+      </div>
+      <div id="error-panel" role="alert"></div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
