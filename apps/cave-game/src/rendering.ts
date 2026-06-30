@@ -1,6 +1,6 @@
 import type { Entity, World } from 'koota';
-import tgpu, { d } from 'typegpu';
-import { vec3f, vec4f } from 'typegpu/data';
+import tgpu, { d, std } from 'typegpu';
+import { vec2f, vec3f, vec4f } from 'typegpu/data';
 import * as wf from 'wayfare';
 import { quat } from 'wgpu-matrix';
 import { playerSize, type GrapplePoint, type PlatformDef, type PlayerSnapshot } from './physics.ts';
@@ -31,6 +31,13 @@ const ColorParamsSchema = d.struct({
   albedo: d.vec3f,
 });
 
+const RopeParamsSchema = d.struct({
+  start: d.vec2f,
+  end: d.vec2f,
+  thickness: d.f32,
+  albedo: d.vec3f,
+});
+
 const FlatColorMaterial = wf.createMaterial({
   paramsSchema: ColorParamsSchema,
   paramsDefaults: { albedo: d.vec3f(1, 1, 1) },
@@ -48,6 +55,61 @@ const FlatColorMaterial = wf.createMaterial({
       'use gpu';
       const worldPos = $$.modelMat * d.vec4f(input.pos, 1);
       return { pos: $$.viewProjMat * worldPos };
+    });
+
+    const fragmentFn = tgpu.fragmentFn({
+      out: d.vec4f,
+    })(() => {
+      'use gpu';
+      return d.vec4f($$.params.albedo, 1);
+    });
+
+    return {
+      pipeline: root.createRenderPipeline({
+        attribs: wf.POS_NORMAL_UV.attrib,
+        vertex: vertexFn,
+        fragment: fragmentFn,
+        targets: { format },
+        primitive: { topology: 'triangle-list' },
+        depthStencil: {
+          depthWriteEnabled: true,
+          depthCompare: 'less',
+          format: 'depth24plus',
+        },
+      }),
+    };
+  },
+});
+
+const RopeMaterial = wf.createMaterial({
+  paramsSchema: RopeParamsSchema,
+  paramsDefaults: {
+    start: d.vec2f(),
+    end: d.vec2f(),
+    thickness: 0.001,
+    albedo: d.vec3f(1, 1, 1),
+  },
+  vertexLayout: wf.POS_NORMAL_UV,
+
+  createPipeline({ root, format, $$ }) {
+    const vertexFn = tgpu.vertexFn({
+      in: {
+        pos: d.vec3f,
+        normal: d.vec3f,
+        uv: d.vec2f,
+      },
+      out: { pos: d.builtin.position },
+    })((input) => {
+      'use gpu';
+      const line = $$.params.end - $$.params.start;
+      const lineLength = std.max(std.length(line), 0.0001);
+      const forward = line / lineLength;
+      const normal = d.vec2f(-forward.y, forward.x);
+      const along = input.pos.x + 0.5;
+      const side = input.pos.y * $$.params.thickness;
+      const worldPos = $$.params.start + line * along + normal * side;
+
+      return { pos: $$.viewProjMat * d.vec4f(worldPos.x, worldPos.y, 0, 1) };
     });
 
     const fragmentFn = tgpu.fragmentFn({
@@ -112,9 +174,14 @@ export function spawnRope(
 ): RopeEntity {
   const parent = world.spawn(wf.TransformTrait());
   const child = world.spawn(
-    wf.TransformTrait({ scale: vec3f(0.001, thickness, 1) }),
+    wf.TransformTrait(),
     wf.MeshTrait(rectangleMesh),
-    ...FlatColorMaterial.Bundle({ albedo: vec3f(...color) }),
+    ...RopeMaterial.Bundle({
+      start: vec2f(),
+      end: vec2f(),
+      thickness,
+      albedo: vec3f(...color),
+    }),
   );
 
   wf.connectAsChild(parent, child);
@@ -191,28 +258,37 @@ export function syncRope(
 ) {
   const parentTransform = wf.getOrThrow(rope.parent, wf.TransformTrait);
   const childTransform = wf.getOrThrow(rope.child, wf.TransformTrait);
+  const params = wf.getOrThrow(rope.child, RopeMaterial.Params);
 
   if (!selected || !active) {
     parentTransform.position.x = 0;
     parentTransform.position.y = 0;
     parentTransform.position.z = 0;
     parentTransform.rotation = quat.identity(vec4f());
-    childTransform.scale.x = 0.001;
-    childTransform.scale.y = 0.001;
+    childTransform.position.x = 0;
+    childTransform.position.y = 0;
+    childTransform.position.z = 0;
+    childTransform.rotation = quat.identity(vec4f());
+    params.start = vec2f();
+    params.end = vec2f();
+    params.thickness = 0.001;
     return;
   }
 
   const dx = selected.x - player.x;
   const dy = selected.y - player.y;
-  const length = Math.hypot(dx, dy);
-  const angle = Math.atan2(dy, dx);
 
-  parentTransform.position.x = player.x + dx / 2;
-  parentTransform.position.y = player.y + dy / 2;
+  parentTransform.position.x = 0;
+  parentTransform.position.y = 0;
   parentTransform.position.z = 0;
-  parentTransform.rotation = quat.fromEuler(0, 0, angle, 'xyz', vec4f());
-  childTransform.scale.x = length;
-  childTransform.scale.y = rope.thickness;
+  parentTransform.rotation = quat.identity(vec4f());
+  childTransform.position.x = 0;
+  childTransform.position.y = 0;
+  childTransform.position.z = 0;
+  childTransform.rotation = quat.identity(vec4f());
+  params.start = vec2f(player.x, player.y);
+  params.end = vec2f(player.x + dx, player.y + dy);
+  params.thickness = rope.thickness;
 }
 
 export function updateCameraBounds(camera: Entity, width: number, height: number) {

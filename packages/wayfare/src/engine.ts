@@ -120,8 +120,8 @@ export class Engine {
 
         mat4.identity(matrices.local);
         mat4.translate(matrices.local, transform.position, matrices.local);
-        mat4.scale(matrices.local, transform.scale, matrices.local);
         mat4.multiply(matrices.local, mat4.fromQuat(transform.rotation), matrices.local);
+        mat4.scale(matrices.local, transform.scale, matrices.local);
 
         // Parent-child relationship
         const parent = this.world.queryFirst(ParentOf(entity));
