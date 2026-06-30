@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev:watch": "vite --host 0.0.0.0",
+    "dev:https": "vite --host 0.0.0.0 --mode https",
     "build": "vite build",
     "preview": "vite preview",
     "test:types": "tsc --noEmit"
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@types/matter-js": "^0.19.8",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@webgpu/types": "catalog:",
     "typescript": "catalog:",
     "unplugin-typegpu": "catalog:",

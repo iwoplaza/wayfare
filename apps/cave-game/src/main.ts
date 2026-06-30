@@ -7,6 +7,29 @@ const errorPanel = document.getElementById('error-panel') as HTMLElement;
 
 const elementById = (id: string) => document.getElementById(id) as HTMLElement;
 
+function syncAppHeight() {
+  const height = `${window.innerHeight}px`;
+  document.documentElement.style.setProperty('--app-height', height);
+  document.body.style.height = height;
+}
+
+function preventTouchScroll(event: TouchEvent) {
+  if (event.cancelable) {
+    event.preventDefault();
+  }
+}
+
+function installIosFullscreenWorkaround() {
+  syncAppHeight();
+  document.addEventListener('touchmove', preventTouchScroll, { passive: false });
+  window.addEventListener('pageshow', syncAppHeight);
+  window.addEventListener('resize', syncAppHeight);
+  window.addEventListener('orientationchange', () => {
+    requestAnimationFrame(syncAppHeight);
+    window.setTimeout(syncAppHeight, 250);
+  });
+}
+
 function showError(message: string) {
   errorPanel.textContent = message;
   errorPanel.classList.add('active');
@@ -37,6 +60,7 @@ async function main() {
   });
 
   const resize = () => {
+    syncAppHeight();
     const ratio = window.devicePixelRatio || 1;
     const width = Math.max(1, Math.floor(window.innerWidth * ratio));
     const height = Math.max(1, Math.floor(window.innerHeight * ratio));
@@ -50,6 +74,8 @@ async function main() {
   window.addEventListener('orientationchange', resize);
   game.start();
 }
+
+installIosFullscreenWorkaround();
 
 main().catch((error: unknown) => {
   showError(error instanceof Error ? error.message : 'Unable to start cave-game.');

@@ -31,6 +31,12 @@ From the repo root:
 pnpm --filter cave-game dev:watch
 ```
 
+For HTTPS access from another device on the same network:
+
+```sh
+pnpm --filter cave-game dev:https
+```
+
 If `pnpm` tries to use the wrong version, use Corepack:
 
 ```sh
