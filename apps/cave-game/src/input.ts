@@ -22,6 +22,10 @@ type KeyboardCode = 'KeyW' | 'KeyA' | 'KeyS' | 'KeyD' | 'ShiftLeft' | 'ShiftRigh
 const zero = (): Vec2 => ({ x: 0, y: 0 });
 const distance = (a: Vec2, b: Vec2) => Math.hypot(a.x - b.x, a.y - b.y);
 const clampUnit = (value: number) => Math.max(-1, Math.min(1, value));
+const rightHoldDelayMs = 170;
+const rightHoldDeadzone = 22;
+const rightSwipeThreshold = 58;
+const rightHeldDashThreshold = 48;
 const movementCodes = new Set<KeyboardCode>(['KeyW', 'KeyA', 'KeyS', 'KeyD']);
 const actionCodes = new Set<KeyboardCode>(['Space', 'ShiftLeft', 'ShiftRight']);
 const handledCodes = new Set<KeyboardCode>([...movementCodes, ...actionCodes]);
@@ -36,6 +40,7 @@ export class InputController {
   #rightStartedAt = 0;
   #rightConsumedSwipe = false;
   #rightHoldReady = false;
+  #rightHeldDashDirection = 0;
   #pressedKeys = new Set<KeyboardCode>();
 
   constructor(
@@ -65,7 +70,7 @@ export class InputController {
     const elapsed = performance.now() - this.#rightStartedAt;
     const moved = distance(this.#right.origin, this.#right.current);
 
-    if (elapsed > 170 && moved < 22) {
+    if (elapsed > rightHoldDelayMs && moved < rightHoldDeadzone) {
       this.#rightHoldReady = true;
     }
   }
@@ -106,6 +111,7 @@ export class InputController {
       this.#rightStartedAt = performance.now();
       this.#rightConsumedSwipe = false;
       this.#rightHoldReady = false;
+      this.#rightHeldDashDirection = 0;
       this.#startStick(event, this.#right, this.rightElements);
     });
 
@@ -113,6 +119,7 @@ export class InputController {
       if (event.pointerId !== this.#right.pointerId) return;
       this.#moveStick(event, this.#right, this.rightElements);
       this.#tryConsumeSwipe();
+      this.#tryHeldDash();
     });
 
     this.rightElements.zone.addEventListener('pointerup', (event) => this.#endRight(event));
@@ -150,6 +157,7 @@ export class InputController {
     if (event.pointerId !== this.#right.pointerId) return;
     this.#right.pointerId = null;
     this.#rightHoldReady = false;
+    this.#rightHeldDashDirection = 0;
     this.rightElements.zone.classList.remove('active');
   }
 
@@ -166,7 +174,7 @@ export class InputController {
 
     const dx = this.#right.current.x - this.#right.origin.x;
     const dy = this.#right.current.y - this.#right.origin.y;
-    if (Math.hypot(dx, dy) < 58) return;
+    if (Math.hypot(dx, dy) < rightSwipeThreshold) return;
 
     this.#rightConsumedSwipe = true;
     if (Math.abs(dx) > Math.abs(dy)) {
@@ -175,6 +183,26 @@ export class InputController {
     }
 
     this.#actions.push(dy < 0 ? 'jump' : 'slam');
+  }
+
+  #tryHeldDash() {
+    if (!this.#rightHoldReady || this.#rightConsumedSwipe) return;
+
+    const dx = this.#right.current.x - this.#right.origin.x;
+    const dy = this.#right.current.y - this.#right.origin.y;
+
+    if (Math.abs(dx) < rightHoldDeadzone) {
+      this.#rightHeldDashDirection = 0;
+      return;
+    }
+
+    if (Math.abs(dx) < rightHeldDashThreshold || Math.abs(dx) <= Math.abs(dy)) return;
+
+    const direction = dx > 0 ? 1 : -1;
+    if (direction === this.#rightHeldDashDirection) return;
+
+    this.#rightHeldDashDirection = direction;
+    this.#actions.push(direction > 0 ? 'dash-right' : 'dash-left');
   }
 
   #handleKeyDown = (event: KeyboardEvent) => {

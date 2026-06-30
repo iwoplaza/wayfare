@@ -84,6 +84,7 @@ Right touch gestures:
 - Right swipe: dash right.
 - Down swipe: ground slam.
 - Tap and hold: attach the grappling hook to the currently selected grapple point.
+- While holding the grapple: drag left or right to dash without releasing the rope.
 
 Pointer input will also work with mouse for desktop testing.
 
