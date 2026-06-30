@@ -41,6 +41,7 @@ export class PhysicsWorld {
   #grappleConstraint: Matter.Constraint | null = null;
   #activeGrapplePoint: GrapplePoint | null = null;
   #grounded = false;
+  #airDashAvailable = true;
   #jumpLockoutSeconds = 0;
   #dashGravityCancelSeconds = 0;
 
@@ -92,10 +93,14 @@ export class PhysicsWorld {
     this.#stepMatter(deltaSeconds);
     this.#clampPlayerVelocity();
     this.#grounded = this.#computeGrounded();
+    if (this.#grounded) {
+      this.#airDashAvailable = true;
+    }
 
     if (this.player.position.y > 16) {
       Matter.Body.setPosition(this.player, { x: -5.8, y: 2.2 });
       Matter.Body.setVelocity(this.player, { x: 0, y: 0 });
+      this.#airDashAvailable = true;
       this.releaseGrapple();
     }
   }
@@ -164,6 +169,11 @@ export class PhysicsWorld {
     }
 
     if (action === 'dash-left' || action === 'dash-right') {
+      if (!this.#grounded) {
+        if (!this.#airDashAvailable) return;
+        this.#airDashAvailable = false;
+      }
+
       this.#dashGravityCancelSeconds = dashGravityCancelSeconds;
       Matter.Body.setVelocity(this.player, {
         x: action === 'dash-left' ? -0.26 : 0.26,

@@ -63,6 +63,7 @@ Current tuning in `src/physics.ts`:
 - Jump velocity: `-0.68`.
 - Jump lockout: `0.14s`, plus a small upward translation to break platform contact.
 - Dash velocity: `0.26`.
+- Air dash: one dash before touching the ground again.
 - Dash gravity cancel: `0.18s`.
 - Dash visual stretch: `+42%` width and `-28%` height, easing back over the dash.
 - Slam velocity: `0.52`.
