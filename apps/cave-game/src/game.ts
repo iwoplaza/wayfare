@@ -1,6 +1,7 @@
 import type { TgpuRoot } from 'typegpu';
 import * as wf from 'wayfare';
 import { Engine, Renderer } from 'wayfare';
+import { createDashParticles } from './dash-particles.ts';
 import { InputController, type Vec2 } from './input.ts';
 import { PhysicsWorld, type GrapplePoint } from './physics.ts';
 import {
@@ -41,6 +42,7 @@ export function createCaveGame(root: TgpuRoot, context: GPUCanvasContext, elemen
   const world = engine.world;
   const camera = createCamera(world);
   const playerRect = spawnRect(world, playerVisualSize.width, playerVisualSize.height, [1, 1, 1]);
+  const dashParticles = createDashParticles(world, root);
   const ropeRect = spawnRope(world, 0.045, [1, 0.92, 0.28]);
   const grappleRects = createGrappleRects(world, physics.grapplePoints);
 
@@ -76,9 +78,13 @@ export function createCaveGame(root: TgpuRoot, context: GPUCanvasContext, elemen
           physics.releaseGrapple();
         }
 
-        physics.step(deltaSeconds, input.movement, input.consumeActions());
+        const stepResult = physics.step(deltaSeconds, input.movement, input.consumeActions());
 
         const player = physics.getPlayerSnapshot();
+        if (stepResult.dashDirection !== 0) {
+          dashParticles.emit(player, stepResult.dashDirection);
+        }
+        dashParticles.update(deltaSeconds);
         const displayedGrapple = physics.activeGrapplePoint ?? selected;
         syncPlayer(playerRect, player);
         syncRope(ropeRect, player, displayedGrapple, physics.activeGrapple !== null);

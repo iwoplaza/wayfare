@@ -23,6 +23,12 @@ export type PlayerSnapshot = {
   dashSquash: number;
 };
 
+export type DashDirection = -1 | 0 | 1;
+
+export type PhysicsStepResult = {
+  dashDirection: DashDirection;
+};
+
 export const playerSize = { width: 0.55, height: 0.9 };
 const movementSpeedScale = 0.8;
 const maxFreeRunSpeed = 0.21 * movementSpeedScale;
@@ -30,6 +36,7 @@ const maxGrappleRunSpeed = 0.165 * movementSpeedScale;
 const maxSafeVelocity = { x: 0.5, y: 0.45 };
 const maxPhysicsStepMs = 1000 / 30;
 const jumpLockoutSeconds = 0.14;
+const coyoteTimeSeconds = 0.11;
 const dashGravityCancelSeconds = 0.18;
 
 export class PhysicsWorld {
@@ -42,6 +49,7 @@ export class PhysicsWorld {
   #activeGrapplePoint: GrapplePoint | null = null;
   #grounded = false;
   #airDashAvailable = true;
+  #coyoteTimeSeconds = 0;
   #jumpLockoutSeconds = 0;
   #dashGravityCancelSeconds = 0;
 
@@ -79,13 +87,19 @@ export class PhysicsWorld {
     Matter.Composite.add(this.engine.world, body);
   }
 
-  step(deltaSeconds: number, movement: Vec2, actions: Action[]) {
+  step(deltaSeconds: number, movement: Vec2, actions: Action[]): PhysicsStepResult {
+    let dashDirection: DashDirection = 0;
+
+    this.#coyoteTimeSeconds = Math.max(0, this.#coyoteTimeSeconds - deltaSeconds);
     this.#jumpLockoutSeconds = Math.max(0, this.#jumpLockoutSeconds - deltaSeconds);
     this.#dashGravityCancelSeconds = Math.max(0, this.#dashGravityCancelSeconds - deltaSeconds);
     this.#applyMovement(movement);
 
     for (const action of actions) {
-      this.#applyAction(action);
+      const actionDashDirection = this.#applyAction(action);
+      if (actionDashDirection !== 0) {
+        dashDirection = actionDashDirection;
+      }
     }
 
     this.#clampPlayerVelocity();
@@ -95,14 +109,18 @@ export class PhysicsWorld {
     this.#grounded = this.#computeGrounded();
     if (this.#grounded) {
       this.#airDashAvailable = true;
+      this.#coyoteTimeSeconds = coyoteTimeSeconds;
     }
 
     if (this.player.position.y > 16) {
       Matter.Body.setPosition(this.player, { x: -5.8, y: 2.2 });
       Matter.Body.setVelocity(this.player, { x: 0, y: 0 });
       this.#airDashAvailable = true;
+      this.#coyoteTimeSeconds = 0;
       this.releaseGrapple();
     }
+
+    return { dashDirection };
   }
 
   holdGrapple(selected: GrapplePoint | null) {
@@ -160,9 +178,10 @@ export class PhysicsWorld {
     });
   }
 
-  #applyAction(action: Action) {
-    if (action === 'jump' && this.#grounded) {
+  #applyAction(action: Action): DashDirection {
+    if (action === 'jump' && this.#canJump()) {
       this.#grounded = false;
+      this.#coyoteTimeSeconds = 0;
       this.#jumpLockoutSeconds = jumpLockoutSeconds;
       Matter.Body.translate(this.player, { x: 0, y: -0.08 });
       Matter.Body.setVelocity(this.player, { x: this.player.velocity.x, y: -0.68 });
@@ -170,7 +189,7 @@ export class PhysicsWorld {
 
     if (action === 'dash-left' || action === 'dash-right') {
       if (!this.#grounded) {
-        if (!this.#airDashAvailable) return;
+        if (!this.#airDashAvailable) return 0;
         this.#airDashAvailable = false;
       }
 
@@ -179,11 +198,18 @@ export class PhysicsWorld {
         x: action === 'dash-left' ? -0.26 : 0.26,
         y: 0,
       });
+      return action === 'dash-left' ? -1 : 1;
     }
 
     if (action === 'slam' && !this.#grounded) {
       Matter.Body.setVelocity(this.player, { x: this.player.velocity.x * 0.3, y: 0.52 });
     }
+
+    return 0;
+  }
+
+  #canJump() {
+    return this.#grounded || this.#coyoteTimeSeconds > 0;
   }
 
   #cancelDashGravity() {
