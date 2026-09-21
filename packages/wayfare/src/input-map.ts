@@ -50,10 +50,7 @@ type StateCatalog = {
   xy: XYState;
 };
 
-type StateForDef<TDef extends ControlDef> = StateCatalog[Default<
-  TDef['type'],
-  'linear'
->];
+type StateForDef<TDef extends ControlDef> = StateCatalog[Default<TDef['type'], 'linear'>];
 
 type InputMap<TControlDefs extends ControlDefs> = {
   readonly [K in keyof TControlDefs]: StateForDef<TControlDefs[K]>;

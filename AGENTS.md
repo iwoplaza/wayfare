@@ -1,11 +1,13 @@
 # Agent Instructions
 
 ## Commands
+
 - Build/Watch: `pnpm dev` (builds all packages and watches for changes)
 - Lint/Format: `pnpm check` (check only), `pnpm fix` (auto-fix)
 - Package commands should be run with `-r` flag: `pnpm -r test`
 
 ## Code Style
+
 - Use kebab-case for .ts filenames (e.g. `my-code-file.ts`)
 - Use Biome for formatting and linting
 - TypeScript with strict mode enabled

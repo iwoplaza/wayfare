@@ -1,8 +1,4 @@
-import {
-  type Joystick,
-  getJoysticks,
-  mountJoystickArea,
-} from '@manapotion/vanilla';
+import { type Joystick, getJoysticks, mountJoystickArea } from '@manapotion/vanilla';
 
 export function createJoystick() {
   const areaEl = document.getElementById('joystick-area') as HTMLElement;
