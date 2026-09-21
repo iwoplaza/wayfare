@@ -1,4 +1,12 @@
-import type { TgpuBindGroup, TgpuBuffer, TgpuRoot, UniformFlag, VertexFlag } from 'typegpu';
+import type {
+  ColorAttachment,
+  DepthStencilAttachment,
+  TgpuBindGroup,
+  TgpuBuffer,
+  TgpuRoot,
+  UniformFlag,
+  VertexFlag,
+} from 'typegpu';
 import {
   type AnyWgslData,
   type Disarray,
@@ -46,8 +54,8 @@ type ObjectResources = {
 
 type RenderOverrides = {
   material?: Material;
-  colorAttachments?: GPURenderPassColorAttachment[];
-  depthStencilAttachment?: GPURenderPassDepthStencilAttachment | undefined;
+  colorAttachments?: ColorAttachment[];
+  depthStencilAttachment?: DepthStencilAttachment | undefined;
   filterObjects?: ((entityId: number) => boolean) | undefined;
 };
 
@@ -216,70 +224,71 @@ export class Renderer {
 
     const targetView = this.context.getCurrentTexture().createView();
 
-    this.root['~unstable'].beginRenderPass(
-      {
-        colorAttachments: overrides?.colorAttachments ?? [
-          {
-            view: targetView,
-            loadOp: 'clear',
-            storeOp: 'store',
-            clearValue: this.#cameraConfig?.clearColor ?? {
-              r: 0.0,
-              g: 0.0,
-              b: 0.0,
-              a: 1.0,
-            },
+    const encoder = this.root['~unstable'].createCommandEncoder();
+    const pass = encoder.beginRenderPass({
+      colorAttachments: overrides?.colorAttachments ?? [
+        {
+          view: targetView,
+          loadOp: 'clear',
+          storeOp: 'store',
+          clearValue: this.#cameraConfig?.clearColor ?? {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
+            a: 1.0,
           },
-        ],
-        depthStencilAttachment: overrides?.depthStencilAttachment ?? {
-          view: this.#viewport.depthTextureView,
-          depthLoadOp: 'clear',
-          depthStoreOp: 'store',
-          depthClearValue: 1.0,
         },
+      ],
+      depthStencilAttachment: overrides?.depthStencilAttachment ?? {
+        view: this.#viewport.depthTextureView,
+        depthLoadOp: 'clear',
+        depthStoreOp: 'store',
+        depthClearValue: 1.0,
       },
-      (pass) => {
-        for (const obj of this.#objects) {
-          if (overrides?.filterObjects && !overrides?.filterObjects(obj.id)) {
-            continue;
-          }
+    });
 
-          const mesh = obj.meshAsset.peek(this.root);
-          if (!mesh) {
-            // Mesh is not loaded yet...
-            continue;
-          }
+    for (const obj of this.#objects) {
+      if (overrides?.filterObjects && !overrides?.filterObjects(obj.id)) {
+        continue;
+      }
 
-          const overrideMaterial = overrides?.material;
-          const realMaterial = overrideMaterial ?? obj.material;
-          const pipeline = realMaterial.getPipeline(this.root, this.#presentationFormat);
+      const mesh = obj.meshAsset.peek(this.root);
+      if (!mesh) {
+        // Mesh is not loaded yet...
+        continue;
+      }
 
-          const { uniformsBindGroup, instanceParamsBindGroup } = this.#resourcesFor(obj);
+      const overrideMaterial = overrides?.material;
+      const realMaterial = overrideMaterial ?? obj.material;
+      const pipeline = realMaterial.getPipeline(this.root, this.#presentationFormat);
 
-          pass.setPipeline(pipeline);
-          pass.setBindGroup(sharedBindGroupLayout, this.#sharedBindGroup);
-          pass.setBindGroup(uniformsBindGroupLayout, uniformsBindGroup);
-          pass.setVertexBuffer(realMaterial.vertexLayout, mesh.vertexBuffer);
+      const { uniformsBindGroup, instanceParamsBindGroup } = this.#resourcesFor(obj);
 
-          if (!overrides?.material && obj.material.paramsLayout && instanceParamsBindGroup) {
-            pass.setBindGroup(obj.material.paramsLayout, instanceParamsBindGroup);
-          }
+      pass.setPipeline(pipeline);
+      pass.setBindGroup(sharedBindGroupLayout, this.#sharedBindGroup);
+      pass.setBindGroup(uniformsBindGroupLayout, uniformsBindGroup);
+      pass.setVertexBuffer(realMaterial.vertexLayout, mesh.vertexBuffer);
 
-          if (realMaterial.instanceLayout && obj.instanceBuffer) {
-            pass.setVertexBuffer(realMaterial.instanceLayout, obj.instanceBuffer);
-          }
+      if (!overrides?.material && obj.material.paramsLayout && instanceParamsBindGroup) {
+        pass.setBindGroup(obj.material.paramsLayout, instanceParamsBindGroup);
+      }
 
-          if (obj.extraBinding) {
-            pass.setBindGroup(obj.extraBinding.layout, obj.extraBinding);
-          }
+      if (realMaterial.instanceLayout && obj.instanceBuffer) {
+        pass.setVertexBuffer(realMaterial.instanceLayout, obj.instanceBuffer);
+      }
 
-          pass.draw(
-            mesh.vertexCount,
-            obj.instanceBuffer ? obj.instanceBuffer.dataType.elementCount : undefined,
-          );
-        }
-      },
-    );
+      if (obj.extraBinding) {
+        pass.setBindGroup(obj.extraBinding.layout, obj.extraBinding);
+      }
+
+      pass.draw(
+        mesh.vertexCount,
+        obj.instanceBuffer ? obj.instanceBuffer.dataType.elementCount : undefined,
+      );
+    }
+
+    pass.end();
+    encoder.submit();
 
     // In react-native-wgpu, we have to call `context.present` in order
     // to show what's been drawn to the canvas.

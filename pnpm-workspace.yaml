@@ -3,10 +3,11 @@ packages:
   - packages/**
 
 catalog:
+  '@typegpu/react': 0.12.0
   '@webgpu/types': ^0.1.68
-  typegpu: 0.11.8
-  typescript: npm:tsover@6.0.0
-  unplugin-typegpu: ^0.11.5
+  typegpu: 0.12.4
+  typescript: npm:tsover@6.0.2
+  unplugin-typegpu: ^0.12.3
   koota: 0.5.1
 
 catalogs:

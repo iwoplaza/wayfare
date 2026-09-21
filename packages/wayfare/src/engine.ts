@@ -143,11 +143,12 @@ export class Engine {
       });
 
       // "Adding objects to the renderer" system
-      this.world.query(Added(MeshTrait)).updateEach(([meshAsset], entity) => {
+      this.world.query(Added(MeshTrait)).updateEach((_, entity) => {
         if (!entity.has(TransformTrait)) {
           throw new Error('Entities with meshes require a TransformTrait');
         }
 
+        const meshAsset = getOrThrow(entity, MeshTrait);
         const matrices = getOrThrow(entity, MatricesTrait);
 
         let material: Material = DefaultMaterial;

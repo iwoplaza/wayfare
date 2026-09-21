@@ -10,7 +10,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@typegpu/react": "0.10.0-alpha.8",
+    "@typegpu/react": "catalog:",
     "bionic-jolt-common": "workspace:^",
     "expo": "55.0.14",
     "expo-status-bar": "55.0.5",

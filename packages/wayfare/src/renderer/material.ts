@@ -41,7 +41,7 @@ export interface Material<TParams extends d.BaseWgslData = d.BaseWgslData> {
   readonly vertexLayout: TgpuVertexLayout;
   readonly instanceLayout: TgpuVertexLayout | undefined;
   readonly paramsDefaults: d.Infer<TParams> | undefined;
-  getPipeline(root: TgpuRoot, format: GPUTextureFormat): TgpuRenderPipeline<d.Vec4f>;
+  getPipeline(root: TgpuRoot, format: GPUTextureFormat): TgpuRenderPipeline;
 }
 
 export const UniformsStruct: d.WgslStruct<{
@@ -185,7 +185,7 @@ export function createMaterial<
     instanceLayout,
     createPipeline,
   } = options;
-  const pipelineStore = new WeakMap<TgpuRoot, TgpuRenderPipeline<d.Vec4f>>();
+  const pipelineStore = new WeakMap<TgpuRoot, TgpuRenderPipeline>();
 
   if (bindings && 'params' in bindings) {
     throw new Error(
@@ -210,7 +210,7 @@ export function createMaterial<
     instanceLayout,
     paramsDefaults,
 
-    getPipeline(root: TgpuRoot, format: GPUTextureFormat): TgpuRenderPipeline<d.Vec4f> {
+    getPipeline(root: TgpuRoot, format: GPUTextureFormat): TgpuRenderPipeline {
       const memo = pipelineStore.get(root);
       if (memo) {
         return memo;
